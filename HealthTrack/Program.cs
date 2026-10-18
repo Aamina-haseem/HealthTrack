@@ -1,4 +1,5 @@
 using HealthTrack.Data;
+using HealthTrack.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +11,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+// Identity setup: custom user, roles enabled, and stronger security rules
+builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false;      // no email server in this project
+    options.Password.RequiredLength = 8;                 // stronger passwords
+    options.Lockout.MaxFailedAccessAttempts = 5;         // lock account after 5 wrong attempts
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+})
+    .AddRoles<IdentityRole>()                                // enables Client / Trainer / Admin roles
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 
@@ -31,8 +40,8 @@ else
 app.UseHttpsRedirection();
 app.UseRouting();
 
-app.UseAuthorization();
-
+app.UseAuthentication();   // who are you? (must come before authorization)
+app.UseAuthorization();    // what are you allowed to do?
 app.MapStaticAssets();
 
 app.MapControllerRoute(
