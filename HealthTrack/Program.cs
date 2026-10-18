@@ -2,6 +2,8 @@ using HealthTrack.Data;
 using HealthTrack.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using HealthTrack.Repositories;
+using HealthTrack.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +24,9 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
     .AddRoles<IdentityRole>()                                // enables Client / Trainer / Admin roles
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+// Repository pattern: register the generic repository for dependency injection.
+// Any controller can now ask for IRepository<SomeEntity> in its constructor.
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 var app = builder.Build();
 
