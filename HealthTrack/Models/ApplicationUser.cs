@@ -23,7 +23,10 @@ namespace HealthTrack.Models
         public DateTime? DateOfBirth { get; set; }
 
         [StringLength(10)]
-        public string? Gender { get; set; }
+        public string? Gender { get; set; }        // Only used for Trainers, e.g. "Fitness Trainer", "Nutritionist", "Physiotherapist"
+        [StringLength(50)]
+        public string? Specialization { get; set; }
+
 
         // Used by the Admin dashboard to show user activity
         public DateTime CreatedAt { get; set; } = DateTime.Now;
