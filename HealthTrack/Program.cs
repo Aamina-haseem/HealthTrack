@@ -22,12 +22,12 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 // 2. IDENTITY (login, registration, roles)
 // ---------------------------------------------------------------
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
-    {
-        options.SignIn.RequireConfirmedAccount = false;      // no email server in this project
-        options.Password.RequiredLength = 8;                 // stronger passwords
-        options.Lockout.MaxFailedAccessAttempts = 5;         // lock account after 5 wrong attempts
-        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-    })
+{
+    options.SignIn.RequireConfirmedAccount = false;      // no email server in this project
+    options.Password.RequiredLength = 8;                 // stronger passwords
+    options.Lockout.MaxFailedAccessAttempts = 5;         // lock account after 5 wrong attempts
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+})
     .AddRoles<IdentityRole>()                                // enables Client / Trainer / Admin roles
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -56,7 +56,15 @@ builder.Services.AddScoped<IHealthMeasurementRepository, HealthMeasurementReposi
 var app = builder.Build();
 
 // ---------------------------------------------------------------
-// 5. HTTP REQUEST PIPELINE
+// 5. SEED DATA (roles, test accounts, demo records)
+// ---------------------------------------------------------------
+using (var scope = app.Services.CreateScope())
+{
+    await DbSeeder.SeedAsync(scope.ServiceProvider);
+}
+
+// ---------------------------------------------------------------
+// 6. HTTP REQUEST PIPELINE
 // ---------------------------------------------------------------
 if (app.Environment.IsDevelopment())
 {
