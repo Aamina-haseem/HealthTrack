@@ -69,8 +69,8 @@ else {
             data: {
                 labels: minutesData.map(c => c.name),
                 datasets: [
-                    { label: 'Workout minutes', data: minutesData.map(c => c.minutes), yAxisID: 'y', borderColor: '#C97B4A', backgroundColor: 'rgba(201, 123, 74, 0.85)', borderRadius: 6 },
-                    { label: 'Calories burned (kcal)', data: minutesData.map(c => c.calories), yAxisID: 'y1', borderColor: '#D6C3A5', backgroundColor: 'rgba(214, 195, 165, 0.85)', borderRadius: 6 }
+                    { label: 'Workout minutes', data: minutesData.map(c => c.minutes), yAxisID: 'y', borderColor: '#0B6FD6', backgroundColor: 'rgba(11, 111, 214, 0.85)', borderRadius: 6 },
+                    { label: 'Calories burned (kcal)', data: minutesData.map(c => c.calories), yAxisID: 'y1', borderColor: '#6FB8F8', backgroundColor: 'rgba(111, 184, 248, 0.85)', borderRadius: 6 }
                 ]
             },
             options: {
@@ -89,7 +89,7 @@ else {
             type: 'bar',
             data: {
                 labels: activityData.map(a => a.activity),
-                datasets: [{ label: 'Sessions logged', data: activityData.map(a => a.sessions), borderColor: '#C97B4A', backgroundColor: 'rgba(201, 123, 74, 0.85)', borderRadius: 6 }]
+                datasets: [{ label: 'Sessions logged', data: activityData.map(a => a.sessions), borderColor: '#0B6FD6', backgroundColor: 'rgba(11, 111, 214, 0.85)', borderRadius: 6 }]
             },
             options: {
                 indexAxis: 'y',

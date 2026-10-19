@@ -93,8 +93,8 @@ else { <div class="table-responsive"><table class="table table-sm table-striped"
             data: {
                 labels: weightPoints.map(p => p.date),
                 datasets: [
-                    { label: 'Weight (kg)', data: weightPoints.map(p => p.weight), yAxisID: 'y', borderColor: '#C97B4A', backgroundColor: 'rgba(201, 123, 74, 0.85)', pointRadius: 4, tension: 0.2 },
-                    { label: 'BMI', data: weightPoints.map(p => p.bmi), yAxisID: 'y1', borderColor: '#D6C3A5', backgroundColor: 'rgba(214, 195, 165, 0.85)', pointRadius: 4, tension: 0.2 }
+                    { label: 'Weight (kg)', data: weightPoints.map(p => p.weight), yAxisID: 'y', borderColor: '#0B6FD6', backgroundColor: 'rgba(11, 111, 214, 0.85)', pointRadius: 4, tension: 0.2 },
+                    { label: 'BMI', data: weightPoints.map(p => p.bmi), yAxisID: 'y1', borderColor: '#6FB8F8', backgroundColor: 'rgba(111, 184, 248, 0.85)', pointRadius: 4, tension: 0.2 }
                 ]
             },
             options: {
@@ -114,8 +114,8 @@ else { <div class="table-responsive"><table class="table table-sm table-striped"
             data: {
                 labels: calories.labels,
                 datasets: [
-                    { label: 'Burned in workouts (kcal)', data: calories.burned, borderColor: '#C97B4A', backgroundColor: 'rgba(201, 123, 74, 0.85)', borderRadius: 6 },
-                    { label: 'Eaten in meals (kcal)', data: calories.eaten, borderColor: '#D6C3A5', backgroundColor: 'rgba(214, 195, 165, 0.85)', borderRadius: 6 }
+                    { label: 'Burned in workouts (kcal)', data: calories.burned, borderColor: '#0B6FD6', backgroundColor: 'rgba(11, 111, 214, 0.85)', borderRadius: 6 },
+                    { label: 'Eaten in meals (kcal)', data: calories.eaten, borderColor: '#6FB8F8', backgroundColor: 'rgba(111, 184, 248, 0.85)', borderRadius: 6 }
                 ]
             },
             options: {
