@@ -1,0 +1,6 @@
+@model HealthTrack.ViewModels.MealLogCreateViewModel
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="mb-3"><label asp-for="Date" class="form-label"></label><input asp-for="Date" class="form-control" /><span asp-validation-for="Date" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="MealType" class="form-label"></label><select asp-for="MealType" asp-items="Html.GetEnumSelectList<HealthTrack.Models.MealType>()" class="form-select"></select><span asp-validation-for="MealType" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="FoodItems" class="form-label"></label><input asp-for="FoodItems" class="form-control" /><span asp-validation-for="FoodItems" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="Calories" class="form-label"></label><input asp-for="Calories" class="form-control" /><span asp-validation-for="Calories" class="text-danger"></span></div>

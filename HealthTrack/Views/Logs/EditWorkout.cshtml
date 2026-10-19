@@ -1,0 +1,8 @@
+@model HealthTrack.ViewModels.WorkoutLogCreateViewModel
+@{ ViewData["Title"] = "Edit Workout"; }
+<h1>Edit Workout</h1>
+<form asp-action="EditWorkout" asp-route-id="@ViewBag.LogId" method="post">
+    <partial name="_WorkoutForm" model="Model" />
+    <button class="btn btn-primary" type="submit">Save Changes</button><a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
