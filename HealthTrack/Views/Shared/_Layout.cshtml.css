@@ -12,9 +12,9 @@ a {
 }
 
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-  color: var(--ht-bg);
-  background-color: var(--ht-copper);
-  border-color: var(--ht-copper);
+  color: #FFFFFF;
+  background-color: var(--ht-primary-dark);
+  border-color: var(--ht-primary-dark);
 }
 
 .border-top {

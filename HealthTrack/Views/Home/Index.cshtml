@@ -1,8 +1,168 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Personal Health & Fitness";
+
+    // Signed-in users get a button to their own dashboard instead of Register/Login.
+    // The dashboard pages themselves still check the role on the server.
+    string? dashboardController = null;
+    if (User.IsInRole(AppRoles.Client)) { dashboardController = "Client"; }
+    else if (User.IsInRole(AppRoles.Trainer)) { dashboardController = "Trainer"; }
+    else if (User.IsInRole(AppRoles.Admin)) { dashboardController = "Admin"; }
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@* ===== 1. Hero ===== *@
+<section class="landing-hero" aria-labelledby="hero-title">
+    <div class="row align-items-center g-5">
+        <div class="col-lg-6 fade-up">
+            <span class="ht-eyebrow">Personal health &amp; fitness</span>
+            <h1 id="hero-title" class="hero-title">Train with purpose.<br /><span class="text-sky">Track with clarity.</span></h1>
+            <p class="hero-lead">
+                HealthTrack brings clients and trainers together: personalised workout and diet plans,
+                quick daily logs, appointments, and progress charts that show how far you have come.
+            </p>
+            <div class="d-flex flex-wrap gap-2">
+                @if (dashboardController is not null)
+                {
+                    <a asp-controller="@dashboardController" asp-action="Index" class="btn btn-light btn-lg"><i class="bi bi-speedometer2"></i> Go to my dashboard</a>
+                }
+                else
+                {
+                    <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-light btn-lg">Create your account <i class="bi bi-arrow-right"></i></a>
+                    <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-light btn-lg">Log in</a>
+                }
+            </div>
+            <ul class="hero-points" aria-label="Highlights">
+                <li><i class="bi bi-check2-circle" aria-hidden="true"></i> Plans made for you by a trainer</li>
+                <li><i class="bi bi-check2-circle" aria-hidden="true"></i> Weight, BMI and calorie trends</li>
+            </ul>
+        </div>
+
+        @* Decorative preview of the app. aria-hidden because it repeats what the text says. *@
+        <div class="col-lg-6 fade-up delay-1" aria-hidden="true">
+            <div class="hero-visual">
+                <div class="hero-ring"></div>
+                <div class="hero-arch">
+                    <div class="arch-inner">
+                        <span class="arch-label">Weight trend</span>
+                        <svg viewBox="0 0 220 110" class="arch-chart" focusable="false">
+                            <polyline points="5,20 45,32 85,45 125,58 165,80 215,92" fill="none" stroke="#BFE0FF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="215" cy="92" r="6" fill="#FFFFFF" />
+                        </svg>
+                        <span class="arch-value">-3.6 kg</span>
+                        <span class="arch-caption">example over 6 weeks</span>
+                    </div>
+                </div>
+                <div class="hero-chip chip-top"><i class="bi bi-activity"></i> Workout logged · 45 min</div>
+                <div class="hero-chip chip-bottom"><i class="bi bi-heart-pulse"></i> BMI 25.6</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@* ===== 2. Who it is for (the three roles in the brief) ===== *@
+<section class="landing-section" aria-labelledby="roles-title">
+    <div class="section-head">
+        <span class="ht-eyebrow">Who it is for</span>
+        <h2 id="roles-title">One platform, three roles</h2>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <article class="card role-card h-100"><div class="card-body">
+                <span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-person-heart"></i></span>
+                <h3>Clients</h3>
+                <ul>
+                    <li>Follow your workout and diet plans</li>
+                    <li>Log workouts, meals and measurements</li>
+                    <li>Book sessions with your trainer</li>
+                    <li>See your progress on clear charts</li>
+                </ul>
+            </div></article>
+        </div>
+        <div class="col-md-4">
+            <article class="card role-card h-100 role-card-featured"><div class="card-body">
+                <span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-stopwatch"></i></span>
+                <h3>Trainers</h3>
+                <ul>
+                    <li>Create personalised plans for each client</li>
+                    <li>Track client progress at a glance</li>
+                    <li>Give feedback and ratings</li>
+                    <li>Approve or update appointments</li>
+                </ul>
+            </div></article>
+        </div>
+        <div class="col-md-4">
+            <article class="card role-card h-100"><div class="card-body">
+                <span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-shield-check"></i></span>
+                <h3>Administrators</h3>
+                <ul>
+                    <li>Manage users and roles</li>
+                    <li>Assign trainers to clients</li>
+                    <li>Review activity and system usage</li>
+                    <li>Generate reports</li>
+                </ul>
+            </div></article>
+        </div>
+    </div>
+</section>
+
+@* ===== 3. Features ===== *@
+<section class="landing-section" aria-labelledby="features-title">
+    <div class="section-head">
+        <span class="ht-eyebrow">Features</span>
+        <h2 id="features-title">Everything your health journey needs</h2>
+    </div>
+    <div class="row g-3">
+        <div class="col-sm-6 col-lg-4"><div class="feature">
+            <i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>
+            <h3>Workout &amp; diet plans</h3>
+            <p>Day-by-day exercises and meals with calorie targets, written by your trainer.</p>
+        </div></div>
+        <div class="col-sm-6 col-lg-4"><div class="feature">
+            <i class="bi bi-journal-check" aria-hidden="true"></i>
+            <h3>Quick daily logs</h3>
+            <p>Record workouts, meals, weight and heart rate in a few seconds.</p>
+        </div></div>
+        <div class="col-sm-6 col-lg-4"><div class="feature">
+            <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
+            <h3>Progress analytics</h3>
+            <p>Weight, BMI and calorie charts, plus performance reports for trainers.</p>
+        </div></div>
+        <div class="col-sm-6 col-lg-4"><div class="feature">
+            <i class="bi bi-calendar-check" aria-hidden="true"></i>
+            <h3>Appointments</h3>
+            <p>Request a consultation and see when your trainer approves it.</p>
+        </div></div>
+        <div class="col-sm-6 col-lg-4"><div class="feature">
+            <i class="bi bi-bell" aria-hidden="true"></i>
+            <h3>Reminders</h3>
+            <p>Notifications for workouts, meals and upcoming appointments.</p>
+        </div></div>
+        <div class="col-sm-6 col-lg-4"><div class="feature">
+            <i class="bi bi-lock" aria-hidden="true"></i>
+            <h3>Private by design</h3>
+            <p>Secure sign-in and role-based access: you only ever see your own data.</p>
+        </div></div>
+    </div>
+</section>
+
+@* ===== 4. How it works ===== *@
+<section class="landing-section" aria-labelledby="steps-title">
+    <div class="section-head">
+        <span class="ht-eyebrow">How it works</span>
+        <h2 id="steps-title">Start in three steps</h2>
+    </div>
+    <ol class="steps">
+        <li><span class="step-num" aria-hidden="true">01</span><h3>Create your account</h3><p>Register as a client in under a minute.</p></li>
+        <li><span class="step-num" aria-hidden="true">02</span><h3>Meet your trainer</h3><p>An administrator pairs you with a trainer who builds your plans.</p></li>
+        <li><span class="step-num" aria-hidden="true">03</span><h3>Log and improve</h3><p>Log each day and watch your charts move in the right direction.</p></li>
+    </ol>
+</section>
+
+@* ===== 5. Final call to action (only for visitors who are not signed in) ===== *@
+@if (dashboardController is null)
+{
+    <section class="landing-cta" aria-labelledby="cta-title">
+        <h2 id="cta-title">Ready to see your progress?</h2>
+        <p>Join HealthTrack and start tracking today.</p>
+        <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary btn-lg">Get started <i class="bi bi-arrow-right"></i></a>
+    </section>
+}
