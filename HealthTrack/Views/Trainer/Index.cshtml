@@ -1,31 +1,80 @@
 @model HealthTrack.ViewModels.TrainerDashboardViewModel
 @{ ViewData["Title"] = "Trainer Dashboard"; }
-<h1>Welcome, @Model.Name</h1>
-<p class="text-muted">Your assigned clients and their progress.</p>
-<nav class="d-flex flex-wrap gap-2 mb-4">
-    <a asp-controller="WorkoutPlans" asp-action="Index" class="btn btn-primary">Workout Plans</a>
-    <a asp-controller="DietPlans" asp-action="Index" class="btn btn-outline-primary">Diet Plans</a>
-    <a asp-controller="Progress" asp-action="Reports" class="btn btn-outline-secondary">Performance Report</a>
-</nav>
+
+@* Welcome banner. Only clients actively assigned to this trainer are loaded by TrainerController. *@
+<section class="ht-hero">
+    <div class="row align-items-center g-4">
+        <div class="col-md-8">
+            <span class="ht-eyebrow">Trainer Dashboard</span>
+            <h1>Welcome back, @Model.Name</h1>
+            <p class="text-muted mb-4">Your assigned clients, their progress and your plans.</p>
+            <nav class="d-flex flex-wrap gap-2" aria-label="Trainer pages">
+                <a asp-controller="WorkoutPlans" asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Workout Plan</a>
+                <a asp-controller="DietPlans" asp-action="Create" class="btn btn-outline-primary"><i class="bi bi-plus-lg"></i> New Diet Plan</a>
+                <a asp-controller="Progress" asp-action="Reports" class="btn btn-outline-secondary"><i class="bi bi-bar-chart"></i> Performance Report</a>
+            </nav>
+        </div>
+        <div class="col-md-4 ht-hero-figure">
+            <span class="ht-eyebrow">Active Clients</span>
+            <span class="value">@Model.Clients.Count</span>
+            <small class="text-muted">assigned to you</small>
+        </div>
+    </div>
+</section>
+
+@* Summary numbers *@
 <div class="row g-3 mb-4">
-    <div class="col-md-4"><div class="card h-100"><div class="card-body"><h2 class="h6">Active Clients</h2><p class="display-6">@Model.Clients.Count</p></div></div></div>
-    <div class="col-md-4"><div class="card h-100"><div class="card-body"><h2 class="h6">Workout Plans</h2><p class="display-6">@Model.WorkoutPlanCount</p></div></div></div>
-    <div class="col-md-4"><div class="card h-100"><div class="card-body"><h2 class="h6">Diet Plans</h2><p class="display-6">@Model.DietPlanCount</p></div></div></div>
+    <div class="col-12 col-sm-4"><div class="card ht-stat h-100"><div class="card-body">
+        <span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-activity"></i></span>
+        <div><p class="ht-stat-value">@Model.WorkoutPlanCount</p><p class="ht-stat-label">Workout Plans</p></div>
+    </div></div></div>
+    <div class="col-12 col-sm-4"><div class="card ht-stat h-100"><div class="card-body">
+        <span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-egg-fried"></i></span>
+        <div><p class="ht-stat-value">@Model.DietPlanCount</p><p class="ht-stat-label">Diet Plans</p></div>
+    </div></div></div>
+    <div class="col-12 col-sm-4"><div class="card ht-stat h-100"><div class="card-body">
+        <span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-calendar-check"></i></span>
+        <div><p class="ht-stat-value">@Model.UpcomingAppointments.Count</p><p class="ht-stat-label">Upcoming</p></div>
+    </div></div></div>
 </div>
-<h2 class="h4">Assigned Clients</h2>
-@if (Model.Clients.Count == 0) { <div class="alert alert-info">No clients are assigned to you yet. The administrator must assign them first.</div> }
-else {
-<div class="table-responsive"><table class="table table-striped align-middle">
-    <thead><tr><th>Client</th><th>Latest Weight</th><th>Latest BMI</th><th>Workouts Logged</th><th></th></tr></thead>
-    <tbody>@foreach (var c in Model.Clients) {
-        <tr><td>@c.Name</td><td>@(c.LatestWeightKg?.ToString("0.0") ?? "—") kg</td>
-        <td>@(c.LatestBmi?.ToString("0.0") ?? "—")</td><td>@c.WorkoutCount</td>
-        <td><a asp-action="ClientDetails" asp-route-id="@c.ClientId" class="btn btn-sm btn-outline-primary">View Progress</a></td></tr>
-    }</tbody>
-</table></div>
-}
-<h2 class="h4 mt-4">Upcoming Appointments</h2>
-@if (Model.UpcomingAppointments.Count == 0) { <p class="text-muted">No upcoming appointments.</p> }
-else { <ul class="list-group">@foreach (var a in Model.UpcomingAppointments) {
-<li class="list-group-item">@a.AppointmentDate.ToString("dd MMM yyyy HH:mm") — @a.Status</li>
-}</ul> }
+
+<div class="row g-4">
+    <section class="col-lg-8"><div class="card h-100"><div class="card-body">
+        <h2 class="ht-card-title">Assigned Clients</h2>
+        @if (Model.Clients.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-people" aria-hidden="true"></i>No clients are assigned to you yet. The administrator assigns clients to trainers.</div>
+        }
+        else
+        {
+            <div class="table-responsive"><table class="table table-hover align-middle mb-0">
+                <thead><tr><th scope="col">Client</th><th scope="col">Latest Weight</th><th scope="col">Latest BMI</th><th scope="col">Workouts</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+                <tbody>@foreach (var c in Model.Clients) {
+                    <tr><td class="fw-semibold">@c.Name</td>
+                        <td>@(c.LatestWeightKg is null ? "—" : $"{c.LatestWeightKg:0.0} kg")</td>
+                        <td>@(c.LatestBmi?.ToString("0.0") ?? "—")</td>
+                        <td>@c.WorkoutCount</td>
+                        <td class="text-end"><a asp-action="ClientDetails" asp-route-id="@c.ClientId" class="btn btn-sm btn-outline-primary">View Progress</a></td></tr>
+                }</tbody>
+            </table></div>
+        }
+    </div></div></section>
+
+    <section class="col-lg-4"><div class="card h-100"><div class="card-body">
+        <h2 class="ht-card-title">Upcoming Appointments</h2>
+        @if (Model.UpcomingAppointments.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-calendar" aria-hidden="true"></i>No upcoming appointments.</div>
+        }
+        else
+        {
+            <ul class="list-group list-group-flush">@foreach (var a in Model.UpcomingAppointments) {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>@a.AppointmentDate.ToString("ddd dd MMM, HH:mm")</span>
+                    @* Pending requests still need the trainer's approval *@
+                    <span class="badge rounded-pill @(a.Status == HealthTrack.Models.AppointmentStatus.Approved ? "text-bg-success" : "text-bg-warning")">@a.Status</span>
+                </li>
+            }</ul>
+        }
+    </div></div></section>
+</div>
