@@ -1,0 +1,363 @@
+/* Landing page styles.
+   This is a "scoped" stylesheet (ASP.NET Core CSS isolation): these rules
+   only apply to Views/Home/Index.cshtml, so no other page is affected.
+   Colours come from the theme variables in wwwroot/css/site.css. */
+
+/* ---------- Hero: blue gradient panel with soft shapes ---------- */
+.landing-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 3.5rem 2.5rem;
+  margin-bottom: 1rem;
+  border-radius: 2rem;
+  color: #FFFFFF;
+  background: var(--ht-gradient);
+  box-shadow: 0 1.5rem 3rem rgba(3, 48, 107, 0.25);
+}
+
+.landing-hero::before {
+  content: "";
+  position: absolute;
+  left: -7rem;
+  bottom: -9rem;
+  width: 24rem;
+  height: 24rem;
+  border-radius: 50%;
+  border: 3rem solid rgba(111, 184, 248, 0.18);
+  pointer-events: none;
+}
+
+.landing-hero > .row {
+  position: relative;
+  z-index: 1;
+}
+
+.landing-hero .ht-eyebrow {
+  color: #BFE0FF;
+}
+
+.hero-title {
+  color: #FFFFFF;
+  font-size: clamp(2.4rem, 5vw, 3.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.25rem;
+}
+
+.text-sky {
+  color: #BFE0FF;
+}
+
+.hero-lead {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 1.125rem;
+  max-width: 34rem;
+  margin-bottom: 2rem;
+}
+
+.hero-points {
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.hero-points i {
+  color: #BFE0FF;
+}
+
+/* The arch-shaped preview with a soft light-blue circle behind it */
+.hero-visual {
+  position: relative;
+  height: 28rem;
+  max-width: 28rem;
+  margin: 0 auto;
+}
+
+.hero-ring {
+  position: absolute;
+  inset: 2rem -2rem auto -2rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, rgba(111, 184, 248, 0.55), rgba(111, 184, 248, 0.04) 70%);
+}
+
+.hero-arch {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: 15rem;
+  height: 25rem;
+  border-radius: 999px 999px 2rem 2rem;   /* tall arch: round top, soft bottom */
+  background: rgba(255, 255, 255, 0.14);   /* frosted glass, like the login card */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2rem 4rem rgba(1, 41, 92, 0.4);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+}
+
+.arch-inner {
+  position: absolute;
+  inset: auto 1.25rem 1.75rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.arch-label,
+.arch-caption {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.arch-chart {
+  width: 100%;
+  margin: 0.75rem 0;
+}
+
+.arch-value {
+  font-family: "Montserrat", "Segoe UI", sans-serif;
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  line-height: 1;
+}
+
+.hero-chip {
+  position: absolute;
+  padding: 0.6rem 1rem;
+  border-radius: 50rem;
+  background: #FFFFFF;
+  color: var(--ht-primary-dark);
+  box-shadow: 0 1rem 2rem rgba(1, 41, 92, 0.3);
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.hero-chip i {
+  color: var(--ht-primary);
+  margin-right: 0.25rem;
+}
+
+/* Chips sit on the empty upper part of the arch, away from the chart text */
+.chip-top {
+  top: 3rem;
+  left: 0;
+}
+
+.chip-bottom {
+  top: 9.5rem;
+  right: 0;
+}
+
+/* ---------- Sections ---------- */
+.landing-section {
+  padding: 4rem 0;
+}
+
+.section-head {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.section-head h2 {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  color: var(--ht-primary-dark);
+}
+
+/* Role cards */
+.role-card h3 {
+  font-size: 1.25rem;
+  margin: 1.25rem 0 1rem;
+  color: var(--ht-primary-dark);
+}
+
+.role-card ul {
+  padding-left: 1.1rem;
+  margin: 0;
+  color: var(--ht-muted);
+}
+
+.role-card li {
+  margin-bottom: 0.4rem;
+}
+
+.role-card-featured {
+  border: 2px solid var(--ht-primary);
+}
+
+/* Feature tiles */
+.feature {
+  height: 100%;
+  padding: 1.75rem;
+  border: 1px solid var(--ht-line);
+  border-radius: 1.25rem;
+  background: #FFFFFF;
+  box-shadow: 0 0.5rem 1.5rem rgba(3, 48, 107, 0.06);
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feature:hover {
+  border-color: var(--ht-sky);
+  transform: translateY(-3px);
+  box-shadow: 0 1rem 2rem rgba(3, 48, 107, 0.12);
+}
+
+.feature i {
+  display: inline-grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background-color: rgba(11, 111, 214, 0.1);
+  font-size: 1.4rem;
+  color: var(--ht-primary);
+}
+
+.feature h3 {
+  font-size: 1.1rem;
+  margin: 1rem 0 0.5rem;
+  color: var(--ht-primary-dark);
+}
+
+.feature p {
+  color: var(--ht-muted);
+  margin: 0;
+}
+
+/* Numbered steps */
+.steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 2rem;
+  text-align: center;
+}
+
+.step-num {
+  display: inline-grid;
+  place-items: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  font-family: "Montserrat", "Segoe UI", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  background: var(--ht-gradient);
+  box-shadow: 0 0.75rem 1.5rem rgba(3, 48, 107, 0.25);
+  margin-bottom: 1rem;
+}
+
+.steps h3 {
+  font-size: 1.15rem;
+  color: var(--ht-primary-dark);
+}
+
+.steps p {
+  color: var(--ht-muted);
+  margin: 0;
+}
+
+/* Final call to action */
+.landing-cta {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding: 3.5rem 1.5rem;
+  margin: 1rem 0 3rem;
+  border-radius: 2rem;
+  color: #FFFFFF;
+  background: var(--ht-gradient);
+}
+
+.landing-cta::after {
+  content: "";
+  position: absolute;
+  right: -4rem;
+  top: -5rem;
+  width: 16rem;
+  height: 16rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, rgba(111, 184, 248, 0.55), rgba(111, 184, 248, 0.04) 70%);
+  pointer-events: none;
+}
+
+.landing-cta > * {
+  position: relative;
+  z-index: 1;
+}
+
+.landing-cta h2 {
+  color: #FFFFFF;
+  font-size: clamp(1.6rem, 4vw, 2.25rem);
+}
+
+.landing-cta p {
+  color: rgba(255, 255, 255, 0.88);
+  margin-bottom: 1.5rem;
+}
+
+/* ---------- Gentle entrance animation ---------- */
+.fade-up {
+  animation: fade-up 0.7s ease-out both;
+}
+
+.delay-1 {
+  animation-delay: 0.15s;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- Small screens ---------- */
+@media (max-width: 991.98px) {
+  .landing-hero {
+    text-align: center;
+    padding: 2.5rem 1.25rem;
+  }
+
+  .hero-lead {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .landing-hero .d-flex,
+  .hero-points {
+    justify-content: center;
+  }
+
+  .hero-visual {
+    height: 23rem;
+    max-width: 20rem;
+  }
+
+  .hero-arch {
+    width: 12rem;
+    height: 20rem;
+  }
+
+  .hero-ring {
+    inset: 2rem -1rem auto -1rem;
+  }
+
+  .chip-top { top: 2rem; left: 0; }
+  .chip-bottom { top: 7.5rem; right: 0; }
+}
+
+/* No movement for people who ask their system for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .fade-up { animation: none; }
+  .feature:hover { transform: none; }
+}
