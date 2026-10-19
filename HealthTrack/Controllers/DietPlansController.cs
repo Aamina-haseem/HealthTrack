@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace HealthTrack.Controllers
 {
@@ -15,16 +16,19 @@ namespace HealthTrack.Controllers
         private readonly IRepository<DietPlanItem> _items;
         private readonly IRepository<TrainerAssignment> _assignments;
         private readonly UserManager<ApplicationUser> _users;
+        private readonly ILogger<DietPlansController> _logger;
 
         public DietPlansController(IRepository<DietPlan> plans,
             IRepository<DietPlanItem> items,
             IRepository<TrainerAssignment> assignments,
-            UserManager<ApplicationUser> users)
+            UserManager<ApplicationUser> users,
+            ILogger<DietPlansController> logger)
         {
             _plans = plans;
             _items = items;
             _assignments = assignments;
             _users = users;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index()
@@ -69,7 +73,21 @@ namespace HealthTrack.Controllers
                 ClientId = input.ClientId
             };
             await _plans.AddAsync(plan);
-            await _plans.SaveAsync();
+            try
+            {
+                await _plans.SaveAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the technical details for the developer; the user only sees a simple message.
+                _logger.LogError(ex, "Database save failed in DietPlansController.Create");
+                ModelState.AddModelError(string.Empty,
+                    "Sorry, the diet plan could not be saved. Please try again.");
+                await LoadClientsAsync(trainerId);
+                return View(input);
+            }
+
+            TempData["Success"] = "Diet plan created.";
             return RedirectToAction(nameof(Details), new { id = plan.Id });
         }
 
@@ -135,7 +153,22 @@ namespace HealthTrack.Controllers
             plan.EndDate = input.EndDate;
             plan.ClientId = input.ClientId;
             _plans.Update(plan);
-            await _plans.SaveAsync();
+            try
+            {
+                await _plans.SaveAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the technical details for the developer; the user only sees a simple message.
+                _logger.LogError(ex, "Database save failed in DietPlansController.Edit");
+                ModelState.AddModelError(string.Empty,
+                    "Sorry, the diet plan could not be saved. Please try again.");
+                await LoadClientsAsync(trainerId);
+                ViewBag.PlanId = id;
+                return View(input);
+            }
+
+            TempData["Success"] = "Diet plan updated.";
             return RedirectToAction(nameof(Details), new { id });
         }
 
@@ -173,7 +206,22 @@ namespace HealthTrack.Controllers
                 Calories = input.Calories,
                 MealTime = input.MealTime
             });
-            await _items.SaveAsync();
+            try
+            {
+                await _items.SaveAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the technical details for the developer; the user only sees a simple message.
+                _logger.LogError(ex, "Database save failed in DietPlansController.AddMeal");
+                ModelState.AddModelError(string.Empty,
+                    "Sorry, the meal could not be saved. Please try again.");
+                ViewBag.PlanId = id;
+                ViewBag.PlanTitle = plan.Title;
+                return View(input);
+            }
+
+            TempData["Success"] = "Meal added to the plan.";
             return RedirectToAction(nameof(Details), new { id });
         }
 
@@ -220,7 +268,23 @@ namespace HealthTrack.Controllers
             meal.Calories = input.Calories;
             meal.MealTime = input.MealTime;
             _items.Update(meal);
-            await _items.SaveAsync();
+            try
+            {
+                await _items.SaveAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the technical details for the developer; the user only sees a simple message.
+                _logger.LogError(ex, "Database save failed in DietPlansController.EditMeal");
+                ModelState.AddModelError(string.Empty,
+                    "Sorry, the meal could not be saved. Please try again.");
+                ViewBag.MealId = id;
+                ViewBag.PlanId = plan.Id;
+                ViewBag.PlanTitle = plan.Title;
+                return View(input);
+            }
+
+            TempData["Success"] = "Meal updated.";
             return RedirectToAction(nameof(Details), new { id = plan.Id });
         }
 
@@ -234,7 +298,19 @@ namespace HealthTrack.Controllers
             var plan = await _plans.GetByIdAsync(meal.DietPlanId);
             if (plan is null || plan.TrainerId != trainerId) return NotFound();
             _items.Delete(meal);
-            await _items.SaveAsync();
+            try
+            {
+                await _items.SaveAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the technical details for the developer; the user only sees a simple message.
+                _logger.LogError(ex, "Database save failed in DietPlansController.DeleteMeal");
+                TempData["Error"] = "Sorry, the meal could not be deleted. Please try again.";
+                return RedirectToAction(nameof(Details), new { id = plan.Id });
+            }
+
+            TempData["Success"] = "Meal removed from the plan.";
             return RedirectToAction(nameof(Details), new { id = plan.Id });
         }
 
@@ -257,7 +333,19 @@ namespace HealthTrack.Controllers
             if (plan is null || plan.TrainerId != trainerId) return NotFound();
             // EF cascades to the plan's meals; the client's actual meal logs remain.
             _plans.Delete(plan);
-            await _plans.SaveAsync();
+            try
+            {
+                await _plans.SaveAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the technical details for the developer; the user only sees a simple message.
+                _logger.LogError(ex, "Database save failed in DietPlansController.DeleteConfirmed");
+                TempData["Error"] = "Sorry, the diet plan could not be deleted. Please try again.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            TempData["Success"] = "Diet plan deleted.";
             return RedirectToAction(nameof(Index));
         }
 

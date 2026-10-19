@@ -59,7 +59,7 @@ namespace HealthTrack.Controllers
         }
 
         [Authorize(Roles = AppRoles.Trainer)]
-        public async Task<IActionResult> TrainerReport(string? id)
+        public async Task<IActionResult> Reports(string? id)
         {
             var trainerId = _users.GetUserId(User);
             if (trainerId is null) return Challenge();

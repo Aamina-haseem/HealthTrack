@@ -4,6 +4,7 @@ using HealthTrack.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace HealthTrack.Controllers
 {
@@ -19,18 +20,21 @@ namespace HealthTrack.Controllers
         private readonly IRepository<Appointment> _appointments;
         private readonly IRepository<Feedback> _feedback;
         private readonly UserManager<ApplicationUser> _users;
+        private readonly ILogger<TrainerController> _logger;
 
         public TrainerController(IRepository<TrainerAssignment> assignments,
             IRepository<WorkoutPlan> workoutPlans, IRepository<DietPlan> dietPlans,
             IRepository<WorkoutLog> workouts, IRepository<MealLog> meals,
             IRepository<HealthMeasurement> measurements,
             IRepository<Appointment> appointments, IRepository<Feedback> feedback,
-            UserManager<ApplicationUser> users)
+            UserManager<ApplicationUser> users,
+            ILogger<TrainerController> logger)
         {
             _assignments = assignments; _workoutPlans = workoutPlans;
             _dietPlans = dietPlans; _workouts = workouts; _meals = meals;
             _measurements = measurements; _appointments = appointments;
             _feedback = feedback; _users = users;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index()
@@ -136,7 +140,22 @@ namespace HealthTrack.Controllers
                 Message = input.Message.Trim(),
                 Rating = input.Rating
             });
-            await _feedback.SaveAsync();
+            try
+            {
+                await _feedback.SaveAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the technical details for the developer; the user only sees a simple message.
+                _logger.LogError(ex, "Database save failed in TrainerController.GiveFeedback");
+                ModelState.AddModelError(string.Empty,
+                    "Sorry, the feedback could not be saved. Please try again.");
+                ViewBag.ClientId = client.Id;
+                ViewBag.ClientName = client.FullName;
+                return View(input);
+            }
+
+            TempData["Success"] = "Feedback sent to the client.";
             return RedirectToAction(nameof(ClientDetails), new { id = client.Id });
         }
 
