@@ -11,4 +11,7 @@ else {
 <tr><td>@e.DayOfWeek</td><td>@e.ExerciseName</td><td>@e.Sets</td><td>@e.Reps</td><td>@e.DurationMinutes</td><td>@(e.Notes ?? "—")</td></tr>
 }</tbody></table>
 }
-<a asp-action="Index" class="btn btn-secondary">Dashboard</a>
+<div class="d-flex flex-wrap gap-2 mt-3">
+    <a asp-action="WorkoutPlans" class="btn btn-outline-primary"><i class="bi bi-arrow-left"></i> My Workout Plans</a>
+    <a asp-action="Index" class="btn btn-secondary">Dashboard</a>
+</div>

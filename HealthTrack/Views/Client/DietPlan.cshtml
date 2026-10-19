@@ -11,4 +11,7 @@ else {
 <tr><td>@meal.MealType</td><td>@meal.FoodItems</td><td>@meal.Calories</td><td>@(meal.MealTime?.ToString(@"hh\:mm") ?? "Not set")</td></tr>
 }</tbody></table>
 }
-<a asp-action="Index" class="btn btn-secondary">Dashboard</a>
+<div class="d-flex flex-wrap gap-2 mt-3">
+    <a asp-action="DietPlans" class="btn btn-outline-primary"><i class="bi bi-arrow-left"></i> My Diet Plans</a>
+    <a asp-action="Index" class="btn btn-secondary">Dashboard</a>
+</div>
