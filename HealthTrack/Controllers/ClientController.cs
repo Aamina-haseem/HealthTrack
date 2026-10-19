@@ -80,6 +80,32 @@ namespace HealthTrack.Controllers
             });
         }
 
+        // GET: Client/WorkoutPlans
+        // The navbar "Workouts" page: only the signed-in client's own workout plans.
+        [HttpGet]
+        public async Task<IActionResult> WorkoutPlans()
+        {
+            var clientId = _users.GetUserId(User);
+            if (clientId is null) return Challenge();
+            var user = await _users.FindByIdAsync(clientId);
+            if (user is not { IsActive: true }) return Forbid();
+            var plans = await _workoutPlans.FindAsync(x => x.ClientId == clientId);
+            return View(plans.OrderByDescending(x => x.StartDate).ThenByDescending(x => x.Id).ToList());
+        }
+
+        // GET: Client/DietPlans
+        // The navbar "Diet" page: only the signed-in client's own diet plans.
+        [HttpGet]
+        public async Task<IActionResult> DietPlans()
+        {
+            var clientId = _users.GetUserId(User);
+            if (clientId is null) return Challenge();
+            var user = await _users.FindByIdAsync(clientId);
+            if (user is not { IsActive: true }) return Forbid();
+            var plans = await _dietPlans.FindAsync(x => x.ClientId == clientId);
+            return View(plans.OrderByDescending(x => x.StartDate).ThenByDescending(x => x.Id).ToList());
+        }
+
         [HttpGet]
         public async Task<IActionResult> WorkoutPlan(int id)
         {

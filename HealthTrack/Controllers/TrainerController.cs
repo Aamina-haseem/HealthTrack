@@ -44,23 +44,7 @@ namespace HealthTrack.Controllers
             var trainer = await _users.FindByIdAsync(trainerId);
             if (trainer is not { IsActive: true }) return Forbid();
 
-            var assignments = await _assignments.FindAsync(a => a.TrainerId == trainerId && a.IsActive);
-            var clients = new List<AssignedClientSummary>();
-            foreach (var clientId in assignments.Select(a => a.ClientId).Distinct())
-            {
-                var client = await _users.FindByIdAsync(clientId);
-                if (client is not { IsActive: true } ||
-                    !await _users.IsInRoleAsync(client, AppRoles.Client)) continue;
-                var workouts = await _workouts.FindAsync(x => x.ClientId == clientId);
-                var measurements = await _measurements.FindAsync(x => x.ClientId == clientId);
-                var latest = measurements.OrderByDescending(x => x.Date).ThenByDescending(x => x.Id).FirstOrDefault();
-                clients.Add(new AssignedClientSummary
-                {
-                    ClientId = clientId, Name = client.FullName,
-                    WorkoutCount = workouts.Count(), LatestWeightKg = latest?.WeightKg,
-                    LatestBmi = latest?.BMI
-                });
-            }
+            var clients = await LoadAssignedClientsAsync(trainerId);
             var appointments = await _appointments.FindAsync(x =>
                 x.TrainerId == trainerId && x.AppointmentDate >= DateTime.Now &&
                 (x.Status == AppointmentStatus.Pending || x.Status == AppointmentStatus.Approved));
@@ -69,10 +53,25 @@ namespace HealthTrack.Controllers
 
             return View(new TrainerDashboardViewModel
             {
-                Name = trainer.FirstName, Clients = clients.OrderBy(x => x.Name).ToList(),
+                Name = trainer.FirstName, Clients = clients,
                 WorkoutPlanCount = workoutPlans.Count(), DietPlanCount = dietPlans.Count(),
                 UpcomingAppointments = appointments.OrderBy(x => x.AppointmentDate).Take(5).ToList()
             });
+        }
+
+        // GET: Trainer/Clients
+        // The navbar "My Clients" page: every client actively assigned to this trainer.
+        [HttpGet]
+        public async Task<IActionResult> Clients()
+        {
+            var trainerId = _users.GetUserId(User);
+            if (trainerId is null) return Challenge();
+            var trainer = await _users.FindByIdAsync(trainerId);
+            if (trainer is not { IsActive: true }) return Forbid();
+
+            // Same list as the dashboard, so both pages always agree.
+            var clients = await LoadAssignedClientsAsync(trainerId);
+            return View(clients);
         }
 
         [HttpGet]
@@ -157,6 +156,31 @@ namespace HealthTrack.Controllers
 
             TempData["Success"] = "Feedback sent to the client.";
             return RedirectToAction(nameof(ClientDetails), new { id = client.Id });
+        }
+
+        // Builds the summary rows for the trainer's assigned clients.
+        // Only active assignments to active users in the Client role are included,
+        // so a trainer never sees anyone else's clients.
+        private async Task<List<AssignedClientSummary>> LoadAssignedClientsAsync(string trainerId)
+        {
+            var assignments = await _assignments.FindAsync(a => a.TrainerId == trainerId && a.IsActive);
+            var clients = new List<AssignedClientSummary>();
+            foreach (var clientId in assignments.Select(a => a.ClientId).Distinct())
+            {
+                var client = await _users.FindByIdAsync(clientId);
+                if (client is not { IsActive: true } ||
+                    !await _users.IsInRoleAsync(client, AppRoles.Client)) continue;
+                var workouts = await _workouts.FindAsync(x => x.ClientId == clientId);
+                var measurements = await _measurements.FindAsync(x => x.ClientId == clientId);
+                var latest = measurements.OrderByDescending(x => x.Date).ThenByDescending(x => x.Id).FirstOrDefault();
+                clients.Add(new AssignedClientSummary
+                {
+                    ClientId = clientId, Name = client.FullName,
+                    WorkoutCount = workouts.Count(), LatestWeightKg = latest?.WeightKg,
+                    LatestBmi = latest?.BMI
+                });
+            }
+            return clients.OrderBy(x => x.Name).ToList();
         }
 
         private async Task<ApplicationUser?> AssignedClientAsync(string trainerId, string clientId)

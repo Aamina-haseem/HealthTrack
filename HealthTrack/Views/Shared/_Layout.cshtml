@@ -34,8 +34,8 @@
                         @if (User.IsInRole(AppRoles.Client))
                         {
                             <li class="nav-item"><a class="nav-link" asp-controller="Client" asp-action="Index"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="WorkoutPlans" asp-action="Index"><i class="bi bi-activity"></i> Workouts</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="DietPlans" asp-action="Index"><i class="bi bi-egg-fried"></i> Diet</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Client" asp-action="WorkoutPlans"><i class="bi bi-activity"></i> Workouts</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Client" asp-action="DietPlans"><i class="bi bi-egg-fried"></i> Diet</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Logs" asp-action="Index"><i class="bi bi-journal-plus"></i> Log Activity</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Progress" asp-action="Index"><i class="bi bi-graph-up-arrow"></i> Progress</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Appointments" asp-action="Index"><i class="bi bi-calendar-check"></i> Appointments</a></li>
