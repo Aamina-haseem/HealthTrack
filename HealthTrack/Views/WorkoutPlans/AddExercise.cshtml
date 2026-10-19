@@ -1,0 +1,71 @@
+﻿@model HealthTrack.ViewModels.WorkoutPlanItemCreateViewModel
+
+@{
+    ViewData["Title"] = "Add Exercise";
+
+    // The controller has already checked that this trainer owns the plan.
+    var planId = (int)ViewBag.PlanId;
+    var planTitle = (string)ViewBag.PlanTitle;
+}
+
+<h1>Add Exercise</h1>
+<p class="text-muted">Workout plan: @planTitle</p>
+
+@* Keep the verified plan ID in the URL when submitting the form. *@
+<form asp-controller="WorkoutPlans"
+      asp-action="AddExercise"
+      asp-route-id="@planId"
+      method="post">
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="ExerciseName" class="form-label"></label>
+        <input asp-for="ExerciseName" class="form-control" />
+        <span asp-validation-for="ExerciseName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DayOfWeek" class="form-label"></label>
+        <select asp-for="DayOfWeek"
+                asp-items="Html.GetEnumSelectList<System.DayOfWeek>()"
+                class="form-select">
+        </select>
+        <span asp-validation-for="DayOfWeek" class="text-danger"></span>
+    </div>
+
+    <p class="text-muted">
+        Enter sets and reps for a counted exercise, or a duration for a timed exercise.
+    </p>
+
+    <div class="mb-3">
+        <label asp-for="Sets" class="form-label"></label>
+        <input asp-for="Sets" class="form-control" min="0" max="20" />
+        <span asp-validation-for="Sets" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Reps" class="form-label"></label>
+        <input asp-for="Reps" class="form-control" min="0" max="100" />
+        <span asp-validation-for="Reps" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DurationMinutes" class="form-label"></label>
+        <input asp-for="DurationMinutes" class="form-control" min="0" max="300" />
+        <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Notes" class="form-label"></label>
+        <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Notes" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Exercise</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

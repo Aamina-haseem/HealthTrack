@@ -1,0 +1,72 @@
+﻿@model IReadOnlyList<HealthTrack.Models.WorkoutPlan>
+
+@{
+    ViewData["Title"] = "Workout Plans";
+}
+
+<h1>Workout Plans</h1>
+
+@* Opens the workout-plan form for the signed-in trainer. *@
+<p>
+    <a asp-controller="WorkoutPlans"
+       asp-action="Create"
+       class="btn btn-primary">
+        Create Workout Plan
+    </a>
+</p>
+
+<p class="text-muted">Plans you have created for your clients.</p>
+
+@* The controller already filters these plans to the signed-in trainer. *@
+@if (Model.Count == 0)
+{
+    <div class="alert alert-info">
+        You have not created any workout plans yet.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Goal</th>
+                    <th>Difficulty</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var plan in Model)
+                {
+                    <tr>
+                        <td>@plan.Title</td>
+                        <td>@(plan.Goal ?? "—")</td>
+                        <td>@plan.Difficulty</td>
+                        <td>@plan.StartDate.ToString("dd MMM yyyy")</td>
+                        <td>@(plan.EndDate?.ToString("dd MMM yyyy") ?? "Not set")</td>
+                        <td>
+                            @* View this plan and its saved exercises. *@
+                            <a asp-controller="WorkoutPlans"
+                               asp-action="Details"
+                               asp-route-id="@plan.Id"
+                               class="btn btn-sm btn-outline-secondary">
+                                View Details
+                            </a>
+
+                            @* Open the exercise form for this plan. *@
+                            <a asp-controller="WorkoutPlans"
+                               asp-action="AddExercise"
+                               asp-route-id="@plan.Id"
+                               class="btn btn-sm btn-outline-primary">
+                                Add Exercise
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
