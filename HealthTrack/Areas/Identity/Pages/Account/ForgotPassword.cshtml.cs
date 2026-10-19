@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using HealthTrack.Data;
+using HealthTrack.Models;
 
 namespace HealthTrack.Areas.Identity.Pages.Account;
 

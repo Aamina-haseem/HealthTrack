@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using HealthTrack.Data;
+using HealthTrack.Models;
 
 namespace HealthTrack.Areas.Identity.Pages.Account;
 
