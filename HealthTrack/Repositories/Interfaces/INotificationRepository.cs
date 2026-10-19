@@ -1,6 +1,16 @@
-﻿namespace HealthTrack.Repositories.Interfaces
+﻿using HealthTrack.Models;
+
+namespace HealthTrack.Repositories.Interfaces
 {
-    public class INotificationRepository
+    /// <summary>
+    /// Data access for in-app notifications (navbar bell).
+    /// </summary>
+    public interface INotificationRepository : IRepository<Notification>
     {
+        Task<IEnumerable<Notification>> GetForUserAsync(string userId);
+
+        Task<int> GetUnreadCountAsync(string userId);
+
+        Task MarkAllAsReadAsync(string userId);
     }
 }
