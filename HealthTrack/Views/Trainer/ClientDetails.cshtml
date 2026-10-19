@@ -1,0 +1,32 @@
+@model HealthTrack.ViewModels.TrainerClientDetailsViewModel
+@{ ViewData["Title"] = "Client Progress"; }
+<h1>@Model.Client.FullName</h1>
+<p><a asp-action="GiveFeedback" asp-route-id="@Model.Client.Id" class="btn btn-primary">Give Feedback</a>
+   <a asp-controller="Progress" asp-action="TrainerReport" asp-route-id="@Model.Client.Id" class="btn btn-outline-primary">Performance Report</a>
+   <a asp-action="Index" class="btn btn-secondary">Back</a></p>
+<div class="row g-3">
+<section class="col-md-6"><div class="card h-100"><div class="card-body"><h2 class="h5">Workout Plans</h2>
+@if (Model.WorkoutPlans.Count == 0) { <p>No plans yet.</p> }
+else { <ul>@foreach (var p in Model.WorkoutPlans) { <li><a asp-controller="WorkoutPlans" asp-action="Details" asp-route-id="@p.Id">@p.Title</a></li> }</ul> }
+</div></div></section>
+<section class="col-md-6"><div class="card h-100"><div class="card-body"><h2 class="h5">Diet Plans</h2>
+@if (Model.DietPlans.Count == 0) { <p>No plans yet.</p> }
+else { <ul>@foreach (var p in Model.DietPlans) { <li><a asp-controller="DietPlans" asp-action="Details" asp-route-id="@p.Id">@p.Title</a></li> }</ul> }
+</div></div></section>
+<section class="col-md-6"><div class="card h-100"><div class="card-body"><h2 class="h5">Recent Workouts</h2>
+@if (Model.RecentWorkouts.Count == 0) { <p>No workouts logged.</p> }
+else { <ul>@foreach (var x in Model.RecentWorkouts) { <li>@x.Date.ToString("dd MMM yyyy"): @x.ExerciseName (@x.CaloriesBurned kcal)</li> }</ul> }
+</div></div></section>
+<section class="col-md-6"><div class="card h-100"><div class="card-body"><h2 class="h5">Recent Meals</h2>
+@if (Model.RecentMeals.Count == 0) { <p>No meals logged.</p> }
+else { <ul>@foreach (var x in Model.RecentMeals) { <li>@x.Date.ToString("dd MMM yyyy"): @x.FoodItems (@x.Calories kcal)</li> }</ul> }
+</div></div></section>
+<section class="col-md-6"><div class="card h-100"><div class="card-body"><h2 class="h5">Measurements</h2>
+@if (Model.RecentMeasurements.Count == 0) { <p>No measurements logged.</p> }
+else { <ul>@foreach (var x in Model.RecentMeasurements) { <li>@x.Date.ToString("dd MMM yyyy"): @x.WeightKg kg · BMI @x.BMI</li> }</ul> }
+</div></div></section>
+<section class="col-md-6"><div class="card h-100"><div class="card-body"><h2 class="h5">Your Feedback</h2>
+@if (Model.Feedback.Count == 0) { <p>No feedback yet.</p> }
+else { <ul>@foreach (var x in Model.Feedback) { <li>@x.CreatedAt.ToString("dd MMM yyyy"): @x.Message</li> }</ul> }
+</div></div></section>
+</div>

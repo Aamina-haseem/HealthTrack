@@ -1,0 +1,45 @@
+@model HealthTrack.ViewModels.ClientLogsViewModel
+@{ ViewData["Title"] = "My Logs"; }
+<h1>My Logs</h1>
+<p><a asp-action="AddWorkout" class="btn btn-primary">Log Workout</a>
+   <a asp-action="AddMeal" class="btn btn-outline-primary">Log Meal</a>
+   <a asp-action="AddMeasurement" class="btn btn-outline-primary">Record Measurement</a>
+   <a asp-controller="Client" asp-action="Index" class="btn btn-secondary">Dashboard</a></p>
+<h2>Workouts</h2>
+@if (Model.Workouts.Count == 0) { <p class="text-muted">No workouts recorded.</p> }
+else { <div class="table-responsive"><table class="table table-sm table-striped">
+    <thead><tr><th>Date</th><th>Activity</th><th>Minutes</th><th>Burned</th><th>Actions</th></tr></thead>
+    <tbody>@foreach (var x in Model.Workouts) {
+        <tr><td>@x.Date.ToString("dd MMM yyyy")</td><td>@x.ExerciseName</td><td>@x.DurationMinutes</td>
+        <td>@x.CaloriesBurned kcal</td><td>
+            <a asp-action="EditWorkout" asp-route-id="@x.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+            <form asp-action="DeleteWorkout" asp-route-id="@x.Id" method="post" class="d-inline">
+                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this workout log?');">Delete</button>
+            </form></td></tr>
+    }</tbody>
+</table></div> }
+<h2 class="mt-4">Meals</h2>
+@if (Model.Meals.Count == 0) { <p class="text-muted">No meals recorded.</p> }
+else { <div class="table-responsive"><table class="table table-sm table-striped">
+    <thead><tr><th>Date</th><th>Meal</th><th>Food</th><th>Calories</th><th>Actions</th></tr></thead>
+    <tbody>@foreach (var x in Model.Meals) {
+        <tr><td>@x.Date.ToString("dd MMM yyyy")</td><td>@x.MealType</td><td>@x.FoodItems</td><td>@x.Calories kcal</td><td>
+            <a asp-action="EditMeal" asp-route-id="@x.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+            <form asp-action="DeleteMeal" asp-route-id="@x.Id" method="post" class="d-inline">
+                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this meal log?');">Delete</button>
+            </form></td></tr>
+    }</tbody>
+</table></div> }
+<h2 class="mt-4">Measurements</h2>
+@if (Model.Measurements.Count == 0) { <p class="text-muted">No measurements recorded.</p> }
+else { <div class="table-responsive"><table class="table table-sm table-striped">
+    <thead><tr><th>Date</th><th>Weight</th><th>Height</th><th>BMI</th><th>Heart Rate</th><th>Actions</th></tr></thead>
+    <tbody>@foreach (var x in Model.Measurements) {
+        <tr><td>@x.Date.ToString("dd MMM yyyy")</td><td>@x.WeightKg kg</td><td>@x.HeightCm cm</td>
+        <td>@x.BMI</td><td>@(x.RestingHeartRate?.ToString() ?? "—")</td><td>
+            <a asp-action="EditMeasurement" asp-route-id="@x.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+            <form asp-action="DeleteMeasurement" asp-route-id="@x.Id" method="post" class="d-inline">
+                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this measurement?');">Delete</button>
+            </form></td></tr>
+    }</tbody>
+</table></div> }

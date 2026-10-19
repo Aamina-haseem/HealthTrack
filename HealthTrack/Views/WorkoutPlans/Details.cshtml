@@ -1,0 +1,90 @@
+﻿@model HealthTrack.ViewModels.WorkoutPlanDetailsViewModel
+
+@{
+    ViewData["Title"] = "Workout Plan Details";
+}
+
+<h1>@Model.Plan.Title</h1>
+<p class="text-muted">Workout plan for @Model.ClientName</p>
+
+<dl class="row">
+    <dt class="col-sm-3">Description</dt>
+    <dd class="col-sm-9">@(Model.Plan.Description ?? "Not set")</dd>
+
+    <dt class="col-sm-3">Goal</dt>
+    <dd class="col-sm-9">@(Model.Plan.Goal ?? "Not set")</dd>
+
+    <dt class="col-sm-3">Difficulty</dt>
+    <dd class="col-sm-9">@Model.Plan.Difficulty</dd>
+
+    <dt class="col-sm-3">Start Date</dt>
+    <dd class="col-sm-9">@Model.Plan.StartDate.ToString("dd MMM yyyy")</dd>
+
+    <dt class="col-sm-3">End Date</dt>
+    <dd class="col-sm-9">
+        @(Model.Plan.EndDate?.ToString("dd MMM yyyy") ?? "Not set")
+    </dd>
+</dl>
+
+<p>
+    <a asp-action="AddExercise"
+       asp-route-id="@Model.Plan.Id"
+       class="btn btn-primary">
+        Add Exercise
+    </a>
+    <a asp-action="Edit" asp-route-id="@Model.Plan.Id" class="btn btn-outline-primary">Edit Plan</a>
+    <a asp-action="Delete" asp-route-id="@Model.Plan.Id" class="btn btn-outline-danger">Delete Plan</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to Plans</a>
+</p>
+
+<h2>Exercises</h2>
+
+@* Exercises were loaded separately through the repository. *@
+@if (Model.Exercises.Count == 0)
+{
+    <div class="alert alert-info">
+        No exercises have been added to this plan yet.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>Exercise</th>
+                    <th>Sets</th>
+                    <th>Reps</th>
+                    <th>Duration (min)</th>
+                    <th>Notes</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var exercise in Model.Exercises)
+                {
+                    <tr>
+                        <td>@exercise.DayOfWeek</td>
+                        <td>@exercise.ExerciseName</td>
+                        <td>@(exercise.Sets == 0 ? "—" : exercise.Sets.ToString())</td>
+                        <td>@(exercise.Reps == 0 ? "—" : exercise.Reps.ToString())</td>
+                        <td>@(exercise.DurationMinutes == 0 ? "—" : exercise.DurationMinutes.ToString())</td>
+                        <td>@(exercise.Notes ?? "—")</td>
+                        <td>
+                            <a asp-action="EditExercise"
+                               asp-route-id="@exercise.Id"
+                               class="btn btn-sm btn-outline-primary">
+                                Edit
+                            </a>
+                            <form asp-action="DeleteExercise" asp-route-id="@exercise.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('Delete this exercise?');">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

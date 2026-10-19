@@ -1,4 +1,4 @@
-﻿@using HealthTrack.Models
+@using HealthTrack.Models
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,8 +26,7 @@
 
                 <div class="collapse navbar-collapse" id="mainNav">
                     <ul class="navbar-nav me-auto">
-
-                        @* ---------- CLIENT MENU ---------- *@
+                        @* Client navigation *@
                         @if (User.IsInRole(AppRoles.Client))
                         {
                             <li class="nav-item"><a class="nav-link" asp-controller="Client" asp-action="Index"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
@@ -38,7 +37,7 @@
                             <li class="nav-item"><a class="nav-link" asp-controller="Appointments" asp-action="Index"><i class="bi bi-calendar-check"></i> Appointments</a></li>
                         }
 
-                        @* ---------- TRAINER MENU ---------- *@
+                        @* Trainer navigation *@
                         @if (User.IsInRole(AppRoles.Trainer))
                         {
                             <li class="nav-item"><a class="nav-link" asp-controller="Trainer" asp-action="Index"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
@@ -49,7 +48,7 @@
                             <li class="nav-item"><a class="nav-link" asp-controller="Progress" asp-action="Reports"><i class="bi bi-bar-chart"></i> Reports</a></li>
                         }
 
-                        @* ---------- ADMIN MENU ---------- *@
+                        @* Administrator navigation *@
                         @if (User.IsInRole(AppRoles.Admin))
                         {
                             <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Index"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
@@ -58,7 +57,7 @@
                             <li class="nav-item"><a class="nav-link" asp-controller="Progress" asp-action="Reports"><i class="bi bi-bar-chart"></i> Reports</a></li>
                         }
 
-                        @* ---------- NOT LOGGED IN ---------- *@
+                        @* Navigation before sign-in *@
                         @if (!(User.Identity?.IsAuthenticated ?? false))
                         {
                             <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Home</a></li>
@@ -66,7 +65,7 @@
                         }
                     </ul>
 
-                    @* Notifications bell (unread count is added in Task 8) *@
+                    @* Notifications bell; unread count can be added later. *@
                     @if (User.Identity?.IsAuthenticated ?? false)
                     {
                         <ul class="navbar-nav me-2">

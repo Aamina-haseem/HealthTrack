@@ -1,0 +1,46 @@
+@model HealthTrack.ViewModels.ProgressDashboardViewModel
+@{ ViewData["Title"] = "My Progress"; }
+<h1>My Progress</h1>
+<p class="text-muted">Based on your own recorded workouts, meals and measurements.</p>
+<p><a asp-controller="Logs" asp-action="Index" class="btn btn-primary">Add or Edit Logs</a>
+   <a asp-controller="Client" asp-action="Index" class="btn btn-secondary">Dashboard</a></p>
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="card h-100"><div class="card-body"><h2 class="h6">Weight Change</h2><p class="fs-3">@(Model.WeightChangeKg?.ToString("+0.0;-0.0;0.0") ?? "—") kg</p></div></div></div>
+    <div class="col-md-3"><div class="card h-100"><div class="card-body"><h2 class="h6">Workout Minutes (30 days)</h2><p class="fs-3">@Model.WorkoutMinutesLast30Days</p></div></div></div>
+    <div class="col-md-3"><div class="card h-100"><div class="card-body"><h2 class="h6">Calories Burned (30 days)</h2><p class="fs-3">@Model.CaloriesBurnedLast30Days</p></div></div></div>
+    <div class="col-md-3"><div class="card h-100"><div class="card-body"><h2 class="h6">Calories Logged in Meals (30 days)</h2><p class="fs-3">@Model.CaloriesConsumedLast30Days</p></div></div></div>
+</div>
+<h2 class="h4">Weight and BMI Trend</h2>
+@if (Model.Measurements.Count == 0) { <div class="alert alert-info">Record a health measurement to see your trend.</div> }
+else {
+    var latest = Model.Measurements.TakeLast(10).ToList();
+    var maxWeight = latest.Max(x => x.WeightKg);
+    var minWeight = latest.Min(x => x.WeightKg);
+    <p class="text-muted">Your last @latest.Count measurements, oldest to newest.</p>
+    <div class="d-flex align-items-end gap-2 overflow-auto border-bottom pb-2" style="height: 180px;" role="img" aria-label="Weight measurements shown as bars in date order">
+        @foreach (var m in latest) {
+            var height = maxWeight == minWeight ? 60 : 20 + (int)Math.Round(75 * (m.WeightKg - minWeight) / (maxWeight - minWeight));
+            <div class="text-center" style="min-width: 65px;">
+                <span class="small">@m.WeightKg.ToString("0.0") kg</span>
+                <div class="bg-primary rounded-top mx-auto" style="height: @(height)px; width: 36px;"></div>
+                <small>@m.Date.ToString("dd MMM")</small>
+            </div>
+        }
+    </div>
+    <div class="table-responsive mt-3"><table class="table table-sm">
+        <thead><tr><th>Date</th><th>Weight</th><th>BMI</th><th>Resting Heart Rate</th></tr></thead>
+        <tbody>@foreach (var m in latest.OrderByDescending(x => x.Date)) {
+            <tr><td>@m.Date.ToString("dd MMM yyyy")</td><td>@m.WeightKg kg</td><td>@m.BMI</td>
+                <td>@(m.RestingHeartRate?.ToString() ?? "—")</td></tr>
+        }</tbody>
+    </table></div>
+}
+<h2 class="h4 mt-4">Workout History</h2>
+@if (Model.Workouts.Count == 0) { <p class="text-muted">No workouts logged.</p> }
+else { <div class="table-responsive"><table class="table table-sm table-striped">
+    <thead><tr><th>Date</th><th>Workout</th><th>Minutes</th><th>Calories Burned</th></tr></thead>
+    <tbody>@foreach (var x in Model.Workouts.OrderByDescending(x => x.Date).Take(10)) {
+        <tr><td>@x.Date.ToString("dd MMM yyyy")</td><td>@x.ExerciseName</td>
+            <td>@x.DurationMinutes</td><td>@x.CaloriesBurned</td></tr>
+    }</tbody>
+</table></div> }
