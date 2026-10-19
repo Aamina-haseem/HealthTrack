@@ -1,5 +1,47 @@
+/* =========================================================
+   HealthTrack theme: dark warm background with a copper accent.
+   Built on Bootstrap 5.3: we only change Bootstrap's own CSS
+   variables, so every btn, card, table and form keeps working
+   exactly as Bootstrap documents it.
+   ========================================================= */
+
+/* ---------- 1. Colour palette (change colours here only) ---------- */
+:root,
+[data-bs-theme="dark"] {
+  --ht-bg: #1C1917;          /* page background (warm charcoal) */
+  --ht-surface: #292524;     /* cards, lists, tables */
+  --ht-surface-2: #231F1D;   /* form inputs, nav bar */
+  --ht-line: #3A332E;        /* borders and dividers */
+  --ht-copper: #C97B4A;      /* main accent: buttons, highlights */
+  --ht-copper-light: #E09A6B;/* links and hover states */
+  --ht-sand: #D6C3A5;        /* second chart colour */
+  --ht-text: #F5F0EB;        /* main text (warm white) */
+  --ht-muted: #A8A29E;       /* secondary text */
+
+  /* Map our palette onto Bootstrap's variables */
+  --bs-body-bg: var(--ht-bg);
+  --bs-body-color: var(--ht-text);
+  --bs-emphasis-color: #FFFFFF;
+  --bs-secondary-color: var(--ht-muted);
+  --bs-tertiary-bg: var(--ht-surface-2);
+  --bs-border-color: var(--ht-line);
+  --bs-primary: var(--ht-copper);
+  --bs-primary-rgb: 201, 123, 74;
+  --bs-link-color: var(--ht-copper-light);
+  --bs-link-color-rgb: 224, 154, 107;
+  --bs-link-hover-color: #F0B48A;
+  --bs-link-hover-color-rgb: 240, 180, 138;
+  --bs-heading-color: var(--ht-text);
+  --bs-border-radius: .75rem;
+  --bs-border-radius-lg: 1.25rem;
+  --bs-body-font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ---------- 2. Base layout ---------- */
 html {
   font-size: 14px;
+  position: relative;
+  min-height: 100%;
 }
 
 @media (min-width: 768px) {
@@ -8,17 +50,21 @@ html {
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
 body {
   margin-bottom: 60px;
+}
+
+h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
+  font-family: "Montserrat", "Segoe UI", sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Keyboard users always see where they are (copper focus ring) */
+.btn:focus-visible, .btn-link.nav-link:focus-visible, .form-control:focus,
+.form-select:focus, .form-check-input:focus, .nav-link:focus-visible, a:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 0.15rem var(--ht-bg), 0 0 0 0.35rem var(--ht-copper-light);
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
@@ -28,4 +74,267 @@ body {
 
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
+}
+
+/* ---------- 3. Navigation bar ---------- */
+.ht-navbar {
+  background-color: #141110;
+  border-bottom: 1px solid var(--ht-line);
+}
+
+.ht-navbar .navbar-brand {
+  color: var(--ht-text);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 1rem;
+}
+
+.ht-navbar .navbar-brand i {
+  color: var(--ht-copper);
+}
+
+.ht-navbar .nav-link {
+  color: var(--ht-muted);
+  white-space: nowrap;  /* keep each menu label on one line */
+}
+
+.ht-navbar .nav-link:hover,
+.ht-navbar .nav-link:focus-visible {
+  color: var(--ht-copper-light);
+}
+
+/* ---------- 4. Buttons (pill shaped, copper) ---------- */
+.btn {
+  --bs-btn-border-radius: 50rem;
+  --bs-btn-padding-x: 1.25rem;
+  --bs-btn-font-weight: 600;
+}
+
+.btn-sm {
+  --bs-btn-padding-x: .9rem;
+}
+
+.btn-primary {
+  /* Dark text on copper passes WCAG AA contrast; white text would not. */
+  --bs-btn-color: var(--ht-bg);
+  --bs-btn-bg: var(--ht-copper);
+  --bs-btn-border-color: var(--ht-copper);
+  --bs-btn-hover-color: var(--ht-bg);
+  --bs-btn-hover-bg: var(--ht-copper-light);
+  --bs-btn-hover-border-color: var(--ht-copper-light);
+  --bs-btn-active-color: var(--ht-bg);
+  --bs-btn-active-bg: #B36A3C;
+  --bs-btn-active-border-color: #B36A3C;
+  --bs-btn-disabled-color: var(--ht-bg);
+  --bs-btn-disabled-bg: var(--ht-copper);
+  --bs-btn-disabled-border-color: var(--ht-copper);
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--ht-copper-light);
+  --bs-btn-border-color: var(--ht-copper);
+  --bs-btn-hover-color: var(--ht-bg);
+  --bs-btn-hover-bg: var(--ht-copper);
+  --bs-btn-hover-border-color: var(--ht-copper);
+  --bs-btn-active-color: var(--ht-bg);
+  --bs-btn-active-bg: var(--ht-copper);
+  --bs-btn-active-border-color: var(--ht-copper);
+}
+
+.btn-secondary,
+.btn-outline-secondary {
+  --bs-btn-color: var(--ht-text);
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: #57534E;
+  --bs-btn-hover-color: var(--ht-text);
+  --bs-btn-hover-bg: #3A332E;
+  --bs-btn-hover-border-color: #78716C;
+  --bs-btn-active-color: var(--ht-text);
+  --bs-btn-active-bg: #44403C;
+  --bs-btn-active-border-color: #78716C;
+}
+
+/* ---------- 5. Cards, lists, tables, forms ---------- */
+.card {
+  --bs-card-bg: var(--ht-surface);
+  --bs-card-border-color: var(--ht-line);
+  --bs-card-border-radius: 1.25rem;
+  --bs-card-inner-border-radius: calc(1.25rem - 1px);
+  --bs-card-cap-bg: transparent;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.25);
+}
+
+.list-group {
+  --bs-list-group-bg: var(--ht-surface);
+  --bs-list-group-border-color: var(--ht-line);
+  --bs-list-group-color: var(--ht-text);
+}
+
+.table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--ht-text);
+  --bs-table-border-color: var(--ht-line);
+  --bs-table-striped-bg: rgba(255, 255, 255, 0.03);
+  --bs-table-striped-color: var(--ht-text);
+  --bs-table-hover-bg: rgba(201, 123, 74, 0.08);
+  --bs-table-hover-color: var(--ht-text);
+}
+
+.table > thead th {
+  color: var(--ht-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.form-control,
+.form-select {
+  background-color: var(--ht-surface-2);
+  border-color: var(--ht-line);
+  color: var(--ht-text);
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: var(--ht-surface-2);
+  border-color: var(--ht-copper);
+  color: var(--ht-text);
+}
+
+/* ---------- 6. HealthTrack page pieces (used on the dashboards) ---------- */
+
+/* Small spaced-out capital label above a heading, e.g. "CLIENT DASHBOARD" */
+.ht-eyebrow {
+  display: inline-block;
+  color: var(--ht-copper-light);
+  font-family: "Montserrat", "Segoe UI", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+/* Welcome banner with a thin copper arc (pure CSS, no images) */
+.ht-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 2.5rem 2rem;
+  margin-bottom: 2rem;
+  border: 1px solid var(--ht-line);
+  border-radius: 2rem;
+  background: radial-gradient(circle at 85% 20%, rgba(201, 123, 74, 0.22), transparent 45%),
+              linear-gradient(135deg, #2A211C 0%, var(--ht-bg) 70%);
+}
+
+.ht-hero::after {
+  content: "";
+  position: absolute;
+  right: -6rem;
+  top: 50%;
+  width: 22rem;
+  height: 22rem;
+  transform: translateY(-50%);
+  border: 1px solid rgba(224, 154, 107, 0.45);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.ht-hero > * {
+  position: relative;  /* keep text above the arc */
+  z-index: 1;
+}
+
+.ht-hero h1 {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+}
+
+.ht-hero-figure {
+  text-align: center;
+}
+
+.ht-hero-figure .value {
+  display: block;
+  font-family: "Montserrat", "Segoe UI", sans-serif;
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ht-text);
+}
+
+/* Summary number cards with a round copper icon */
+.ht-stat .card-body {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.ht-stat-icon {
+  flex: 0 0 3rem;
+  width: 3rem;
+  height: 3rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background-color: rgba(201, 123, 74, 0.15);
+  color: var(--ht-copper-light);
+  font-size: 1.35rem;
+}
+
+.ht-stat-value {
+  font-family: "Montserrat", "Segoe UI", sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.ht-stat-label {
+  color: var(--ht-muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+/* Friendly message when a list has nothing in it yet */
+.ht-empty {
+  text-align: center;
+  color: var(--ht-muted);
+  padding: 1.5rem 1rem;
+}
+
+.ht-empty i {
+  display: block;
+  font-size: 1.75rem;
+  color: var(--ht-copper);
+  margin-bottom: 0.5rem;
+}
+
+/* Section heading inside a card */
+.ht-card-title {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 575.98px) {
+  .ht-hero {
+    padding: 2rem 1.25rem;
+    border-radius: 1.5rem;
+  }
+
+  .ht-hero::after {
+    width: 14rem;
+    height: 14rem;
+    right: -7rem;
+  }
+}
+
+/* Respect users who ask the system for less motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }
