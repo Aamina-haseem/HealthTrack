@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace HealthTrack.Controllers
 {
@@ -16,19 +17,22 @@ namespace HealthTrack.Controllers
         private readonly IRepository<WorkoutPlanItem> _workoutPlanItems;
         private readonly IRepository<WorkoutLog> _workoutLogs;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ILogger<WorkoutPlansController> _logger;
 
         public WorkoutPlansController(
             IRepository<WorkoutPlan> workoutPlans,
             IRepository<TrainerAssignment> assignments,
             IRepository<WorkoutPlanItem> workoutPlanItems,
             IRepository<WorkoutLog> workoutLogs,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            ILogger<WorkoutPlansController> logger)
         {
             _workoutPlans = workoutPlans;
             _assignments = assignments;
             _workoutPlanItems = workoutPlanItems;
             _workoutLogs = workoutLogs;
             _userManager = userManager;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index()
@@ -109,8 +113,22 @@ namespace HealthTrack.Controllers
             };
 
             await _workoutPlans.AddAsync(plan);
-            await _workoutPlans.SaveAsync();
+            try
+            {
+                await _workoutPlans.SaveAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the technical details for the developer; the user only sees a simple message.
+                _logger.LogError(ex, "Database save failed in WorkoutPlansController.Create");
+                ModelState.AddModelError(string.Empty,
+                    "Sorry, the workout plan could not be saved. Please try again.");
+                // Refill the dropdown when returning to the form with errors.
+                await LoadAssignedClientsAsync(trainerId);
+                return View(input);
+            }
 
+            TempData["Success"] = "Workout plan created.";
             return RedirectToAction(nameof(Index));
         }
         [HttpGet]
@@ -205,8 +223,22 @@ namespace HealthTrack.Controllers
             plan.EndDate = input.EndDate;
 
             _workoutPlans.Update(plan);
-            await _workoutPlans.SaveAsync();
+            try
+            {
+                await _workoutPlans.SaveAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the technical details for the developer; the user only sees a simple message.
+                _logger.LogError(ex, "Database save failed in WorkoutPlansController.Edit");
+                ModelState.AddModelError(string.Empty,
+                    "Sorry, the workout plan could not be saved. Please try again.");
+                await LoadAssignedClientsAsync(trainerId);
+                ViewBag.PlanId = plan.Id;
+                return View(input);
+            }
 
+            TempData["Success"] = "Workout plan updated.";
             return RedirectToAction(nameof(Details), new { id = plan.Id });
         }
 
@@ -295,9 +327,23 @@ namespace HealthTrack.Controllers
             };
 
             await _workoutPlanItems.AddAsync(exercise);
-            await _workoutPlanItems.SaveAsync();
+            try
+            {
+                await _workoutPlanItems.SaveAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the technical details for the developer; the user only sees a simple message.
+                _logger.LogError(ex, "Database save failed in WorkoutPlansController.AddExercise");
+                ModelState.AddModelError(string.Empty,
+                    "Sorry, the exercise could not be saved. Please try again.");
+                ViewBag.PlanId = plan.Id;
+                ViewBag.PlanTitle = plan.Title;
+                return View(input);
+            }
 
             // Show the updated exercise list after saving.
+            TempData["Success"] = "Exercise added.";
             return RedirectToAction(nameof(Details), new { id = plan.Id });
         }
 
@@ -367,8 +413,23 @@ namespace HealthTrack.Controllers
             exercise.Notes = input.Notes?.Trim();
 
             _workoutPlanItems.Update(exercise);
-            await _workoutPlanItems.SaveAsync();
+            try
+            {
+                await _workoutPlanItems.SaveAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the technical details for the developer; the user only sees a simple message.
+                _logger.LogError(ex, "Database save failed in WorkoutPlansController.EditExercise");
+                ModelState.AddModelError(string.Empty,
+                    "Sorry, the exercise could not be saved. Please try again.");
+                ViewBag.ExerciseId = exercise.Id;
+                ViewBag.PlanId = plan.Id;
+                ViewBag.PlanTitle = plan.Title;
+                return View(input);
+            }
 
+            TempData["Success"] = "Exercise updated.";
             return RedirectToAction(nameof(Details), new { id = plan.Id });
         }
 
@@ -385,7 +446,19 @@ namespace HealthTrack.Controllers
             if (plan is null || plan.TrainerId != trainerId) return NotFound();
 
             _workoutPlanItems.Delete(exercise);
-            await _workoutPlanItems.SaveAsync();
+            try
+            {
+                await _workoutPlanItems.SaveAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the technical details for the developer; the user only sees a simple message.
+                _logger.LogError(ex, "Database save failed in WorkoutPlansController.DeleteExercise");
+                TempData["Error"] = "Sorry, the exercise could not be deleted. Please try again.";
+                return RedirectToAction(nameof(Details), new { id = plan.Id });
+            }
+
+            TempData["Success"] = "Exercise removed.";
             return RedirectToAction(nameof(Details), new { id = plan.Id });
         }
 
@@ -415,7 +488,19 @@ namespace HealthTrack.Controllers
                 _workoutLogs.Update(log);
             }
             _workoutPlans.Delete(plan);
-            await _workoutPlans.SaveAsync();
+            try
+            {
+                await _workoutPlans.SaveAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the technical details for the developer; the user only sees a simple message.
+                _logger.LogError(ex, "Database save failed in WorkoutPlansController.DeleteConfirmed");
+                TempData["Error"] = "Sorry, the workout plan could not be deleted. Please try again.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            TempData["Success"] = "Workout plan deleted.";
             return RedirectToAction(nameof(Index));
         }
 

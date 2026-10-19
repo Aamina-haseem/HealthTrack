@@ -5,7 +5,7 @@
 <nav class="d-flex flex-wrap gap-2 mb-4">
     <a asp-controller="WorkoutPlans" asp-action="Index" class="btn btn-primary">Workout Plans</a>
     <a asp-controller="DietPlans" asp-action="Index" class="btn btn-outline-primary">Diet Plans</a>
-    <a asp-controller="Progress" asp-action="TrainerReport" class="btn btn-outline-secondary">Performance Report</a>
+    <a asp-controller="Progress" asp-action="Reports" class="btn btn-outline-secondary">Performance Report</a>
 </nav>
 <div class="row g-3 mb-4">
     <div class="col-md-4"><div class="card h-100"><div class="card-body"><h2 class="h6">Active Clients</h2><p class="display-6">@Model.Clients.Count</p></div></div></div>

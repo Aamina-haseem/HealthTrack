@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace HealthTrack.Controllers
 {
@@ -16,18 +17,21 @@ namespace HealthTrack.Controllers
         private readonly IRepository<HealthMeasurement> _measurements;
         private readonly IRepository<WorkoutPlan> _plans;
         private readonly UserManager<ApplicationUser> _users;
+        private readonly ILogger<LogsController> _logger;
 
         public LogsController(IRepository<WorkoutLog> workouts,
             IRepository<MealLog> meals,
             IRepository<HealthMeasurement> measurements,
             IRepository<WorkoutPlan> plans,
-            UserManager<ApplicationUser> users)
+            UserManager<ApplicationUser> users,
+            ILogger<LogsController> logger)
         {
             _workouts = workouts;
             _meals = meals;
             _measurements = measurements;
             _plans = plans;
             _users = users;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index()
@@ -75,7 +79,21 @@ namespace HealthTrack.Controllers
                 CaloriesBurned = input.CaloriesBurned,
                 Notes = input.Notes?.Trim()
             });
-            await _workouts.SaveAsync();
+            try
+            {
+                await _workouts.SaveAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the technical details for the developer; the user only sees a simple message.
+                _logger.LogError(ex, "Database save failed in LogsController.AddWorkout");
+                ModelState.AddModelError(string.Empty,
+                    "Sorry, the workout could not be saved. Please try again.");
+                await LoadPlansAsync(clientId);
+                return View(input);
+            }
+
+            TempData["Success"] = "Workout logged.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -120,7 +138,22 @@ namespace HealthTrack.Controllers
             log.CaloriesBurned = input.CaloriesBurned;
             log.Notes = input.Notes?.Trim();
             _workouts.Update(log);
-            await _workouts.SaveAsync();
+            try
+            {
+                await _workouts.SaveAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the technical details for the developer; the user only sees a simple message.
+                _logger.LogError(ex, "Database save failed in LogsController.EditWorkout");
+                ModelState.AddModelError(string.Empty,
+                    "Sorry, the workout could not be saved. Please try again.");
+                await LoadPlansAsync(clientId);
+                ViewBag.LogId = id;
+                return View(input);
+            }
+
+            TempData["Success"] = "Workout updated.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -132,7 +165,19 @@ namespace HealthTrack.Controllers
             var log = await _workouts.GetByIdAsync(id);
             if (log is null || log.ClientId != clientId) return NotFound();
             _workouts.Delete(log);
-            await _workouts.SaveAsync();
+            try
+            {
+                await _workouts.SaveAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the technical details for the developer; the user only sees a simple message.
+                _logger.LogError(ex, "Database save failed in LogsController.DeleteWorkout");
+                TempData["Error"] = "Sorry, the workout could not be deleted. Please try again.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            TempData["Success"] = "Workout deleted.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -157,7 +202,19 @@ namespace HealthTrack.Controllers
                 FoodItems = input.FoodItems.Trim(),
                 Calories = input.Calories
             });
-            await _meals.SaveAsync();
+            try
+            {
+                await _meals.SaveAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the technical details for the developer; the user only sees a simple message.
+                _logger.LogError(ex, "Database save failed in LogsController.AddMeal");
+                TempData["Error"] = "Sorry, the meal could not be changed. Please try again.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            TempData["Success"] = "Meal logged.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -193,7 +250,21 @@ namespace HealthTrack.Controllers
             log.FoodItems = input.FoodItems.Trim();
             log.Calories = input.Calories;
             _meals.Update(log);
-            await _meals.SaveAsync();
+            try
+            {
+                await _meals.SaveAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the technical details for the developer; the user only sees a simple message.
+                _logger.LogError(ex, "Database save failed in LogsController.EditMeal");
+                ModelState.AddModelError(string.Empty,
+                    "Sorry, the meal could not be saved. Please try again.");
+                ViewBag.LogId = id;
+                return View(input);
+            }
+
+            TempData["Success"] = "Meal updated.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -205,7 +276,19 @@ namespace HealthTrack.Controllers
             var log = await _meals.GetByIdAsync(id);
             if (log is null || log.ClientId != clientId) return NotFound();
             _meals.Delete(log);
-            await _meals.SaveAsync();
+            try
+            {
+                await _meals.SaveAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the technical details for the developer; the user only sees a simple message.
+                _logger.LogError(ex, "Database save failed in LogsController.DeleteMeal");
+                TempData["Error"] = "Sorry, the meal could not be deleted. Please try again.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            TempData["Success"] = "Meal deleted.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -231,7 +314,19 @@ namespace HealthTrack.Controllers
                 RestingHeartRate = input.RestingHeartRate
                 // Sensitive notes are deliberately not stored without encryption.
             });
-            await _measurements.SaveAsync();
+            try
+            {
+                await _measurements.SaveAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the technical details for the developer; the user only sees a simple message.
+                _logger.LogError(ex, "Database save failed in LogsController.AddMeasurement");
+                TempData["Error"] = "Sorry, the measurement could not be changed. Please try again.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            TempData["Success"] = "Measurement saved.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -267,7 +362,21 @@ namespace HealthTrack.Controllers
             log.HeightCm = input.HeightCm;
             log.RestingHeartRate = input.RestingHeartRate;
             _measurements.Update(log);
-            await _measurements.SaveAsync();
+            try
+            {
+                await _measurements.SaveAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the technical details for the developer; the user only sees a simple message.
+                _logger.LogError(ex, "Database save failed in LogsController.EditMeasurement");
+                ModelState.AddModelError(string.Empty,
+                    "Sorry, the measurement could not be saved. Please try again.");
+                ViewBag.LogId = id;
+                return View(input);
+            }
+
+            TempData["Success"] = "Measurement updated.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -279,7 +388,19 @@ namespace HealthTrack.Controllers
             var log = await _measurements.GetByIdAsync(id);
             if (log is null || log.ClientId != clientId) return NotFound();
             _measurements.Delete(log);
-            await _measurements.SaveAsync();
+            try
+            {
+                await _measurements.SaveAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                // Log the technical details for the developer; the user only sees a simple message.
+                _logger.LogError(ex, "Database save failed in LogsController.DeleteMeasurement");
+                TempData["Error"] = "Sorry, the measurement could not be deleted. Please try again.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            TempData["Success"] = "Measurement deleted.";
             return RedirectToAction(nameof(Index));
         }
 
