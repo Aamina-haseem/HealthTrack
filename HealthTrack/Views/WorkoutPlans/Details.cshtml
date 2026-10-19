@@ -32,6 +32,8 @@
        class="btn btn-primary">
         Add Exercise
     </a>
+    <a asp-action="Edit" asp-route-id="@Model.Plan.Id" class="btn btn-outline-primary">Edit Plan</a>
+    <a asp-action="Delete" asp-route-id="@Model.Plan.Id" class="btn btn-outline-danger">Delete Plan</a>
     <a asp-action="Index" class="btn btn-secondary">Back to Plans</a>
 </p>
 
@@ -56,6 +58,7 @@ else
                     <th>Reps</th>
                     <th>Duration (min)</th>
                     <th>Notes</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -68,6 +71,17 @@ else
                         <td>@(exercise.Reps == 0 ? "—" : exercise.Reps.ToString())</td>
                         <td>@(exercise.DurationMinutes == 0 ? "—" : exercise.DurationMinutes.ToString())</td>
                         <td>@(exercise.Notes ?? "—")</td>
+                        <td>
+                            <a asp-action="EditExercise"
+                               asp-route-id="@exercise.Id"
+                               class="btn btn-sm btn-outline-primary">
+                                Edit
+                            </a>
+                            <form asp-action="DeleteExercise" asp-route-id="@exercise.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('Delete this exercise?');">Delete</button>
+                            </form>
+                        </td>
                     </tr>
                 }
             </tbody>

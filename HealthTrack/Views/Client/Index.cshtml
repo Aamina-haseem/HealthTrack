@@ -1,0 +1,46 @@
+@model HealthTrack.ViewModels.ClientDashboardViewModel
+@{ ViewData["Title"] = "Client Dashboard"; }
+<h1>Welcome, @Model.Name</h1>
+<p class="text-muted">Your plans and health activity in one place.</p>
+<nav class="d-flex flex-wrap gap-2 mb-4" aria-label="Client pages">
+    <a asp-controller="Logs" asp-action="Index" class="btn btn-primary">My Logs</a>
+    <a asp-controller="Progress" asp-action="Index" class="btn btn-outline-primary">My Progress</a>
+</nav>
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="card h-100"><div class="card-body"><h2 class="h6">Workout Plans</h2><p class="display-6">@Model.WorkoutPlans.Count</p></div></div></div>
+    <div class="col-md-3"><div class="card h-100"><div class="card-body"><h2 class="h6">Diet Plans</h2><p class="display-6">@Model.DietPlans.Count</p></div></div></div>
+    <div class="col-md-3"><div class="card h-100"><div class="card-body"><h2 class="h6">Latest BMI</h2><p class="display-6">@(Model.LatestMeasurement?.BMI.ToString("0.0") ?? "—")</p></div></div></div>
+    <div class="col-md-3"><div class="card h-100"><div class="card-body"><h2 class="h6">Unread Alerts</h2><p class="display-6">@Model.UnreadNotifications</p></div></div></div>
+</div>
+<div class="row g-4">
+    <section class="col-md-6"><h2 class="h4">My Workout Plans</h2>
+        @if (Model.WorkoutPlans.Count == 0) { <p class="text-muted">No workout plan assigned yet.</p> }
+        else { <ul class="list-group">@foreach (var x in Model.WorkoutPlans) {
+            <li class="list-group-item d-flex justify-content-between">
+                <span>@x.Title <small class="text-muted">(@x.Difficulty)</small></span>
+                <a asp-action="WorkoutPlan" asp-route-id="@x.Id">Open</a>
+            </li>
+        }</ul> }
+    </section>
+    <section class="col-md-6"><h2 class="h4">My Diet Plans</h2>
+        @if (Model.DietPlans.Count == 0) { <p class="text-muted">No diet plan assigned yet.</p> }
+        else { <ul class="list-group">@foreach (var x in Model.DietPlans) {
+            <li class="list-group-item d-flex justify-content-between">
+                <span>@x.Title <small class="text-muted">(@x.DailyCalorieTarget kcal/day)</small></span>
+                <a asp-action="DietPlan" asp-route-id="@x.Id">Open</a>
+            </li>
+        }</ul> }
+    </section>
+    <section class="col-md-6"><h2 class="h4">Upcoming Appointments</h2>
+        @if (Model.UpcomingAppointments.Count == 0) { <p class="text-muted">None scheduled.</p> }
+        else { <ul class="list-group">@foreach (var x in Model.UpcomingAppointments) {
+            <li class="list-group-item">@x.AppointmentDate.ToString("dd MMM yyyy HH:mm") — @x.Status</li>
+        }</ul> }
+    </section>
+    <section class="col-md-6"><h2 class="h4">Recent Trainer Feedback</h2>
+        @if (Model.RecentFeedback.Count == 0) { <p class="text-muted">No feedback yet.</p> }
+        else { <ul class="list-group">@foreach (var x in Model.RecentFeedback) {
+            <li class="list-group-item"><small>@x.CreatedAt.ToString("dd MMM yyyy")</small><br />@x.Message</li>
+        }</ul> }
+    </section>
+</div>

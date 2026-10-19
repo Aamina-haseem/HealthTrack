@@ -1,0 +1,27 @@
+@model HealthTrack.ViewModels.DietPlanDetailsViewModel
+@{ ViewData["Title"] = "Diet Plan Details"; }
+<h1>@Model.Plan.Title</h1><p class="text-muted">For @Model.ClientName</p>
+<dl class="row">
+    <dt class="col-sm-3">Description</dt><dd class="col-sm-9">@(Model.Plan.Description ?? "Not set")</dd>
+    <dt class="col-sm-3">Daily target</dt><dd class="col-sm-9">@Model.Plan.DailyCalorieTarget kcal</dd>
+    <dt class="col-sm-3">Dates</dt><dd class="col-sm-9">@Model.Plan.StartDate.ToString("dd MMM yyyy") to @(Model.Plan.EndDate?.ToString("dd MMM yyyy") ?? "Ongoing")</dd>
+</dl>
+<p><a asp-action="AddMeal" asp-route-id="@Model.Plan.Id" class="btn btn-primary">Add Meal</a>
+   <a asp-action="Edit" asp-route-id="@Model.Plan.Id" class="btn btn-outline-primary">Edit Plan</a>
+   <a asp-action="Delete" asp-route-id="@Model.Plan.Id" class="btn btn-outline-danger">Delete Plan</a>
+   <a asp-action="Index" class="btn btn-secondary">All Plans</a></p>
+<h2>Planned Meals</h2>
+@if (Model.Meals.Count == 0) { <div class="alert alert-info">No planned meals yet.</div> }
+else {
+<div class="table-responsive"><table class="table table-striped">
+    <thead><tr><th>Meal</th><th>Food</th><th>Calories</th><th>Time</th><th>Actions</th></tr></thead>
+    <tbody>@foreach (var m in Model.Meals) {
+        <tr><td>@m.MealType</td><td>@m.FoodItems</td><td>@m.Calories kcal</td>
+            <td>@(m.MealTime?.ToString(@"hh\:mm") ?? "Not set")</td><td>
+            <a asp-action="EditMeal" asp-route-id="@m.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+            <form asp-action="DeleteMeal" asp-route-id="@m.Id" method="post" class="d-inline">
+                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this meal?');">Delete</button>
+            </form></td></tr>
+    }</tbody>
+</table></div>
+}

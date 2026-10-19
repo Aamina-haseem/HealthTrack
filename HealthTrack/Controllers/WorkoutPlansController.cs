@@ -1,4 +1,4 @@
-﻿using HealthTrack.Models;
+using HealthTrack.Models;
 using HealthTrack.Repositories.Interfaces;
 using HealthTrack.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -14,25 +14,28 @@ namespace HealthTrack.Controllers
         private readonly IRepository<WorkoutPlan> _workoutPlans;
         private readonly IRepository<TrainerAssignment> _assignments;
         private readonly IRepository<WorkoutPlanItem> _workoutPlanItems;
+        private readonly IRepository<WorkoutLog> _workoutLogs;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public WorkoutPlansController(
             IRepository<WorkoutPlan> workoutPlans,
             IRepository<TrainerAssignment> assignments,
             IRepository<WorkoutPlanItem> workoutPlanItems,
+            IRepository<WorkoutLog> workoutLogs,
             UserManager<ApplicationUser> userManager)
         {
             _workoutPlans = workoutPlans;
             _assignments = assignments;
             _workoutPlanItems = workoutPlanItems;
+            _workoutLogs = workoutLogs;
             _userManager = userManager;
         }
 
         public async Task<IActionResult> Index()
         {
             // Show only plans created by the signed-in trainer.
-            var trainerId = _userManager.GetUserId(User);
-            if (trainerId is null) return Challenge();
+            var trainerId = await ActiveTrainerIdAsync();
+            if (trainerId is null) return Forbid();
 
             var plans = await _workoutPlans.FindAsync(
                 plan => plan.TrainerId == trainerId);
@@ -45,8 +48,8 @@ namespace HealthTrack.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var trainerId = _userManager.GetUserId(User);
-            if (trainerId is null) return Challenge();
+            var trainerId = await ActiveTrainerIdAsync();
+            if (trainerId is null) return Forbid();
 
             // Supply the form with clients assigned to this trainer.
             await LoadAssignedClientsAsync(trainerId);
@@ -58,8 +61,8 @@ namespace HealthTrack.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(WorkoutPlanCreateViewModel input)
         {
-            var trainerId = _userManager.GetUserId(User);
-            if (trainerId is null) return Challenge();
+            var trainerId = await ActiveTrainerIdAsync();
+            if (trainerId is null) return Forbid();
 
             if (ModelState.IsValid)
             {
@@ -113,8 +116,8 @@ namespace HealthTrack.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var trainerId = _userManager.GetUserId(User);
-            if (trainerId is null) return Challenge();
+            var trainerId = await ActiveTrainerIdAsync();
+            if (trainerId is null) return Forbid();
 
             var plan = await _workoutPlans.GetByIdAsync(id);
 
@@ -146,14 +149,22 @@ namespace HealthTrack.Controllers
             int id,
             WorkoutPlanCreateViewModel input)
         {
-            var trainerId = _userManager.GetUserId(User);
-            if (trainerId is null) return Challenge();
+            var trainerId = await ActiveTrainerIdAsync();
+            if (trainerId is null) return Forbid();
 
             var plan = await _workoutPlans.GetByIdAsync(id);
 
             // Check ownership on submission too; the URL can be changed.
             if (plan is null || plan.TrainerId != trainerId)
                 return NotFound();
+
+            // Existing workout logs refer to this plan. Keep them with their client.
+            if (input.ClientId != plan.ClientId &&
+                (await _workoutLogs.FindAsync(log => log.WorkoutPlanId == id)).Any())
+            {
+                ModelState.AddModelError(nameof(input.ClientId),
+                    "This plan has workout logs. Create a new plan for another client.");
+            }
 
             if (ModelState.IsValid)
             {
@@ -202,8 +213,8 @@ namespace HealthTrack.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var trainerId = _userManager.GetUserId(User);
-            if (trainerId is null) return Challenge();
+            var trainerId = await ActiveTrainerIdAsync();
+            if (trainerId is null) return Forbid();
 
             var plan = await _workoutPlans.GetByIdAsync(id);
 
@@ -234,8 +245,8 @@ namespace HealthTrack.Controllers
         [HttpGet]
         public async Task<IActionResult> AddExercise(int id)
         {
-            var trainerId = _userManager.GetUserId(User);
-            if (trainerId is null) return Challenge();
+            var trainerId = await ActiveTrainerIdAsync();
+            if (trainerId is null) return Forbid();
 
             var plan = await _workoutPlans.GetByIdAsync(id);
 
@@ -255,8 +266,8 @@ namespace HealthTrack.Controllers
             int id,
             WorkoutPlanItemCreateViewModel input)
         {
-            var trainerId = _userManager.GetUserId(User);
-            if (trainerId is null) return Challenge();
+            var trainerId = await ActiveTrainerIdAsync();
+            if (trainerId is null) return Forbid();
 
             var plan = await _workoutPlans.GetByIdAsync(id);
 
@@ -288,6 +299,132 @@ namespace HealthTrack.Controllers
 
             // Show the updated exercise list after saving.
             return RedirectToAction(nameof(Details), new { id = plan.Id });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditExercise(int id)
+        {
+            var trainerId = await ActiveTrainerIdAsync();
+            if (trainerId is null) return Forbid();
+
+            var exercise = await _workoutPlanItems.GetByIdAsync(id);
+            if (exercise is null) return NotFound();
+
+            var plan = await _workoutPlans.GetByIdAsync(exercise.WorkoutPlanId);
+
+            // Only the trainer who owns this plan may edit its exercises.
+            if (plan is null || plan.TrainerId != trainerId)
+                return NotFound();
+
+            ViewBag.ExerciseId = exercise.Id;
+            ViewBag.PlanId = plan.Id;
+            ViewBag.PlanTitle = plan.Title;
+
+            // Reuse the exercise form model and its validation rules.
+            return View(new WorkoutPlanItemCreateViewModel
+            {
+                ExerciseName = exercise.ExerciseName,
+                DayOfWeek = exercise.DayOfWeek,
+                Sets = exercise.Sets,
+                Reps = exercise.Reps,
+                DurationMinutes = exercise.DurationMinutes,
+                Notes = exercise.Notes
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditExercise(
+            int id,
+            WorkoutPlanItemCreateViewModel input)
+        {
+            var trainerId = await ActiveTrainerIdAsync();
+            if (trainerId is null) return Forbid();
+
+            var exercise = await _workoutPlanItems.GetByIdAsync(id);
+            if (exercise is null) return NotFound();
+
+            var plan = await _workoutPlans.GetByIdAsync(exercise.WorkoutPlanId);
+
+            // Check ownership again when the form is submitted.
+            if (plan is null || plan.TrainerId != trainerId)
+                return NotFound();
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.ExerciseId = exercise.Id;
+                ViewBag.PlanId = plan.Id;
+                ViewBag.PlanTitle = plan.Title;
+                return View(input);
+            }
+
+            // Update only the fields the trainer is allowed to edit.
+            exercise.ExerciseName = input.ExerciseName.Trim();
+            exercise.DayOfWeek = input.DayOfWeek;
+            exercise.Sets = input.Sets;
+            exercise.Reps = input.Reps;
+            exercise.DurationMinutes = input.DurationMinutes;
+            exercise.Notes = input.Notes?.Trim();
+
+            _workoutPlanItems.Update(exercise);
+            await _workoutPlanItems.SaveAsync();
+
+            return RedirectToAction(nameof(Details), new { id = plan.Id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteExercise(int id)
+        {
+            var trainerId = await ActiveTrainerIdAsync();
+            if (trainerId is null) return Forbid();
+
+            var exercise = await _workoutPlanItems.GetByIdAsync(id);
+            if (exercise is null) return NotFound();
+            var plan = await _workoutPlans.GetByIdAsync(exercise.WorkoutPlanId);
+            if (plan is null || plan.TrainerId != trainerId) return NotFound();
+
+            _workoutPlanItems.Delete(exercise);
+            await _workoutPlanItems.SaveAsync();
+            return RedirectToAction(nameof(Details), new { id = plan.Id });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var trainerId = await ActiveTrainerIdAsync();
+            if (trainerId is null) return Forbid();
+            var plan = await _workoutPlans.GetByIdAsync(id);
+            if (plan is null || plan.TrainerId != trainerId) return NotFound();
+            return View(plan);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var trainerId = await ActiveTrainerIdAsync();
+            if (trainerId is null) return Forbid();
+            var plan = await _workoutPlans.GetByIdAsync(id);
+            if (plan is null || plan.TrainerId != trainerId) return NotFound();
+
+            // Keep a client's historical workout log when its plan is removed.
+            foreach (var log in await _workoutLogs.FindAsync(x => x.WorkoutPlanId == id))
+            {
+                log.WorkoutPlanId = null;
+                _workoutLogs.Update(log);
+            }
+            _workoutPlans.Delete(plan);
+            await _workoutPlans.SaveAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private async Task<string?> ActiveTrainerIdAsync()
+        {
+            var id = _userManager.GetUserId(User);
+            if (id is null) return null;
+            var trainer = await _userManager.FindByIdAsync(id);
+            return trainer is { IsActive: true } ? id : null;
         }
 
         private async Task LoadAssignedClientsAsync(string trainerId)
