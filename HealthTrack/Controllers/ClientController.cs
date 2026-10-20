@@ -65,8 +65,30 @@ namespace HealthTrack.Controllers
             var workoutPlans = await _workoutPlans.FindAsync(x => x.ClientId == clientId);
             var dietPlans = await _dietPlans.FindAsync(x => x.ClientId == clientId);
 
+            // ---- Chart data: worked out from the lists above, so only this client's records are used ----
+            var today = DateTime.Today;
+            var week = Enumerable.Range(0, 7).Select(i => today.AddDays(i - 6)).ToList();   // last 7 days, oldest first
+            var lastWeekStart = today.AddDays(-13);
+            var thisWeekStart = today.AddDays(-6);
+
+            var weights = measurements.OrderBy(x => x.Date).ThenBy(x => x.Id).ToList();
+            var latest = weights.LastOrDefault();
+
             return View(new ClientDashboardViewModel
             {
+                WeightTrend = weights.Select(m => new ChartPoint { Label = m.Date.ToString("dd MMM"), Value = Math.Round(m.WeightKg, 1) }).ToList(),
+                WeightChange = weights.Count > 1 ? Math.Round(weights[^1].WeightKg - weights[0].WeightKg, 1) : null,
+                BmiCategory = latest is null ? null : BmiCategory(latest.BMI),
+                WeekLabels = week.Select(d => d.ToString("ddd")).ToList(),
+                WeekMinutes = week.Select(d => workouts.Where(w => w.Date.Date == d).Sum(w => w.DurationMinutes)).ToList(),
+                WeekBurned = week.Select(d => workouts.Where(w => w.Date.Date == d).Sum(w => w.CaloriesBurned)).ToList(),
+                WeekEaten = week.Select(d => meals.Where(m => m.Date.Date == d).Sum(m => m.Calories)).ToList(),
+                MinutesThisWeek = workouts.Where(w => w.Date.Date >= thisWeekStart).Sum(w => w.DurationMinutes),
+                MinutesLastWeek = workouts.Where(w => w.Date.Date >= lastWeekStart && w.Date.Date < thisWeekStart).Sum(w => w.DurationMinutes),
+                BurnedThisWeek = workouts.Where(w => w.Date.Date >= thisWeekStart).Sum(w => w.CaloriesBurned),
+                BurnedLastWeek = workouts.Where(w => w.Date.Date >= lastWeekStart && w.Date.Date < thisWeekStart).Sum(w => w.CaloriesBurned),
+                TopActivities = TopActivities(workouts.Where(w => w.Date.Date >= today.AddDays(-29))),
+
                 Name = user.FirstName,
                 WorkoutPlans = workoutPlans.OrderByDescending(x => x.CreatedAt).ToList(),
                 DietPlans = dietPlans.OrderByDescending(x => x.CreatedAt).ToList(),
@@ -105,6 +127,17 @@ namespace HealthTrack.Controllers
             var plans = await _dietPlans.FindAsync(x => x.ClientId == clientId);
             return View(plans.OrderByDescending(x => x.StartDate).ThenByDescending(x => x.Id).ToList());
         }
+
+        // WHO adult BMI bands, shown as text beside the BMI number on the dashboard
+        private static string BmiCategory(double bmi) =>
+            bmi < 18.5 ? "Underweight" : bmi < 25 ? "Healthy weight" : bmi < 30 ? "Overweight" : "Obese";
+
+        // Number of sessions per activity name (case-insensitive), top 5, most logged first
+        private static List<ChartPoint> TopActivities(IEnumerable<WorkoutLog> workouts) =>
+            workouts.GroupBy(w => w.ExerciseName.Trim(), StringComparer.OrdinalIgnoreCase)
+                .Select(g => new ChartPoint { Label = g.Key, Value = g.Count() })
+                .OrderByDescending(p => p.Value).ThenBy(p => p.Label)
+                .Take(5).ToList();
 
         [HttpGet]
         public async Task<IActionResult> WorkoutPlan(int id)

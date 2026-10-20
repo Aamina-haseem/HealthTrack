@@ -51,11 +51,31 @@ namespace HealthTrack.Controllers
             var workoutPlans = await _workoutPlans.FindAsync(x => x.TrainerId == trainerId);
             var dietPlans = await _dietPlans.FindAsync(x => x.TrainerId == trainerId);
 
+            // ---- Chart data: only workouts of clients actively assigned to this trainer ----
+            var today = DateTime.Today;
+            var monthStart = today.AddDays(-29);
+            var clientIds = clients.Select(c => c.ClientId).ToList();
+            var names = clients.ToDictionary(c => c.ClientId, c => c.Name);
+            var workouts = (await _workouts.FindAsync(w => clientIds.Contains(w.ClientId) && w.Date >= monthStart)).ToList();
+            var days = Enumerable.Range(0, 14).Select(i => today.AddDays(i - 13)).ToList();   // last 14 days, oldest first
+
             return View(new TrainerDashboardViewModel
             {
                 Name = trainer.FirstName, Clients = clients,
                 WorkoutPlanCount = workoutPlans.Count(), DietPlanCount = dietPlans.Count(),
-                UpcomingAppointments = appointments.OrderBy(x => x.AppointmentDate).Take(5).ToList()
+                UpcomingAppointments = appointments.OrderBy(x => x.AppointmentDate).Take(5).ToList(),
+                DayLabels = days.Select(d => d.ToString("dd MMM")).ToList(),
+                DailyMinutes = days.Select(d => workouts.Where(w => w.Date.Date == d).Sum(w => w.DurationMinutes)).ToList(),
+                WorkoutsThisWeek = workouts.Count(w => w.Date.Date >= today.AddDays(-6)),
+                WorkoutsLastWeek = workouts.Count(w => w.Date.Date >= today.AddDays(-13) && w.Date.Date < today.AddDays(-6)),
+                PendingRequests = appointments.Count(a => a.Status == AppointmentStatus.Pending),
+                MinutesByClient = clients
+                    .Select(c => new ChartPoint { Label = c.Name, Value = workouts.Where(w => w.ClientId == c.ClientId).Sum(w => w.DurationMinutes) })
+                    .OrderByDescending(p => p.Value).ToList(),
+                TopActivities = workouts
+                    .GroupBy(w => w.ExerciseName.Trim(), StringComparer.OrdinalIgnoreCase)
+                    .Select(g => new ChartPoint { Label = g.Key, Value = g.Count() })
+                    .OrderByDescending(p => p.Value).ThenBy(p => p.Label).Take(5).ToList()
             });
         }
 

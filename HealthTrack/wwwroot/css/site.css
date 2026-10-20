@@ -926,3 +926,167 @@ article.card:hover,
     padding: 1.25rem 1rem 1.5rem;
   }
 }
+
+/* ---------- 9. Dashboard pieces: compact banner, KPI cards with sparklines, chart cards ---------- */
+
+/* A shorter version of the banner for dashboards, so the charts are visible straight away */
+.ht-hero-compact {
+  padding: 1.75rem 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.ht-hero-compact h1 {
+  font-size: clamp(1.6rem, 3.2vw, 2.4rem);
+  margin-bottom: 0.25rem;
+}
+
+/* KPI card: label, big number, small "vs last week" line and a sparkline along the bottom */
+.ht-kpi .card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;      /* left-aligned text (the older .ht-stat rule centres it) */
+  text-align: left;
+  gap: 0.35rem;
+  padding: 1.1rem 1.25rem 0.75rem;
+}
+
+.ht-kpi-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.ht-kpi-head .ht-stat-icon {
+  flex-basis: 2.25rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  font-size: 1rem;
+}
+
+.ht-kpi-value {
+  font-family: "Oswald", "Arial Narrow", "Segoe UI", sans-serif;
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.1;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+.ht-kpi-value small {
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--ht-muted);
+}
+
+/* Change text: arrow icon + words, never colour alone */
+.ht-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--ht-muted);
+}
+
+.ht-delta i {
+  color: var(--ht-primary);
+}
+
+.ht-spark {
+  position: relative;
+  height: 42px;
+  margin: 0.25rem -0.25rem 0;
+}
+
+/* Chart card: title row, then a fixed-height area the chart fills */
+.ht-chart-card .card-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.ht-chart-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.ht-chart-head .ht-card-title {
+  margin-bottom: 0.15rem;
+}
+
+.ht-chart-sub {
+  color: var(--ht-muted);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.ht-chart-figure {
+  font-family: "Oswald", "Arial Narrow", "Segoe UI", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #FFFFFF;
+  white-space: nowrap;
+}
+
+.ht-chart {
+  position: relative;
+  height: 260px;
+}
+
+.ht-chart-sm {
+  height: 220px;
+}
+
+/* "Show data" table under each chart, so values never depend on the chart alone */
+.ht-chart-table {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.ht-chart-table summary {
+  color: var(--ht-link);
+  cursor: pointer;
+  width: max-content;
+}
+
+.ht-chart-table table {
+  margin: 0.5rem 0 0;
+}
+
+.ht-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.5rem 0 1rem;
+}
+
+.ht-section-title h2 {
+  font-size: 1.15rem;
+  margin: 0;
+}
+
+.ht-badge-soft {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 50rem;
+  border: 1px solid #3F3F46;
+  color: #D4D4D8;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+@media (max-width: 575.98px) {
+  .ht-hero-compact {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .ht-chart {
+    height: 230px;
+  }
+}

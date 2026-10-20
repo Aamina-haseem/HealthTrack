@@ -1,171 +1,192 @@
 @model HealthTrack.ViewModels.AdminDashboardViewModel
-@using System.Text.Json
-@{ ViewData["Title"] = "Admin Dashboard"; }
+@{
+    ViewData["Title"] = "Admin Dashboard";
 
-@* Welcome banner (same structure as the Client and Trainer dashboards) *@
-<section class="ht-hero">
-    <div class="row align-items-center g-4">
-        <div class="col-md-8">
+    // Everything below comes from AdminDashboardViewModel (built in AdminController.Index).
+    var totalUsers = Model.ActiveUsers + Model.InactiveUsers;
+    var admins = Math.Max(0, totalUsers - Model.TotalClients - Model.TotalTrainers);
+    var weekLogs = Model.WorkoutLogsLast7Days + Model.MealLogsLast7Days + Model.MeasurementsLast7Days;
+}
+
+@* Short banner (same structure as the Client and Trainer dashboards) *@
+<section class="ht-hero ht-hero-compact">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
             <span class="ht-eyebrow">Administrator Dashboard</span>
             <h1>Welcome back, @Model.Name</h1>
-            <p class="text-muted mb-4">User activity, system usage and trainer assignments at a glance.</p>
-            <nav class="d-flex flex-wrap gap-2" aria-label="Admin pages">
-                <a asp-action="Users" class="btn btn-primary"><i class="bi bi-person-gear"></i> Manage Users</a>
-                <a asp-action="CreateTrainer" class="btn btn-outline-primary"><i class="bi bi-person-plus"></i> Add Trainer</a>
-                <a asp-action="Assignments" class="btn btn-outline-primary"><i class="bi bi-diagram-3"></i> Assign Trainers</a>
-                <a asp-action="Reports" class="btn btn-outline-secondary"><i class="bi bi-bar-chart"></i> Reports</a>
-            </nav>
+            <p class="text-muted mb-0">User activity, system usage and trainer assignments at a glance.</p>
         </div>
-        <div class="col-md-4 ht-hero-figure">
-            <span class="ht-eyebrow">Unassigned clients</span>
-            <span class="value">@Model.UnassignedClients</span>
-            <small class="text-muted">
-                @(Model.UnassignedClients == 0 ? "Every active client has a trainer" : "Need a trainer assignment")
-            </small>
-        </div>
+        <nav class="d-flex flex-wrap gap-2" aria-label="Admin pages">
+            <a asp-action="CreateTrainer" class="btn btn-primary"><i class="bi bi-person-plus"></i> Add Trainer</a>
+            <a asp-action="Assignments" class="btn btn-outline-primary"><i class="bi bi-diagram-3"></i> Assign Trainers</a>
+            <a asp-action="Users" class="btn btn-outline-secondary"><i class="bi bi-person-gear"></i> Manage Users</a>
+            <a asp-action="Reports" class="btn btn-outline-secondary"><i class="bi bi-bar-chart"></i> Full Reports</a>
+        </nav>
     </div>
 </section>
 
-@* ===== User activity ===== *@
-<h2 class="h5 mb-3">User Activity</h2>
+@* ===== KPI cards: user activity and system usage ===== *@
 <div class="row g-3 mb-4">
-    <div class="col-6 col-lg-3"><div class="card ht-stat h-100"><div class="card-body">
-        <span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-people"></i></span>
-        <div><p class="ht-stat-value">@Model.TotalClients</p><p class="ht-stat-label">Clients</p></div>
+    <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
+        <div class="ht-kpi-head"><span class="ht-stat-label">Users</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-people"></i></span></div>
+        <p class="ht-kpi-value">@totalUsers</p>
+        <span class="ht-delta"><i class="bi bi-person-check" aria-hidden="true"></i> @Model.ActiveUsers active · @Model.InactiveUsers inactive</span>
+        <span class="ht-delta"><i class="bi bi-person-plus" aria-hidden="true"></i> @Model.NewUsersLast30Days new in 30 days</span>
     </div></div></div>
-    <div class="col-6 col-lg-3"><div class="card ht-stat h-100"><div class="card-body">
-        <span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-person-badge"></i></span>
-        <div><p class="ht-stat-value">@Model.TotalTrainers</p><p class="ht-stat-label">Trainers</p></div>
+
+    <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
+        <div class="ht-kpi-head"><span class="ht-stat-label">Logs · 7 days</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-journal-check"></i></span></div>
+        <p class="ht-kpi-value">@weekLogs</p>
+        <span class="ht-delta"><i class="bi bi-activity" aria-hidden="true"></i> Workouts, meals and measurements</span>
+        <div class="ht-spark" aria-hidden="true"><canvas id="sparkActivity"></canvas></div>
     </div></div></div>
-    <div class="col-6 col-lg-3"><div class="card ht-stat h-100"><div class="card-body">
-        <span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-person-check"></i></span>
-        <div><p class="ht-stat-value">@Model.ActiveUsers <small class="text-muted fs-6">/ @(Model.ActiveUsers + Model.InactiveUsers)</small></p><p class="ht-stat-label">Active Accounts</p></div>
+
+    <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
+        <div class="ht-kpi-head"><span class="ht-stat-label">Appointments</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-calendar-check"></i></span></div>
+        <p class="ht-kpi-value">@Model.UpcomingAppointments <small>upcoming</small></p>
+        <span class="ht-delta"><i class="bi bi-hourglass-split" aria-hidden="true"></i> @Model.PendingAppointments waiting for approval</span>
+        <span class="ht-delta"><i class="bi bi-check2-circle" aria-hidden="true"></i> @Model.CompletedAppointments completed</span>
     </div></div></div>
-    <div class="col-6 col-lg-3"><div class="card ht-stat h-100"><div class="card-body">
-        <span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-person-plus"></i></span>
-        <div><p class="ht-stat-value">@Model.NewUsersLast30Days</p><p class="ht-stat-label">New (30 days)</p></div>
+
+    <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
+        <div class="ht-kpi-head"><span class="ht-stat-label">Unassigned clients</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-person-exclamation"></i></span></div>
+        <p class="ht-kpi-value">@Model.UnassignedClients</p>
+        @if (Model.UnassignedClients == 0)
+        {
+            <span class="ht-delta"><i class="bi bi-check2-circle" aria-hidden="true"></i> Every active client has a trainer</span>
+        }
+        else
+        {
+            <a class="ht-delta" asp-action="Assignments"><i class="bi bi-arrow-right" aria-hidden="true"></i> Assign a trainer now</a>
+        }
     </div></div></div>
 </div>
 
-@* ===== System usage ===== *@
-<h2 class="h5 mb-3">System Usage</h2>
-<div class="row g-3 mb-4">
-    <div class="col-6 col-lg-3"><div class="card ht-stat h-100"><div class="card-body">
-        <span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-activity"></i></span>
-        <div><p class="ht-stat-value">@Model.WorkoutLogsLast7Days</p><p class="ht-stat-label">Workouts (7 days)</p></div>
-    </div></div></div>
-    <div class="col-6 col-lg-3"><div class="card ht-stat h-100"><div class="card-body">
-        <span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-egg-fried"></i></span>
-        <div><p class="ht-stat-value">@Model.MealLogsLast7Days</p><p class="ht-stat-label">Meals Logged (7 days)</p></div>
-    </div></div></div>
-    <div class="col-6 col-lg-3"><div class="card ht-stat h-100"><div class="card-body">
-        <span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-hourglass-split"></i></span>
-        <div><p class="ht-stat-value">@Model.PendingAppointments</p><p class="ht-stat-label">Pending Appointments</p></div>
-    </div></div></div>
-    <div class="col-6 col-lg-3"><div class="card ht-stat h-100"><div class="card-body">
-        <span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-calendar-check"></i></span>
-        <div><p class="ht-stat-value">@Model.UpcomingAppointments</p><p class="ht-stat-label">Upcoming Appointments</p></div>
-    </div></div></div>
-</div>
-
-<div class="row g-4">
-    @* Activity chart *@
-    <section class="col-lg-7"><div class="card h-100"><div class="card-body">
-        <h2 class="ht-card-title">Activity in the Last 7 Days</h2>
-        <p class="text-muted small">Workouts, meals and measurements logged by all clients per day.</p>
-        <canvas id="activityChart" height="140" aria-label="Bar chart of logs per day"></canvas>
+@* ===== Charts row 1: activity over time + users by role ===== *@
+<div class="row g-4 mb-4">
+    <section class="col-xl-8"><div class="card ht-chart-card h-100"><div class="card-body">
+        <div class="ht-chart-head">
+            <div>
+                <h2 class="ht-card-title">Activity in the Last 7 Days</h2>
+                <p class="ht-chart-sub">Workouts, meals and measurements logged by all clients per day.</p>
+            </div>
+            <span class="ht-chart-figure">@weekLogs logs</span>
+        </div>
+        <div class="ht-chart"><canvas id="activityChart" role="img" aria-label="Line chart of logs per day for the last 7 days"></canvas></div>
+        <details class="ht-chart-table">
+            <summary>Show data</summary>
+            <table class="table table-sm mb-0"><thead><tr><th>Day</th><th>Logs</th></tr></thead>
+                <tbody>@for (var i = 0; i < Model.ActivityLabels.Count; i++) { <tr><td>@Model.ActivityLabels[i]</td><td>@Model.ActivityCounts[i]</td></tr> }</tbody>
+            </table>
+        </details>
     </div></div></section>
 
-    @* Trainer assignments *@
-    <section class="col-lg-5"><div class="card h-100"><div class="card-body">
-        <h2 class="ht-card-title">Trainer Assignments</h2>
+    <section class="col-xl-4"><div class="card ht-chart-card h-100"><div class="card-body">
+        <div class="ht-chart-head">
+            <div>
+                <h2 class="ht-card-title">Users by Role</h2>
+                <p class="ht-chart-sub">All accounts in the system.</p>
+            </div>
+            <span class="ht-chart-figure">@totalUsers</span>
+        </div>
+        <div class="ht-chart ht-chart-sm"><canvas id="roleChart" role="img" aria-label="Donut chart of users by role: @Model.TotalClients clients, @Model.TotalTrainers trainers, @admins administrators"></canvas></div>
+        <details class="ht-chart-table">
+            <summary>Show data</summary>
+            <table class="table table-sm mb-0"><thead><tr><th>Role</th><th>Users</th></tr></thead>
+                <tbody><tr><td>Clients</td><td>@Model.TotalClients</td></tr><tr><td>Trainers</td><td>@Model.TotalTrainers</td></tr><tr><td>Administrators</td><td>@admins</td></tr></tbody>
+            </table>
+        </details>
+    </div></div></section>
+</div>
+
+@* ===== Charts row 2: logs by type, appointments by status, clients per trainer ===== *@
+<div class="row g-4 mb-4">
+    <section class="col-lg-6 col-xl-4"><div class="card ht-chart-card h-100"><div class="card-body">
+        <h2 class="ht-card-title">Logs by Type · 7 days</h2>
+        <div class="ht-chart ht-chart-sm"><canvas id="typeChart" role="img" aria-label="Bar chart of logs by type: @Model.WorkoutLogsLast7Days workouts, @Model.MealLogsLast7Days meals, @Model.MeasurementsLast7Days measurements"></canvas></div>
+    </div></div></section>
+
+    <section class="col-lg-6 col-xl-4"><div class="card ht-chart-card h-100"><div class="card-body">
+        <h2 class="ht-card-title">Appointments by Status</h2>
+        <div class="ht-chart ht-chart-sm"><canvas id="statusChart" role="img" aria-label="Bar chart of appointments: @Model.PendingAppointments pending, @Model.UpcomingAppointments upcoming, @Model.CompletedAppointments completed"></canvas></div>
+    </div></div></section>
+
+    <section class="col-xl-4"><div class="card ht-chart-card h-100"><div class="card-body">
+        <div class="ht-chart-head">
+            <h2 class="ht-card-title">Clients per Trainer</h2>
+            <a asp-action="Assignments" class="btn btn-sm btn-outline-primary">Manage</a>
+        </div>
         @if (Model.TrainerWorkload.Count == 0)
         {
             <div class="ht-empty"><i class="bi bi-person-badge" aria-hidden="true"></i>No trainers yet. <a asp-action="CreateTrainer">Add one</a>.</div>
         }
         else
         {
-            <ul class="list-group list-group-flush">
-                @foreach (var t in Model.TrainerWorkload)
-                {
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>
-                            @t.Name
-                            @if (!string.IsNullOrEmpty(t.Specialization))
-                            {
-                                <small class="text-muted">· @t.Specialization</small>
-                            }
-                            @if (!t.IsActive)
-                            {
-                                <span class="badge text-bg-secondary">Inactive</span>
-                            }
-                        </span>
-                        <span>
-                            <span class="badge rounded-pill text-bg-primary" title="Assigned clients">@t.ClientCount client(s)</span>
-                            <span class="badge rounded-pill text-bg-light" title="Upcoming appointments">@t.UpcomingAppointments appt.</span>
-                        </span>
-                    </li>
-                }
-            </ul>
-            <a asp-action="Assignments" class="btn btn-sm btn-outline-primary mt-3">Manage assignments</a>
-        }
-    </div></div></section>
-
-    @* Newest accounts *@
-    <section class="col-12"><div class="card"><div class="card-body">
-        <h2 class="ht-card-title">Newest Accounts</h2>
-        @if (Model.RecentUsers.Count == 0)
-        {
-            <div class="ht-empty"><i class="bi bi-people" aria-hidden="true"></i>No users yet.</div>
-        }
-        else
-        {
-            <div class="table-responsive">
-                <table class="table table-sm align-middle mb-0">
-                    <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Status</th></tr></thead>
-                    <tbody>
-                        @foreach (var u in Model.RecentUsers)
-                        {
-                            <tr>
-                                <td>@u.FullName</td>
-                                <td>@u.Email</td>
-                                <td>@u.Role</td>
-                                <td>@u.CreatedAt.ToString("dd MMM yyyy")</td>
-                                <td>
-                                    <span class="badge rounded-pill @(u.IsActive ? "text-bg-success" : "text-bg-secondary")">
-                                        @(u.IsActive ? "Active" : "Inactive")
-                                    </span>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
+            <div class="ht-chart ht-chart-sm"><canvas id="workloadChart" role="img" aria-label="Bar chart of assigned clients per trainer"></canvas></div>
+            <details class="ht-chart-table">
+                <summary>Show data</summary>
+                <table class="table table-sm mb-0"><thead><tr><th>Trainer</th><th>Clients</th><th>Upcoming appt.</th></tr></thead>
+                    <tbody>@foreach (var t in Model.TrainerWorkload) {
+                        <tr><td>@t.Name @if (!t.IsActive) { <span class="badge text-bg-secondary">Inactive</span> }</td><td>@t.ClientCount</td><td>@t.UpcomingAppointments</td></tr>
+                    }</tbody>
                 </table>
-            </div>
+            </details>
         }
     </div></div></section>
 </div>
 
+@* ===== Newest accounts ===== *@
+<section class="card"><div class="card-body">
+    <div class="ht-chart-head">
+        <h2 class="ht-card-title">Newest Accounts</h2>
+        <a asp-action="Users" class="btn btn-sm btn-outline-secondary">All users</a>
+    </div>
+    @if (Model.RecentUsers.Count == 0)
+    {
+        <div class="ht-empty"><i class="bi bi-people" aria-hidden="true"></i>No users yet.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Role</th><th scope="col">Joined</th><th scope="col">Status</th></tr></thead>
+                <tbody>
+                    @foreach (var u in Model.RecentUsers)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@u.FullName</td>
+                            <td>@u.Email</td>
+                            <td>@u.Role</td>
+                            <td>@u.CreatedAt.ToString("dd MMM yyyy")</td>
+                            <td>
+                                <span class="badge rounded-pill @(u.IsActive ? "text-bg-success" : "text-bg-secondary")">
+                                    @(u.IsActive ? "Active" : "Inactive")
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div></section>
+
 @section Scripts {
-    <script>
-        // Chart.js is loaded once in _Layout.cshtml
-        (function () {
-            const canvas = document.getElementById('activityChart');
-            if (!canvas || typeof Chart === 'undefined') return;
-            new Chart(canvas, {
-                type: 'bar',
-                data: {
-                    labels: @Html.Raw(JsonSerializer.Serialize(Model.ActivityLabels)),
-                    datasets: [{
-                        label: 'Logs per day',
-                        data: @Html.Raw(JsonSerializer.Serialize(Model.ActivityCounts)),
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
-                }
-            });
-        })();
-    </script>
+<script>
+    // Chart data comes from AdminDashboardViewModel; Json.Serialize encodes it safely.
+    // The drawing is done by the shared HT helpers in site.js.
+    const activityLabels = @Json.Serialize(Model.ActivityLabels);
+    const activityCounts = @Json.Serialize(Model.ActivityCounts);
+    const workload = @Json.Serialize(Model.TrainerWorkload.Select(t => new { t.Name, t.ClientCount }));
+
+    HT.spark('sparkActivity', activityCounts);
+    HT.line('activityChart', activityLabels, activityCounts, 'Logs', 'logs', true);
+    HT.donut('roleChart', ['Clients', 'Trainers', 'Administrators'],
+        [@Model.TotalClients, @Model.TotalTrainers, @admins]);
+    HT.bars('typeChart', ['Workouts', 'Meals', 'Measurements'],
+        [{ label: 'Logs', values: [@Model.WorkoutLogsLast7Days, @Model.MealLogsLast7Days, @Model.MeasurementsLast7Days] }]);
+    HT.bars('statusChart', ['Pending', 'Upcoming', 'Completed'],
+        [{ label: 'Appointments', values: [@Model.PendingAppointments, @Model.UpcomingAppointments, @Model.CompletedAppointments] }]);
+    HT.ranked('workloadChart', workload.map(t => t.name), workload.map(t => t.clientCount), 'Clients');
+</script>
 }

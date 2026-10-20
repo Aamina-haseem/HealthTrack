@@ -1,59 +1,200 @@
 @model HealthTrack.ViewModels.ClientDashboardViewModel
-@{ ViewData["Title"] = "Client Dashboard"; }
+@functions {
+    // "+20 min vs last week" style text for the KPI cards
+    static string Change(int now, int before, string unit)
+    {
+        var d = now - before;
+        return d == 0 ? "Same as last week" : $"{(d > 0 ? "+" : "−")}{Math.Abs(d)} {unit} vs last week";
+    }
+    static string ArrowIcon(int now, int before) =>
+        now > before ? "bi-arrow-up-right" : now < before ? "bi-arrow-down-right" : "bi-dash";
+}
+@{
+    ViewData["Title"] = "Client Dashboard";
+    var latest = Model.LatestMeasurement;
+}
 
-@* Welcome banner. Every number on this page comes from the signed-in client's own records. *@
-<section class="ht-hero">
-    <div class="row align-items-center g-4">
-        <div class="col-md-8">
+@* Short banner so the charts are visible without scrolling. Every number on this page
+   comes from the signed-in client's own records (built in ClientController.Index). *@
+<section class="ht-hero ht-hero-compact">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
             <span class="ht-eyebrow">Client Dashboard</span>
             <h1>Welcome back, @Model.Name</h1>
-            <p class="text-muted mb-4">Your plans, health activity and trainer feedback in one place.</p>
-            <nav class="d-flex flex-wrap gap-2" aria-label="Client pages">
-                <a asp-controller="Logs" asp-action="Index" class="btn btn-primary"><i class="bi bi-journal-plus"></i> Log Activity</a>
-                <a asp-controller="Progress" asp-action="Index" class="btn btn-outline-primary"><i class="bi bi-graph-up-arrow"></i> My Progress</a>
-            </nav>
+            <p class="text-muted mb-0">Your plans, activity and progress in one place.</p>
         </div>
-        <div class="col-md-4 ht-hero-figure">
-            <span class="ht-eyebrow">Latest BMI</span>
-            <span class="value">@(Model.LatestMeasurement?.BMI.ToString("0.0") ?? "—")</span>
-            <small class="text-muted">
-                @(Model.LatestMeasurement is null ? "No measurement yet" : $"{Model.LatestMeasurement.WeightKg:0.0} kg on {Model.LatestMeasurement.Date:dd MMM}")
-            </small>
-        </div>
+        <nav class="d-flex flex-wrap gap-2" aria-label="Quick actions">
+            <a asp-controller="Logs" asp-action="AddWorkout" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Log Workout</a>
+            <a asp-controller="Logs" asp-action="AddMeasurement" class="btn btn-outline-primary"><i class="bi bi-rulers"></i> Add Measurement</a>
+            <a asp-controller="Progress" asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-graph-up-arrow"></i> Full Progress</a>
+        </nav>
     </div>
 </section>
 
-@* Summary numbers *@
+@* ===== KPI cards ===== *@
 <div class="row g-3 mb-4">
-    <div class="col-6 col-lg-3"><div class="card ht-stat h-100"><div class="card-body">
-        <span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-activity"></i></span>
-        <div><p class="ht-stat-value">@Model.WorkoutPlans.Count</p><p class="ht-stat-label">Workout Plans</p></div>
+    <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
+        <div class="ht-kpi-head"><span class="ht-stat-label">Weight</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-speedometer"></i></span></div>
+        <p class="ht-kpi-value">@(latest is null ? "—" : latest.WeightKg.ToString("0.0")) <small>kg</small></p>
+        <span class="ht-delta">
+            @if (Model.WeightChange is double change)
+            {
+                <i class="bi @(change < 0 ? "bi-arrow-down-right" : change > 0 ? "bi-arrow-up-right" : "bi-dash")" aria-hidden="true"></i>
+                @($"{(change > 0 ? "+" : change < 0 ? "−" : "")}{Math.Abs(change):0.0} kg since first entry")
+            }
+            else
+            {
+                <span>Add two measurements to see a change</span>
+            }
+        </span>
+        <div class="ht-spark" aria-hidden="true"><canvas id="sparkWeight"></canvas></div>
     </div></div></div>
-    <div class="col-6 col-lg-3"><div class="card ht-stat h-100"><div class="card-body">
-        <span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-egg-fried"></i></span>
-        <div><p class="ht-stat-value">@Model.DietPlans.Count</p><p class="ht-stat-label">Diet Plans</p></div>
+
+    <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
+        <div class="ht-kpi-head"><span class="ht-stat-label">Body Mass Index</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-heart-pulse"></i></span></div>
+        <p class="ht-kpi-value">@(latest is null ? "—" : latest.BMI.ToString("0.0"))</p>
+        <span class="ht-delta">
+            <i class="bi bi-info-circle" aria-hidden="true"></i>
+            @(Model.BmiCategory ?? "No measurement yet")
+        </span>
+        <span class="ht-delta">@(latest is null ? "" : $"Measured {latest.Date:dd MMM yyyy}")</span>
     </div></div></div>
-    <div class="col-6 col-lg-3"><div class="card ht-stat h-100"><div class="card-body">
-        <span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-calendar-check"></i></span>
-        <div><p class="ht-stat-value">@Model.UpcomingAppointments.Count</p><p class="ht-stat-label">Upcoming</p></div>
+
+    <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
+        <div class="ht-kpi-head"><span class="ht-stat-label">Workout minutes · 7 days</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-stopwatch"></i></span></div>
+        <p class="ht-kpi-value">@Model.MinutesThisWeek <small>min</small></p>
+        <span class="ht-delta"><i class="bi @ArrowIcon(Model.MinutesThisWeek, Model.MinutesLastWeek)" aria-hidden="true"></i> @Change(Model.MinutesThisWeek, Model.MinutesLastWeek, "min")</span>
+        <div class="ht-spark" aria-hidden="true"><canvas id="sparkMinutes"></canvas></div>
     </div></div></div>
-    <div class="col-6 col-lg-3"><div class="card ht-stat h-100"><div class="card-body">
-        <span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-bell"></i></span>
-        <div><p class="ht-stat-value">@Model.UnreadNotifications</p><p class="ht-stat-label">Unread Alerts</p></div>
+
+    <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
+        <div class="ht-kpi-head"><span class="ht-stat-label">Calories burned · 7 days</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-fire"></i></span></div>
+        <p class="ht-kpi-value">@Model.BurnedThisWeek <small>kcal</small></p>
+        <span class="ht-delta"><i class="bi @ArrowIcon(Model.BurnedThisWeek, Model.BurnedLastWeek)" aria-hidden="true"></i> @Change(Model.BurnedThisWeek, Model.BurnedLastWeek, "kcal")</span>
+        <div class="ht-spark" aria-hidden="true"><canvas id="sparkBurned"></canvas></div>
     </div></div></div>
 </div>
 
+@* ===== Charts row 1: weight trend + most logged activities ===== *@
+<div class="row g-4 mb-4">
+    <section class="col-xl-8"><div class="card ht-chart-card h-100"><div class="card-body">
+        <div class="ht-chart-head">
+            <div>
+                <h2 class="ht-card-title">Weight Trend</h2>
+                <p class="ht-chart-sub">Every measurement you have recorded, in kilograms.</p>
+            </div>
+            @if (latest is not null)
+            {
+                <span class="ht-chart-figure">@latest.WeightKg.ToString("0.0") kg</span>
+            }
+        </div>
+        @if (Model.WeightTrend.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-graph-up" aria-hidden="true"></i>No measurements yet.
+                <div class="mt-2"><a asp-controller="Logs" asp-action="AddMeasurement" class="btn btn-sm btn-primary">Add your first measurement</a></div>
+            </div>
+        }
+        else
+        {
+            <div class="ht-chart"><canvas id="weightChart" role="img" aria-label="Line chart of your weight in kilograms over time"></canvas></div>
+            <details class="ht-chart-table">
+                <summary>Show data</summary>
+                <table class="table table-sm mb-0"><thead><tr><th>Date</th><th>Weight (kg)</th></tr></thead>
+                    <tbody>@foreach (var p in Model.WeightTrend) { <tr><td>@p.Label</td><td>@p.Value.ToString("0.0")</td></tr> }</tbody>
+                </table>
+            </details>
+        }
+    </div></div></section>
+
+    <section class="col-xl-4"><div class="card ht-chart-card h-100"><div class="card-body">
+        <div class="ht-chart-head">
+            <div>
+                <h2 class="ht-card-title">Most Logged Activities</h2>
+                <p class="ht-chart-sub">Sessions in the last 30 days.</p>
+            </div>
+        </div>
+        @if (Model.TopActivities.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-activity" aria-hidden="true"></i>No workouts in the last 30 days.</div>
+        }
+        else
+        {
+            <div class="ht-chart ht-chart-sm"><canvas id="activityChart" role="img" aria-label="Bar chart of your most logged activities"></canvas></div>
+            <details class="ht-chart-table">
+                <summary>Show data</summary>
+                <table class="table table-sm mb-0"><thead><tr><th>Activity</th><th>Sessions</th></tr></thead>
+                    <tbody>@foreach (var p in Model.TopActivities) { <tr><td>@p.Label</td><td>@p.Value</td></tr> }</tbody>
+                </table>
+            </details>
+        }
+    </div></div></section>
+</div>
+
+@* ===== Charts row 2: calories this week + upcoming appointments ===== *@
+<div class="row g-4 mb-4">
+    <section class="col-xl-8"><div class="card ht-chart-card h-100"><div class="card-body">
+        <div class="ht-chart-head">
+            <div>
+                <h2 class="ht-card-title">Calories This Week</h2>
+                <p class="ht-chart-sub">Burned in workouts compared with eaten in meals, per day.</p>
+            </div>
+        </div>
+        @if (Model.WeekBurned.Sum() + Model.WeekEaten.Sum() == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-fire" aria-hidden="true"></i>No workouts or meals logged in the last 7 days.
+                <div class="mt-2"><a asp-controller="Logs" asp-action="Index" class="btn btn-sm btn-primary">Open my logs</a></div>
+            </div>
+        }
+        else
+        {
+            <div class="ht-chart"><canvas id="caloriesChart" role="img" aria-label="Grouped bar chart of calories burned and eaten for each of the last 7 days"></canvas></div>
+            <details class="ht-chart-table">
+                <summary>Show data</summary>
+                <table class="table table-sm mb-0"><thead><tr><th>Day</th><th>Burned (kcal)</th><th>Eaten (kcal)</th></tr></thead>
+                    <tbody>@for (var i = 0; i < Model.WeekLabels.Count; i++) { <tr><td>@Model.WeekLabels[i]</td><td>@Model.WeekBurned[i]</td><td>@Model.WeekEaten[i]</td></tr> }</tbody>
+                </table>
+            </details>
+        }
+    </div></div></section>
+
+    <section class="col-xl-4"><div class="card h-100"><div class="card-body">
+        <div class="ht-chart-head">
+            <h2 class="ht-card-title">Upcoming Appointments</h2>
+            <a asp-controller="Appointments" asp-action="Create" class="btn btn-sm btn-outline-primary">Book</a>
+        </div>
+        @if (Model.UpcomingAppointments.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-calendar" aria-hidden="true"></i>No appointments scheduled.</div>
+        }
+        else
+        {
+            <ul class="list-group list-group-flush">@foreach (var x in Model.UpcomingAppointments) {
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <span><i class="bi bi-calendar-event text-muted" aria-hidden="true"></i> @x.AppointmentDate.ToString("ddd dd MMM, HH:mm")</span>
+                    @* Approved is confirmed; anything else is still waiting for the trainer *@
+                    <span class="badge rounded-pill @(x.Status == HealthTrack.Models.AppointmentStatus.Approved ? "text-bg-success" : "text-bg-secondary")">@x.Status</span>
+                </li>
+            }</ul>
+            <a asp-controller="Appointments" asp-action="Index" class="btn btn-sm btn-outline-secondary mt-3">All appointments</a>
+        }
+    </div></div></section>
+</div>
+
+@* ===== Plans, feedback and recent workouts ===== *@
 <div class="row g-4">
-    <section class="col-lg-6"><div class="card h-100"><div class="card-body">
-        <h2 class="ht-card-title">My Workout Plans</h2>
+    <section class="col-lg-6 col-xl-4"><div class="card h-100"><div class="card-body">
+        <div class="ht-chart-head">
+            <h2 class="ht-card-title">My Workout Plans</h2>
+            <a asp-action="WorkoutPlans" class="btn btn-sm btn-outline-secondary">All</a>
+        </div>
         @if (Model.WorkoutPlans.Count == 0)
         {
             <div class="ht-empty"><i class="bi bi-activity" aria-hidden="true"></i>No workout plan yet. Your trainer will assign one.</div>
         }
         else
         {
-            <ul class="list-group list-group-flush">@foreach (var x in Model.WorkoutPlans) {
-                <li class="list-group-item d-flex justify-content-between align-items-center">
+            <ul class="list-group list-group-flush">@foreach (var x in Model.WorkoutPlans.Take(4)) {
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                     <span>@x.Title <small class="text-muted">· @x.Difficulty</small></span>
                     <a asp-action="WorkoutPlan" asp-route-id="@x.Id" class="btn btn-sm btn-outline-primary">Open</a>
                 </li>
@@ -61,16 +202,19 @@
         }
     </div></div></section>
 
-    <section class="col-lg-6"><div class="card h-100"><div class="card-body">
-        <h2 class="ht-card-title">My Diet Plans</h2>
+    <section class="col-lg-6 col-xl-4"><div class="card h-100"><div class="card-body">
+        <div class="ht-chart-head">
+            <h2 class="ht-card-title">My Diet Plans</h2>
+            <a asp-action="DietPlans" class="btn btn-sm btn-outline-secondary">All</a>
+        </div>
         @if (Model.DietPlans.Count == 0)
         {
             <div class="ht-empty"><i class="bi bi-egg-fried" aria-hidden="true"></i>No diet plan yet. Your trainer will assign one.</div>
         }
         else
         {
-            <ul class="list-group list-group-flush">@foreach (var x in Model.DietPlans) {
-                <li class="list-group-item d-flex justify-content-between align-items-center">
+            <ul class="list-group list-group-flush">@foreach (var x in Model.DietPlans.Take(4)) {
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                     <span>@x.Title <small class="text-muted">· @x.DailyCalorieTarget kcal/day</small></span>
                     <a asp-action="DietPlan" asp-route-id="@x.Id" class="btn btn-sm btn-outline-primary">Open</a>
                 </li>
@@ -78,8 +222,28 @@
         }
     </div></div></section>
 
-    <section class="col-lg-6"><div class="card h-100"><div class="card-body">
-        <h2 class="ht-card-title">Recent Workouts</h2>
+    <section class="col-lg-6 col-xl-4"><div class="card h-100"><div class="card-body">
+        <h2 class="ht-card-title">Trainer Feedback</h2>
+        @if (Model.RecentFeedback.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-chat-heart" aria-hidden="true"></i>No feedback yet.</div>
+        }
+        else
+        {
+            <ul class="list-group list-group-flush">@foreach (var x in Model.RecentFeedback) {
+                <li class="list-group-item px-0">
+                    <small class="text-muted">@x.CreatedAt.ToString("dd MMM yyyy")@(x.Rating is null ? "" : $" · Rating {x.Rating}/5")</small>
+                    <div>@x.Message</div>
+                </li>
+            }</ul>
+        }
+    </div></div></section>
+
+    <section class="col-lg-6 col-xl-12"><div class="card h-100"><div class="card-body">
+        <div class="ht-chart-head">
+            <h2 class="ht-card-title">Recent Workouts</h2>
+            <a asp-controller="Logs" asp-action="Index" class="btn btn-sm btn-outline-secondary">All logs</a>
+        </div>
         @if (Model.RecentWorkouts.Count == 0)
         {
             <div class="ht-empty"><i class="bi bi-stopwatch" aria-hidden="true"></i>No workouts logged yet.
@@ -88,47 +252,32 @@
         }
         else
         {
-            <ul class="list-group list-group-flush">@foreach (var x in Model.RecentWorkouts) {
-                <li class="list-group-item d-flex justify-content-between">
-                    <span>@x.ExerciseName <small class="text-muted">· @x.Date.ToString("dd MMM")</small></span>
-                    <span class="text-muted">@x.DurationMinutes min · @x.CaloriesBurned kcal</span>
-                </li>
-            }</ul>
-        }
-    </div></div></section>
-
-    <section class="col-lg-6"><div class="card h-100"><div class="card-body">
-        <h2 class="ht-card-title">Upcoming Appointments</h2>
-        @if (Model.UpcomingAppointments.Count == 0)
-        {
-            <div class="ht-empty"><i class="bi bi-calendar" aria-hidden="true"></i>No appointments scheduled.</div>
-        }
-        else
-        {
-            <ul class="list-group list-group-flush">@foreach (var x in Model.UpcomingAppointments) {
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>@x.AppointmentDate.ToString("ddd dd MMM, HH:mm")</span>
-                    @* Approved is confirmed; anything else is still waiting for the trainer *@
-                    <span class="badge rounded-pill @(x.Status == HealthTrack.Models.AppointmentStatus.Approved ? "text-bg-success" : "text-bg-secondary")">@x.Status</span>
-                </li>
-            }</ul>
-        }
-    </div></div></section>
-
-    <section class="col-12"><div class="card"><div class="card-body">
-        <h2 class="ht-card-title">Recent Trainer Feedback</h2>
-        @if (Model.RecentFeedback.Count == 0)
-        {
-            <div class="ht-empty"><i class="bi bi-chat-heart" aria-hidden="true"></i>No feedback yet.</div>
-        }
-        else
-        {
-            <ul class="list-group list-group-flush">@foreach (var x in Model.RecentFeedback) {
-                <li class="list-group-item">
-                    <small class="text-muted">@x.CreatedAt.ToString("dd MMM yyyy")@(x.Rating is null ? "" : $" · Rating {x.Rating}/5")</small>
-                    <div>@x.Message</div>
-                </li>
-            }</ul>
+            <div class="table-responsive"><table class="table table-hover align-middle mb-0">
+                <thead><tr><th scope="col">Date</th><th scope="col">Activity</th><th scope="col">Minutes</th><th scope="col">Calories</th></tr></thead>
+                <tbody>@foreach (var x in Model.RecentWorkouts) {
+                    <tr><td>@x.Date.ToString("ddd dd MMM")</td><td class="fw-semibold">@x.ExerciseName</td><td>@x.DurationMinutes</td><td>@x.CaloriesBurned kcal</td></tr>
+                }</tbody>
+            </table></div>
         }
     </div></div></section>
 </div>
+
+@section Scripts {
+<script>
+    // Chart data comes from the view model; Json.Serialize encodes it safely.
+    // The drawing itself is done by the shared HT helpers in site.js.
+    const weight = @Json.Serialize(Model.WeightTrend);
+    const topActs = @Json.Serialize(Model.TopActivities);   // (not "top": that name is reserved by the browser)
+
+    HT.spark('sparkWeight', weight.map(p => p.value));
+    HT.spark('sparkMinutes', @Json.Serialize(Model.WeekMinutes));
+    HT.spark('sparkBurned', @Json.Serialize(Model.WeekBurned));
+
+    HT.line('weightChart', weight.map(p => p.label), weight.map(p => p.value), 'Weight', 'kg');
+    HT.ranked('activityChart', topActs.map(p => p.label), topActs.map(p => p.value), 'Sessions');
+    HT.bars('caloriesChart', @Json.Serialize(Model.WeekLabels), [
+        { label: 'Burned (kcal)', values: @Json.Serialize(Model.WeekBurned) },
+        { label: 'Eaten (kcal)', values: @Json.Serialize(Model.WeekEaten) }
+    ], 'kcal');
+</script>
+}
