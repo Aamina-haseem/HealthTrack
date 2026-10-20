@@ -12,7 +12,7 @@
   border-radius: 2rem;
   color: #FFFFFF;
   background: var(--ht-gradient);
-  box-shadow: 0 1.5rem 3rem rgba(3, 48, 107, 0.25);
+  box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.25);
 }
 
 .landing-hero::before {
@@ -23,7 +23,7 @@
   width: 24rem;
   height: 24rem;
   border-radius: 50%;
-  border: 3rem solid rgba(111, 184, 248, 0.18);
+  border: 3rem solid rgba(255, 107, 26, 0.18);
   pointer-events: none;
 }
 
@@ -33,7 +33,7 @@
 }
 
 .landing-hero .ht-eyebrow {
-  color: #BFE0FF;
+  color: #FFB27A;
 }
 
 .hero-title {
@@ -45,7 +45,7 @@
 }
 
 .text-sky {
-  color: #BFE0FF;
+  color: #FFB27A;
 }
 
 .hero-lead {
@@ -66,7 +66,7 @@
 }
 
 .hero-points i {
-  color: #BFE0FF;
+  color: #FFB27A;
 }
 
 /* The arch-shaped preview with a soft light-blue circle behind it */
@@ -82,7 +82,7 @@
   inset: 2rem -2rem auto -2rem;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, rgba(111, 184, 248, 0.55), rgba(111, 184, 248, 0.04) 70%);
+  background: radial-gradient(circle at 35% 35%, rgba(255, 107, 26, 0.55), rgba(255, 107, 26, 0.04) 70%);
 }
 
 .hero-arch {
@@ -95,7 +95,7 @@
   border-radius: 999px 999px 2rem 2rem;   /* tall arch: round top, soft bottom */
   background: rgba(255, 255, 255, 0.14);   /* frosted glass, like the login card */
   border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 2rem 4rem rgba(1, 41, 92, 0.4);
+  box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.4);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   overflow: hidden;
@@ -133,9 +133,10 @@
   position: absolute;
   padding: 0.6rem 1rem;
   border-radius: 50rem;
-  background: #FFFFFF;
-  color: var(--ht-primary-dark);
-  box-shadow: 0 1rem 2rem rgba(1, 41, 92, 0.3);
+  background: rgba(24, 24, 27, 0.92);
+  color: #FFFFFF;
+  border: 1px solid var(--ht-line);
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.45);
   font-size: 0.875rem;
   font-weight: 600;
   white-space: nowrap;
@@ -199,15 +200,15 @@
   padding: 1.75rem;
   border: 1px solid var(--ht-line);
   border-radius: 1.25rem;
-  background: #FFFFFF;
-  box-shadow: 0 0.5rem 1.5rem rgba(3, 48, 107, 0.06);
+  background: var(--ht-surface);
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.06);
   transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .feature:hover {
   border-color: var(--ht-sky);
   transform: translateY(-3px);
-  box-shadow: 0 1rem 2rem rgba(3, 48, 107, 0.12);
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.12);
 }
 
 .feature i {
@@ -254,7 +255,7 @@
   font-weight: 700;
   color: #FFFFFF;
   background: var(--ht-gradient);
-  box-shadow: 0 0.75rem 1.5rem rgba(3, 48, 107, 0.25);
+  box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.25);
   margin-bottom: 1rem;
 }
 
@@ -288,7 +289,7 @@
   width: 16rem;
   height: 16rem;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, rgba(111, 184, 248, 0.55), rgba(111, 184, 248, 0.04) 70%);
+  background: radial-gradient(circle at 35% 35%, rgba(255, 107, 26, 0.55), rgba(255, 107, 26, 0.04) 70%);
   pointer-events: none;
 }
 

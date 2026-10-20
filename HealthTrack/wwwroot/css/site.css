@@ -1,40 +1,47 @@
 /* =========================================================
-   HealthTrack theme: fresh blue.
-   Light, airy pages with deep blue gradient banners, white cards
-   and a navy main button. Built on Bootstrap 5.3: we only change
-   Bootstrap's own CSS variables, so every btn, card, table and
-   form keeps working exactly as Bootstrap documents it.
+   HealthTrack theme: dark with bright orange accents.
+   Near-black pages, dark cards and an orange accent for buttons,
+   links, highlights and charts. Built on Bootstrap 5.3 dark mode:
+   we only change Bootstrap's own CSS variables, so every btn, card,
+   table and form keeps working exactly as Bootstrap documents it.
+   Contrast (WCAG AA): orange on the page 6.6:1, main text 17:1,
+   muted text 6.8:1, dark text on orange buttons 6.6:1.
    ========================================================= */
 
 /* ---------- 1. Colour palette (change colours here only) ---------- */
 :root,
-[data-bs-theme="light"] {
-  --ht-bg: #EEF5FD;            /* page background (very light blue) */
-  --ht-surface: #FFFFFF;       /* cards, lists, tables */
-  --ht-surface-2: #F5F9FF;     /* form inputs */
-  --ht-line: #D3E3F5;          /* borders and dividers */
-  --ht-primary: #0B6FD6;       /* main blue: highlights, icons, charts */
-  --ht-primary-dark: #03306B;  /* navy: main buttons, headings */
-  --ht-sky: #6FB8F8;           /* light blue: second chart colour, shapes */
-  --ht-link: #0A5FC2;          /* links (readable on white) */
-  --ht-text: #0B1F3A;          /* main text (deep navy) */
-  --ht-muted: #51627A;         /* secondary text */
-  --ht-gradient: linear-gradient(135deg, #01295C 0%, #0550A8 45%, #0B6FD6 100%);
+[data-bs-theme="dark"] {
+  --ht-bg: #0E0E10;             /* page background (near black) */
+  --ht-surface: #18181B;        /* cards, lists, tables */
+  --ht-surface-2: #202024;      /* form inputs, highlighted rows */
+  --ht-line: #2C2C31;           /* borders and dividers */
+  --ht-primary: #FF6B1A;        /* bright orange: buttons, icons, charts */
+  --ht-primary-hover: #FF8A3D;  /* lighter orange for hover */
+  --ht-primary-press: #E85A0C;  /* darker orange when pressed */
+  --ht-primary-dark: #FFFFFF;   /* strong text: headings and big numbers */
+  --ht-sky: #FFB27A;            /* soft orange: second chart colour, shapes */
+  --ht-link: #FF8A3D;           /* links (8:1 on the page) */
+  --ht-text: #F5F5F4;           /* main text */
+  --ht-muted: #A1A1AA;          /* secondary text */
+  --ht-on-primary: #0E0E10;     /* text on orange (white would fail contrast) */
+  --ht-gradient: radial-gradient(circle at 85% 15%, rgba(255, 107, 26, 0.35), transparent 45%),
+                 linear-gradient(135deg, #1C1C20 0%, #121214 55%, #0E0E10 100%);
 
   /* Map our palette onto Bootstrap's variables */
   --bs-body-bg: var(--ht-bg);
   --bs-body-color: var(--ht-text);
-  --bs-emphasis-color: #000000;
+  --bs-emphasis-color: #FFFFFF;
   --bs-secondary-color: var(--ht-muted);
+  --bs-secondary-bg: var(--ht-surface);
   --bs-tertiary-bg: var(--ht-surface-2);
   --bs-border-color: var(--ht-line);
   --bs-primary: var(--ht-primary);
-  --bs-primary-rgb: 11, 111, 214;
+  --bs-primary-rgb: 255, 107, 26;
   --bs-link-color: var(--ht-link);
-  --bs-link-color-rgb: 10, 95, 194;
-  --bs-link-hover-color: var(--ht-primary-dark);
-  --bs-link-hover-color-rgb: 3, 48, 107;
-  --bs-heading-color: var(--ht-text);
+  --bs-link-color-rgb: 255, 138, 61;
+  --bs-link-hover-color: #FFB27A;
+  --bs-link-hover-color-rgb: 255, 178, 122;
+  --bs-heading-color: #FFFFFF;
   --bs-border-radius: .75rem;
   --bs-border-radius-lg: 1.25rem;
   --bs-body-font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -55,25 +62,29 @@ html {
 
 body {
   margin-bottom: 60px;
-  /* Soft light-blue shapes behind every page */
+  /* A soft orange glow in the corners of every page */
   background:
-    radial-gradient(circle at 100% 0%, rgba(111, 184, 248, 0.35), transparent 32%),
-    radial-gradient(circle at 0% 100%, rgba(111, 184, 248, 0.25), transparent 30%),
+    radial-gradient(circle at 100% 0%, rgba(255, 107, 26, 0.10), transparent 35%),
+    radial-gradient(circle at 0% 100%, rgba(255, 107, 26, 0.06), transparent 30%),
     var(--ht-bg);
   background-attachment: fixed;
 }
 
 h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
-  font-family: "Montserrat", "Segoe UI", sans-serif;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-family: "Oswald", "Arial Narrow", "Segoe UI", sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
-/* Keyboard users always see where they are (blue focus ring) */
+h1 {
+  text-transform: uppercase;   /* bold sporty page titles, like the reference designs */
+}
+
+/* Keyboard users always see where they are (orange focus ring) */
 .btn:focus-visible, .btn-link.nav-link:focus-visible, .form-control:focus,
 .form-select:focus, .form-check-input:focus, .nav-link:focus-visible, a:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 0.15rem #FFFFFF, 0 0 0 0.35rem var(--ht-primary);
+  box-shadow: 0 0 0 0.15rem var(--ht-bg), 0 0 0 0.35rem var(--ht-primary);
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
@@ -85,25 +96,39 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
   text-align: start;
 }
 
+/* Bootstrap's light helpers are white even in dark mode, so map them to dark surfaces
+   (used e.g. for unread notifications and the Logout page). */
+.bg-light {
+  background-color: rgba(255, 107, 26, 0.08) !important;
+}
+
+.text-dark {
+  color: var(--ht-text) !important;
+}
+
 /* ---------- 3. Navigation bar ---------- */
 .ht-navbar {
-  background: var(--ht-gradient);
-  box-shadow: 0 0.5rem 1.5rem rgba(3, 48, 107, 0.25);
+  background-color: rgba(10, 10, 11, 0.92);
+  border-bottom: 1px solid #1F1F23;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 
 .ht-navbar .navbar-brand {
   color: #FFFFFF;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  font-size: 1rem;
+  font-size: 1.15rem;
+  font-weight: 700;
 }
 
 .ht-navbar .navbar-brand i {
-  color: var(--ht-sky);
+  color: var(--ht-primary);
 }
 
 .ht-navbar .nav-link {
-  color: rgba(255, 255, 255, 0.85);
+  position: relative;
+  color: var(--ht-muted);
   white-space: nowrap;  /* keep each menu label on one line */
 }
 
@@ -112,19 +137,38 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
   color: #FFFFFF;
 }
 
+/* Orange underline on hover (desktop menu only) */
+@media (min-width: 1200px) {
+  .ht-navbar .navbar-nav .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0.5rem;
+    right: 0.5rem;
+    bottom: 0.1rem;
+    height: 2px;
+    background-color: var(--ht-primary);
+    transform: scaleX(0);
+    transition: transform 0.2s ease;
+  }
+
+  .ht-navbar .navbar-nav .nav-link:hover::after {
+    transform: scaleX(1);
+  }
+}
+
 .ht-navbar .navbar-toggler {
-  border-color: rgba(255, 255, 255, 0.5);
+  border-color: #3F3F46;
 }
 
 .ht-navbar .navbar-toggler-icon {
-  /* white "hamburger" icon on the blue bar */
+  /* white "hamburger" icon on the dark bar */
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
 
-/* ---------- 4. Buttons (pill shaped) ---------- */
+/* ---------- 4. Buttons ---------- */
 .btn {
   --bs-btn-border-radius: 50rem;
-  --bs-btn-padding-x: 1.25rem;
+  --bs-btn-padding-x: 1.35rem;
   --bs-btn-font-weight: 600;
 }
 
@@ -133,59 +177,59 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
 }
 
 .btn-primary {
-  /* Navy button with white text, like the "Sign in" button in the design */
-  --bs-btn-color: #FFFFFF;
-  --bs-btn-bg: var(--ht-primary-dark);
-  --bs-btn-border-color: var(--ht-primary-dark);
-  --bs-btn-hover-color: #FFFFFF;
-  --bs-btn-hover-bg: #0550A8;
-  --bs-btn-hover-border-color: #0550A8;
-  --bs-btn-active-color: #FFFFFF;
-  --bs-btn-active-bg: #01295C;
-  --bs-btn-active-border-color: #01295C;
-  --bs-btn-disabled-color: #FFFFFF;
-  --bs-btn-disabled-bg: var(--ht-primary-dark);
-  --bs-btn-disabled-border-color: var(--ht-primary-dark);
+  /* Orange button with near-black text: 6.6:1 contrast (white text would only be 2.9:1) */
+  --bs-btn-color: var(--ht-on-primary);
+  --bs-btn-bg: var(--ht-primary);
+  --bs-btn-border-color: var(--ht-primary);
+  --bs-btn-hover-color: var(--ht-on-primary);
+  --bs-btn-hover-bg: var(--ht-primary-hover);
+  --bs-btn-hover-border-color: var(--ht-primary-hover);
+  --bs-btn-active-color: var(--ht-on-primary);
+  --bs-btn-active-bg: var(--ht-primary-press);
+  --bs-btn-active-border-color: var(--ht-primary-press);
+  --bs-btn-disabled-color: var(--ht-on-primary);
+  --bs-btn-disabled-bg: var(--ht-primary);
+  --bs-btn-disabled-border-color: var(--ht-primary);
+  box-shadow: 0 0.5rem 1.25rem rgba(255, 107, 26, 0.25);
 }
 
 .btn-outline-primary {
   --bs-btn-color: var(--ht-link);
   --bs-btn-border-color: var(--ht-primary);
-  --bs-btn-hover-color: #FFFFFF;
+  --bs-btn-hover-color: var(--ht-on-primary);
   --bs-btn-hover-bg: var(--ht-primary);
   --bs-btn-hover-border-color: var(--ht-primary);
-  --bs-btn-active-color: #FFFFFF;
-  --bs-btn-active-bg: #0550A8;
-  --bs-btn-active-border-color: #0550A8;
+  --bs-btn-active-color: var(--ht-on-primary);
+  --bs-btn-active-bg: var(--ht-primary-press);
+  --bs-btn-active-border-color: var(--ht-primary-press);
 }
 
 .btn-secondary,
 .btn-outline-secondary {
   --bs-btn-color: var(--ht-text);
-  --bs-btn-bg: #FFFFFF;
-  --bs-btn-border-color: #B8CCE4;
-  --bs-btn-hover-color: var(--ht-text);
-  --bs-btn-hover-bg: #E3EEFB;
-  --bs-btn-hover-border-color: #8FAED3;
-  --bs-btn-active-color: var(--ht-text);
-  --bs-btn-active-bg: #D3E3F5;
-  --bs-btn-active-border-color: #8FAED3;
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: #3F3F46;
+  --bs-btn-hover-color: #FFFFFF;
+  --bs-btn-hover-bg: #27272A;
+  --bs-btn-hover-border-color: #52525B;
+  --bs-btn-active-color: #FFFFFF;
+  --bs-btn-active-bg: #3F3F46;
+  --bs-btn-active-border-color: #52525B;
 }
 
-/* White buttons used on top of the blue banners */
 .btn-light {
-  --bs-btn-color: var(--ht-primary-dark);
+  --bs-btn-color: var(--ht-on-primary);
   --bs-btn-bg: #FFFFFF;
   --bs-btn-border-color: #FFFFFF;
-  --bs-btn-hover-color: var(--ht-primary-dark);
-  --bs-btn-hover-bg: #E3EEFB;
-  --bs-btn-hover-border-color: #E3EEFB;
+  --bs-btn-hover-color: var(--ht-on-primary);
+  --bs-btn-hover-bg: #E4E4E7;
+  --bs-btn-hover-border-color: #E4E4E7;
 }
 
 .btn-outline-light {
   --bs-btn-color: #FFFFFF;
-  --bs-btn-border-color: rgba(255, 255, 255, 0.7);
-  --bs-btn-hover-color: var(--ht-primary-dark);
+  --bs-btn-border-color: rgba(255, 255, 255, 0.6);
+  --bs-btn-hover-color: var(--ht-on-primary);
   --bs-btn-hover-bg: #FFFFFF;
   --bs-btn-hover-border-color: #FFFFFF;
 }
@@ -194,10 +238,18 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
 .card {
   --bs-card-bg: var(--ht-surface);
   --bs-card-border-color: var(--ht-line);
-  --bs-card-border-radius: 1.25rem;
-  --bs-card-inner-border-radius: calc(1.25rem - 1px);
+  --bs-card-border-radius: 1rem;
+  --bs-card-inner-border-radius: calc(1rem - 1px);
   --bs-card-cap-bg: transparent;
-  box-shadow: 0 0.5rem 1.5rem rgba(3, 48, 107, 0.08);
+  --bs-card-color: var(--ht-text);
+  box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.35);
+  transition: border-color 0.2s ease;
+}
+
+/* Cards you can act on get an orange edge on hover */
+article.card:hover,
+.ht-stat:hover {
+  border-color: rgba(255, 107, 26, 0.55);
 }
 
 .list-group {
@@ -210,9 +262,9 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
   --bs-table-bg: transparent;
   --bs-table-color: var(--ht-text);
   --bs-table-border-color: var(--ht-line);
-  --bs-table-striped-bg: rgba(11, 111, 214, 0.04);
+  --bs-table-striped-bg: rgba(255, 255, 255, 0.025);
   --bs-table-striped-color: var(--ht-text);
-  --bs-table-hover-bg: rgba(11, 111, 214, 0.07);
+  --bs-table-hover-bg: rgba(255, 107, 26, 0.07);
   --bs-table-hover-color: var(--ht-text);
 }
 
@@ -231,11 +283,20 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
   color: var(--ht-text);
 }
 
+.form-control::placeholder {
+  color: #8B8B94;   /* 4.7:1 on inputs */
+}
+
 .form-control:focus,
 .form-select:focus {
-  background-color: #FFFFFF;
+  background-color: var(--ht-surface-2);
   border-color: var(--ht-primary);
   color: var(--ht-text);
+}
+
+.form-check-input:checked {
+  background-color: var(--ht-primary);
+  border-color: var(--ht-primary);
 }
 
 /* ---------- 6. HealthTrack page pieces ---------- */
@@ -244,25 +305,25 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
 .ht-eyebrow {
   display: inline-block;
   color: var(--ht-primary);
-  font-family: "Montserrat", "Segoe UI", sans-serif;
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-family: "Oswald", "Arial Narrow", "Segoe UI", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
   letter-spacing: 0.3em;
   text-transform: uppercase;
   margin-bottom: 0.5rem;
 }
 
-/* Blue gradient banner with soft light-blue shapes (pure CSS, no images).
-   Text inside is white, so it reads well on the blue. */
+/* Dark banner with an orange glow and soft shapes (pure CSS, no images) */
 .ht-hero {
   position: relative;
   overflow: hidden;
   padding: 2.5rem 2rem;
   margin-bottom: 2rem;
-  border-radius: 2rem;
+  border-radius: 1.5rem;
+  border: 1px solid var(--ht-line);
   color: #FFFFFF;
   background: var(--ht-gradient);
-  box-shadow: 0 1.5rem 3rem rgba(3, 48, 107, 0.25);
+  box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.45);
 }
 
 .ht-hero::before,
@@ -274,21 +335,21 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
 }
 
 .ht-hero::before {
-  /* big soft circle, top right */
+  /* orange glow, top right */
   right: -5rem;
   top: -6rem;
   width: 20rem;
   height: 20rem;
-  background: radial-gradient(circle at 35% 35%, rgba(111, 184, 248, 0.55), rgba(111, 184, 248, 0.05) 70%);
+  background: radial-gradient(circle at 35% 35%, rgba(255, 107, 26, 0.45), rgba(255, 107, 26, 0.02) 70%);
 }
 
 .ht-hero::after {
-  /* thin ring, bottom right */
+  /* thin orange ring, bottom right */
   right: 6rem;
   bottom: -9rem;
   width: 16rem;
   height: 16rem;
-  border: 2.5rem solid rgba(111, 184, 248, 0.18);
+  border: 2px solid rgba(255, 107, 26, 0.35);
 }
 
 .ht-hero > * {
@@ -302,61 +363,32 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
 }
 
 .ht-hero h1 {
-  font-size: clamp(1.75rem, 4vw, 2.75rem);
-}
-
-.ht-hero .ht-eyebrow {
-  color: #BFE0FF;
+  font-size: clamp(1.9rem, 4.2vw, 3rem);
+  font-weight: 700;
 }
 
 .ht-hero .text-muted {
-  color: rgba(255, 255, 255, 0.85) !important;
-}
-
-/* Buttons inside a blue banner: white main button, white outline for the rest */
-.ht-hero .btn-primary {
-  --bs-btn-color: var(--ht-primary-dark);
-  --bs-btn-bg: #FFFFFF;
-  --bs-btn-border-color: #FFFFFF;
-  --bs-btn-hover-color: var(--ht-primary-dark);
-  --bs-btn-hover-bg: #E3EEFB;
-  --bs-btn-hover-border-color: #E3EEFB;
-  --bs-btn-active-color: var(--ht-primary-dark);
-  --bs-btn-active-bg: #D3E3F5;
-  --bs-btn-active-border-color: #D3E3F5;
-}
-
-.ht-hero .btn-outline-primary,
-.ht-hero .btn-outline-secondary {
-  --bs-btn-color: #FFFFFF;
-  --bs-btn-bg: transparent;
-  --bs-btn-border-color: rgba(255, 255, 255, 0.7);
-  --bs-btn-hover-color: var(--ht-primary-dark);
-  --bs-btn-hover-bg: #FFFFFF;
-  --bs-btn-hover-border-color: #FFFFFF;
-  --bs-btn-active-color: var(--ht-primary-dark);
-  --bs-btn-active-bg: #E3EEFB;
-  --bs-btn-active-border-color: #E3EEFB;
+  color: #D4D4D8 !important;
 }
 
 .ht-hero-figure {
   text-align: center;
   padding: 1.5rem 1rem;
-  border-radius: 1.5rem;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 107, 26, 0.35);
 }
 
 .ht-hero-figure .value {
   display: block;
-  font-family: "Montserrat", "Segoe UI", sans-serif;
-  font-size: 3rem;
+  font-family: "Oswald", "Arial Narrow", "Segoe UI", sans-serif;
+  font-size: 3.25rem;
   font-weight: 700;
   line-height: 1;
-  color: #FFFFFF;
+  color: var(--ht-primary);
 }
 
-/* Summary number cards with a round blue icon */
+/* Summary number cards with a round orange icon */
 .ht-stat .card-body {
   display: flex;
   align-items: center;
@@ -370,18 +402,18 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background-color: rgba(11, 111, 214, 0.1);
+  background-color: rgba(255, 107, 26, 0.14);
   color: var(--ht-primary);
   font-size: 1.35rem;
 }
 
 .ht-stat-value {
-  font-family: "Montserrat", "Segoe UI", sans-serif;
-  font-size: 1.75rem;
-  font-weight: 700;
+  font-family: "Oswald", "Arial Narrow", "Segoe UI", sans-serif;
+  font-size: 1.9rem;
+  font-weight: 600;
   line-height: 1.1;
   margin: 0;
-  color: var(--ht-primary-dark);
+  color: #FFFFFF;
 }
 
 .ht-stat-label {
@@ -408,13 +440,13 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
 
 /* Section heading inside a card */
 .ht-card-title {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   margin-bottom: 1rem;
 }
 
 /* ---------- 7. Login and Register pages ---------- */
 
-/* Blue gradient panel that fills the page area, with soft shapes */
+/* Dark panel with an orange glow that fills the page area */
 .ht-auth {
   position: relative;
   overflow: hidden;
@@ -422,9 +454,10 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
   display: grid;
   place-items: center;
   padding: 3rem 1rem;
-  border-radius: 2rem;
+  border-radius: 1.5rem;
+  border: 1px solid var(--ht-line);
   background: var(--ht-gradient);
-  box-shadow: 0 1.5rem 3rem rgba(3, 48, 107, 0.25);
+  box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.45);
 }
 
 .ht-auth::before,
@@ -440,7 +473,7 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
   bottom: -6rem;
   width: 22rem;
   height: 22rem;
-  border: 3rem solid rgba(111, 184, 248, 0.22);
+  border: 2px solid rgba(255, 107, 26, 0.3);
 }
 
 .ht-auth::after {
@@ -448,21 +481,21 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
   top: -4rem;
   width: 18rem;
   height: 18rem;
-  background: radial-gradient(circle at 35% 35%, rgba(111, 184, 248, 0.6), rgba(111, 184, 248, 0.05) 70%);
+  background: radial-gradient(circle at 35% 35%, rgba(255, 107, 26, 0.5), rgba(255, 107, 26, 0.02) 70%);
 }
 
-/* Frosted-glass card in the middle */
+/* Frosted dark card in the middle */
 .ht-auth-card {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 26rem;
+  max-width: 28rem;
   padding: 2.5rem 2.25rem;
-  border-radius: 1.75rem;
+  border-radius: 1.5rem;
   color: #FFFFFF;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  box-shadow: 0 1.5rem 3rem rgba(1, 41, 92, 0.35);
+  background: rgba(24, 24, 27, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.5);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
 }
@@ -471,9 +504,9 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  font-family: "Montserrat", "Segoe UI", sans-serif;
+  font-family: "Oswald", "Arial Narrow", "Segoe UI", sans-serif;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #FFFFFF;
   text-decoration: none;
@@ -481,17 +514,17 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
 }
 
 .ht-auth-brand i {
-  color: var(--ht-sky);
+  color: var(--ht-primary);
 }
 
 .ht-auth h1 {
   color: #FFFFFF;
-  font-size: 2.25rem;
+  font-size: 2.4rem;
   margin-bottom: 0.25rem;
 }
 
 .ht-auth-sub {
-  color: rgba(255, 255, 255, 0.85);
+  color: #D4D4D8;
   margin-bottom: 1.75rem;
 }
 
@@ -501,16 +534,13 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
   margin-bottom: 0.35rem;
 }
 
-.ht-auth .form-control {
-  background-color: #FFFFFF;
-  border-color: #FFFFFF;
+.ht-auth .form-control,
+.ht-auth .form-select {
+  background-color: #0E0E10;
+  border-color: #2C2C31;
   color: var(--ht-text);
   border-radius: 0.75rem;
   padding: 0.7rem 0.9rem;
-}
-
-.ht-auth .form-control::placeholder {
-  color: #8A99AD;
 }
 
 .ht-auth .form-check-label {
@@ -518,11 +548,11 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
 }
 
 .ht-auth a {
-  color: #FFFFFF;
+  color: var(--ht-link);
 }
 
 .ht-auth a:hover {
-  color: #BFE0FF;
+  color: #FFB27A;
 }
 
 .ht-auth-small {
@@ -531,7 +561,7 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
 
 .ht-auth-footer {
   text-align: center;
-  color: rgba(255, 255, 255, 0.85);
+  color: #D4D4D8;
   margin: 1.5rem 0 0;
 }
 
@@ -539,7 +569,7 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
   font-weight: 700;
 }
 
-/* Error messages: white text on a red pill, readable on the blue glass */
+/* Error messages: white text on a red pill, readable on the dark card */
 .ht-auth .field-validation-error,
 .ht-auth .validation-summary-errors {
   display: inline-block;
@@ -559,11 +589,11 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
 @media (max-width: 575.98px) {
   .ht-hero {
     padding: 2rem 1.25rem;
-    border-radius: 1.5rem;
+    border-radius: 1.25rem;
   }
 
   .ht-auth {
-    border-radius: 1.5rem;
+    border-radius: 1.25rem;
     padding: 2rem 0.75rem;
   }
 
