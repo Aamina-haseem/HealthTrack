@@ -40,3 +40,14 @@ button.accept-policy {
   white-space: nowrap;
   line-height: 60px;
 }
+
+/* On phones the footer text wraps and sits after the page,
+   instead of one long line that makes the page scroll sideways */
+@media (max-width: 575.98px) {
+  .footer {
+    position: static;
+    white-space: normal;
+    line-height: 1.5;
+    padding: 1rem 0;
+  }
+}
