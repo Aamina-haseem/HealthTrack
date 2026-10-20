@@ -8,61 +8,110 @@
     var clients = (IEnumerable<SelectListItem>)ViewBag.Clients;
 }
 
-<h1>Create Workout Plan</h1>
+<div class="ht-form-page">
+    @* Orange info panel: page title and tips *@
+    <aside class="ht-form-info">
+        <span class="ht-eyebrow">Workout Plans</span>
+        <h1>Create Workout Plan</h1>
+        <p>Build a training plan for one of your clients. You can add exercises day by day once it is saved.</p>
+        <ul class="ht-form-tips">
+            <li><i class="bi bi-people" aria-hidden="true"></i><span>Only clients assigned to you appear in the list.</span></li>
+            <li><i class="bi bi-flag" aria-hidden="true"></i><span>A short goal, such as "Lose 3 kg", helps your client stay focused.</span></li>
+            <li><i class="bi bi-calendar-range" aria-hidden="true"></i><span>The end date is optional, but it cannot be before the start date.</span></li>
+        </ul>
+    </aside>
 
-<form asp-action="Create" method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="ht-form-body">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <div class="mb-3">
-        <label asp-for="ClientId" class="form-label">Client</label>
-        <select asp-for="ClientId" asp-items="clients" class="form-select">
-            <option value="">-- Select a client --</option>
-        </select>
-        <span asp-validation-for="ClientId" class="text-danger"></span>
+            <fieldset class="ht-form-group">
+                <legend>About the plan</legend>
+
+                <div class="mb-3">
+                    <label asp-for="ClientId" class="form-label">Client</label>
+                    <div class="ht-input">
+                        <i class="bi bi-person" aria-hidden="true"></i>
+                        <select asp-for="ClientId" asp-items="clients" class="form-select">
+                            <option value="">-- Select a client --</option>
+                        </select>
+                    </div>
+                    <span asp-validation-for="ClientId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label"></label>
+                    <div class="ht-input">
+                        <i class="bi bi-type" aria-hidden="true"></i>
+                        <input asp-for="Title" class="form-control" placeholder="e.g. 8-Week Strength Builder" />
+                    </div>
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"></label>
+                    <div class="ht-input">
+                        <i class="bi bi-card-text" aria-hidden="true"></i>
+                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    </div>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-7 mb-3">
+                        <label asp-for="Goal" class="form-label"></label>
+                        <div class="ht-input">
+                            <i class="bi bi-flag" aria-hidden="true"></i>
+                            <input asp-for="Goal" class="form-control" />
+                        </div>
+                        <span asp-validation-for="Goal" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-5 mb-3">
+                        <label asp-for="Difficulty" class="form-label"></label>
+                        <div class="ht-input">
+                            <i class="bi bi-bar-chart-steps" aria-hidden="true"></i>
+                            <select asp-for="Difficulty"
+                                    asp-items="Html.GetEnumSelectList<HealthTrack.Models.DifficultyLevel>()"
+                                    class="form-select">
+                            </select>
+                        </div>
+                        <span asp-validation-for="Difficulty" class="text-danger"></span>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset class="ht-form-group">
+                <legend>Schedule</legend>
+
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <label asp-for="StartDate" class="form-label"></label>
+                        <div class="ht-input">
+                            <i class="bi bi-calendar-event" aria-hidden="true"></i>
+                            <input asp-for="StartDate" class="form-control" />
+                        </div>
+                        <span asp-validation-for="StartDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-sm-6 mb-3">
+                        <label asp-for="EndDate" class="form-label"></label>
+                        <div class="ht-input">
+                            <i class="bi bi-calendar-check" aria-hidden="true"></i>
+                            <input asp-for="EndDate" class="form-control" />
+                        </div>
+                        <span asp-validation-for="EndDate" class="text-danger"></span>
+                    </div>
+                </div>
+            </fieldset>
+
+            <div class="ht-form-actions">
+                <button type="submit" class="btn btn-primary ht-btn-arrow">Create Plan <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
     </div>
-
-    <div class="mb-3">
-        <label asp-for="Title" class="form-label"></label>
-        <input asp-for="Title" class="form-control" />
-        <span asp-validation-for="Title" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Description" class="form-label"></label>
-        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Goal" class="form-label"></label>
-        <input asp-for="Goal" class="form-control" />
-        <span asp-validation-for="Goal" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Difficulty" class="form-label"></label>
-        <select asp-for="Difficulty"
-                asp-items="Html.GetEnumSelectList<HealthTrack.Models.DifficultyLevel>()"
-                class="form-select">
-        </select>
-        <span asp-validation-for="Difficulty" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="StartDate" class="form-label"></label>
-        <input asp-for="StartDate" class="form-control" />
-        <span asp-validation-for="StartDate" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="EndDate" class="form-label"></label>
-        <input asp-for="EndDate" class="form-control" />
-        <span asp-validation-for="EndDate" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Create Plan</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

@@ -1,9 +1,24 @@
 @model HealthTrack.ViewModels.DietPlanCreateViewModel
 @{ ViewData["Title"] = "Create Diet Plan"; }
-<h1>Create Diet Plan</h1>
-<form asp-action="Create" method="post">
-    <partial name="_PlanForm" model="Model" />
-    <button class="btn btn-primary" type="submit">Create Plan</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-</form>
+<div class="ht-form-page">
+    <aside class="ht-form-info">
+        <span class="ht-eyebrow">Diet Plans</span>
+        <h1>Create Diet Plan</h1>
+        <p>Set a daily calorie target for one of your clients, then add the planned meals.</p>
+        <ul class="ht-form-tips">
+            <li><i class="bi bi-people" aria-hidden="true"></i><span>Only clients assigned to you appear in the list.</span></li>
+            <li><i class="bi bi-fire" aria-hidden="true"></i><span>The daily target must be between 800 and 6,000 kcal.</span></li>
+            <li><i class="bi bi-egg-fried" aria-hidden="true"></i><span>Add breakfast, lunch, dinner and snacks after saving.</span></li>
+        </ul>
+    </aside>
+    <div class="ht-form-body">
+        <form asp-action="Create" method="post">
+            <partial name="_PlanForm" model="Model" />
+            <div class="ht-form-actions">
+                <button class="btn btn-primary ht-btn-arrow" type="submit">Create Plan <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

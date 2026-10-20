@@ -4,42 +4,53 @@
     ViewData["Title"] = "Update Appointment";
 }
 
-<div class="row justify-content-center">
-    <div class="col-lg-7">
+<div class="ht-form-page">
+    @* Orange info panel: page title, who the appointment is with, and the rules *@
+    <aside class="ht-form-info">
         <span class="ht-eyebrow">Trainer</span>
-        <h1 class="mb-1">Update Appointment</h1>
-        <p class="text-muted">
-            With <strong>@Model.ClientName</strong> &middot; @Model.Reason
-        </p>
+        <h1>Update Appointment</h1>
+        <p>Set the time for this consultation and add your private notes.</p>
+        <p class="ht-form-context"><i class="bi bi-person" aria-hidden="true"></i> With @Model.ClientName &middot; @Model.Reason</p>
+        <ul class="ht-form-tips">
+            <li><i class="bi bi-clock" aria-hidden="true"></i><span>Appointments start between @AppointmentRules.OpeningHour.ToString("00"):00 and @AppointmentRules.ClosingHour.ToString("00"):00.</span></li>
+            <li><i class="bi bi-check2-circle" aria-hidden="true"></i><span>Saving confirms (approves) the appointment and notifies the client.</span></li>
+            <li><i class="bi bi-lock" aria-hidden="true"></i><span>Your notes are private to you and stored encrypted.</span></li>
+        </ul>
+    </aside>
 
-        <div class="card"><div class="card-body">
-            <form asp-action="Reschedule" asp-route-id="@Model.Id" method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
-                <input type="hidden" asp-for="Id" />
+    <div class="ht-form-body">
+        <form asp-action="Reschedule" asp-route-id="@Model.Id" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+            <input type="hidden" asp-for="Id" />
 
-                <div class="mb-3">
-                    <label asp-for="AppointmentDate" class="form-label"></label>
+            <div class="mb-3">
+                <label asp-for="AppointmentDate" class="form-label"></label>
+                <div class="ht-input">
+                    <i class="bi bi-calendar-event" aria-hidden="true"></i>
                     <input asp-for="AppointmentDate" type="datetime-local" class="form-control" />
-                    <div class="form-text">
-                        Between @AppointmentRules.OpeningHour.ToString("00"):00 and @AppointmentRules.ClosingHour.ToString("00"):00.
-                        Saving confirms (approves) the appointment and notifies the client.
-                    </div>
-                    <span asp-validation-for="AppointmentDate" class="text-danger small"></span>
                 </div>
+                <div class="form-text">
+                    Between @AppointmentRules.OpeningHour.ToString("00"):00 and @AppointmentRules.ClosingHour.ToString("00"):00.
+                    Saving confirms (approves) the appointment and notifies the client.
+                </div>
+                <span asp-validation-for="AppointmentDate" class="text-danger small"></span>
+            </div>
 
-                <div class="mb-4">
-                    <label asp-for="TrainerNotes" class="form-label"></label>
+            <div class="mb-3">
+                <label asp-for="TrainerNotes" class="form-label"></label>
+                <div class="ht-input">
+                    <i class="bi bi-journal-text" aria-hidden="true"></i>
                     <textarea asp-for="TrainerNotes" class="form-control" rows="4"
                               placeholder="Private notes for this consultation (stored encrypted)"></textarea>
-                    <span asp-validation-for="TrainerNotes" class="text-danger small"></span>
                 </div>
+                <span asp-validation-for="TrainerNotes" class="text-danger small"></span>
+            </div>
 
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Save Changes</button>
-                    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Back</a>
-                </div>
-            </form>
-        </div></div>
+            <div class="ht-form-actions">
+                <button type="submit" class="btn btn-primary ht-btn-arrow">Save Changes <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Back</a>
+            </div>
+        </form>
     </div>
 </div>
 

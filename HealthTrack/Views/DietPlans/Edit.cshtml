@@ -1,9 +1,24 @@
 @model HealthTrack.ViewModels.DietPlanCreateViewModel
 @{ ViewData["Title"] = "Edit Diet Plan"; }
-<h1>Edit Diet Plan</h1>
-<form asp-action="Edit" asp-route-id="@ViewBag.PlanId" method="post">
-    <partial name="_PlanForm" model="Model" />
-    <button class="btn btn-primary" type="submit">Save Changes</button>
-    <a asp-action="Details" asp-route-id="@ViewBag.PlanId" class="btn btn-secondary">Cancel</a>
-</form>
+<div class="ht-form-page">
+    <aside class="ht-form-info">
+        <span class="ht-eyebrow">Diet Plans</span>
+        <h1>Edit Diet Plan</h1>
+        <p>Update the plan details. Your client sees the changes as soon as you save.</p>
+        <ul class="ht-form-tips">
+            <li><i class="bi bi-egg-fried" aria-hidden="true"></i><span>Planned meals are kept. Edit them from the plan page.</span></li>
+            <li><i class="bi bi-fire" aria-hidden="true"></i><span>The daily target must be between 800 and 6,000 kcal.</span></li>
+            <li><i class="bi bi-calendar-range" aria-hidden="true"></i><span>The end date is optional, but it cannot be before the start date.</span></li>
+        </ul>
+    </aside>
+    <div class="ht-form-body">
+        <form asp-action="Edit" asp-route-id="@ViewBag.PlanId" method="post">
+            <partial name="_PlanForm" model="Model" />
+            <div class="ht-form-actions">
+                <button class="btn btn-primary ht-btn-arrow" type="submit">Save Changes <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+                <a asp-action="Details" asp-route-id="@ViewBag.PlanId" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

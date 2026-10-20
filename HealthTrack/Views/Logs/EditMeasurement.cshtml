@@ -1,8 +1,23 @@
 @model HealthTrack.ViewModels.HealthMeasurementCreateViewModel
 @{ ViewData["Title"] = "Edit Measurement"; }
-<h1>Edit Measurement</h1>
-<form asp-action="EditMeasurement" asp-route-id="@ViewBag.LogId" method="post">
-    <partial name="_MeasurementForm" model="Model" />
-    <button class="btn btn-primary" type="submit">Save Changes</button><a asp-action="Index" class="btn btn-secondary">Cancel</a>
-</form>
+<div class="ht-form-page">
+    <aside class="ht-form-info">
+        <span class="ht-eyebrow">Activity Log</span>
+        <h1>Edit Measurement</h1>
+        <p>BMI is calculated again from the new weight and height when you save.</p>
+        <ul class="ht-form-tips">
+            <li><i class="bi bi-rulers" aria-hidden="true"></i><span>Weight is 20 to 300 kg. Height is 50 to 250 cm.</span></li>
+            <li><i class="bi bi-heart-pulse" aria-hidden="true"></i><span>Resting heart rate is optional (30 to 220 bpm).</span></li>
+        </ul>
+    </aside>
+    <div class="ht-form-body">
+        <form asp-action="EditMeasurement" asp-route-id="@ViewBag.LogId" method="post">
+            <partial name="_MeasurementForm" model="Model" />
+            <div class="ht-form-actions">
+                <button class="btn btn-primary ht-btn-arrow" type="submit">Save Changes <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

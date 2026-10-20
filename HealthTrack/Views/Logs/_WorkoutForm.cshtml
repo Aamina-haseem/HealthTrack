@@ -2,11 +2,26 @@
 @using Microsoft.AspNetCore.Mvc.Rendering
 @{ var plans = (IEnumerable<SelectListItem>)ViewBag.Plans; }
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-<div class="mb-3"><label asp-for="ExerciseName" class="form-label"></label><input asp-for="ExerciseName" class="form-control" /><span asp-validation-for="ExerciseName" class="text-danger"></span></div>
+<div class="row">
+    <div class="col-md-7 mb-3"><label asp-for="ExerciseName" class="form-label"></label>
+        <div class="ht-input"><i class="bi bi-lightning-charge" aria-hidden="true"></i><input asp-for="ExerciseName" class="form-control" placeholder="e.g. Running" /></div>
+        <span asp-validation-for="ExerciseName" class="text-danger"></span></div>
+    <div class="col-md-5 mb-3"><label asp-for="Date" class="form-label"></label>
+        <div class="ht-input"><i class="bi bi-calendar-event" aria-hidden="true"></i><input asp-for="Date" class="form-control" /></div>
+        <span asp-validation-for="Date" class="text-danger"></span></div>
+</div>
 <div class="mb-3"><label asp-for="WorkoutPlanId" class="form-label"></label>
-    <select asp-for="WorkoutPlanId" asp-items="plans" class="form-select"><option value="">No specific plan</option></select>
+    <div class="ht-input"><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>
+        <select asp-for="WorkoutPlanId" asp-items="plans" class="form-select"><option value="">No specific plan</option></select></div>
     <span asp-validation-for="WorkoutPlanId" class="text-danger"></span></div>
-<div class="mb-3"><label asp-for="Date" class="form-label"></label><input asp-for="Date" class="form-control" /><span asp-validation-for="Date" class="text-danger"></span></div>
-<div class="mb-3"><label asp-for="DurationMinutes" class="form-label"></label><input asp-for="DurationMinutes" class="form-control" /><span asp-validation-for="DurationMinutes" class="text-danger"></span></div>
-<div class="mb-3"><label asp-for="CaloriesBurned" class="form-label"></label><input asp-for="CaloriesBurned" class="form-control" /><span asp-validation-for="CaloriesBurned" class="text-danger"></span></div>
-<div class="mb-3"><label asp-for="Notes" class="form-label"></label><textarea asp-for="Notes" class="form-control"></textarea><span asp-validation-for="Notes" class="text-danger"></span></div>
+<div class="row">
+    <div class="col-sm-6 mb-3"><label asp-for="DurationMinutes" class="form-label"></label>
+        <div class="ht-input"><i class="bi bi-stopwatch" aria-hidden="true"></i><input asp-for="DurationMinutes" class="form-control" /></div>
+        <span asp-validation-for="DurationMinutes" class="text-danger"></span></div>
+    <div class="col-sm-6 mb-3"><label asp-for="CaloriesBurned" class="form-label"></label>
+        <div class="ht-input"><i class="bi bi-fire" aria-hidden="true"></i><input asp-for="CaloriesBurned" class="form-control" /></div>
+        <span asp-validation-for="CaloriesBurned" class="text-danger"></span></div>
+</div>
+<div class="mb-3"><label asp-for="Notes" class="form-label"></label>
+    <div class="ht-input"><i class="bi bi-chat-left-text" aria-hidden="true"></i><textarea asp-for="Notes" class="form-control" rows="3"></textarea></div>
+    <span asp-validation-for="Notes" class="text-danger"></span></div>

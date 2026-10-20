@@ -1,15 +1,33 @@
 @model HealthTrack.ViewModels.FeedbackCreateViewModel
 @{ ViewData["Title"] = "Give Feedback"; }
-<h1>Feedback for @ViewBag.ClientName</h1>
-<form asp-action="GiveFeedback" asp-route-id="@ViewBag.ClientId" method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="mb-3"><label asp-for="Message" class="form-label"></label>
-        <textarea asp-for="Message" rows="5" class="form-control"></textarea>
-        <span asp-validation-for="Message" class="text-danger"></span></div>
-    <div class="mb-3"><label asp-for="Rating" class="form-label"></label>
-        <input asp-for="Rating" class="form-control" />
-        <span asp-validation-for="Rating" class="text-danger"></span></div>
-    <button type="submit" class="btn btn-primary">Send Feedback</button>
-    <a asp-action="ClientDetails" asp-route-id="@ViewBag.ClientId" class="btn btn-secondary">Cancel</a>
-</form>
+<div class="ht-form-page">
+    <aside class="ht-form-info">
+        <span class="ht-eyebrow">Client Feedback</span>
+        <h1>Give Feedback</h1>
+        <p>Your client sees this message on their dashboard.</p>
+        <p class="ht-form-context"><i class="bi bi-person" aria-hidden="true"></i> Feedback for @ViewBag.ClientName</p>
+        <ul class="ht-form-tips">
+            <li><i class="bi bi-hand-thumbs-up" aria-hidden="true"></i><span>Start with what went well, then give one clear next step.</span></li>
+            <li><i class="bi bi-star" aria-hidden="true"></i><span>The progress rating is optional, from 1 to 5.</span></li>
+            <li><i class="bi bi-chat-left-text" aria-hidden="true"></i><span>Messages can be up to 1,000 characters.</span></li>
+        </ul>
+    </aside>
+    <div class="ht-form-body">
+        <form asp-action="GiveFeedback" asp-route-id="@ViewBag.ClientId" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="mb-3"><label asp-for="Message" class="form-label"></label>
+                <div class="ht-input"><i class="bi bi-chat-left-text" aria-hidden="true"></i>
+                    <textarea asp-for="Message" rows="6" class="form-control"></textarea></div>
+                <span asp-validation-for="Message" class="text-danger"></span></div>
+            <div class="mb-3"><label asp-for="Rating" class="form-label"></label>
+                <div class="ht-input"><i class="bi bi-star" aria-hidden="true"></i>
+                    <input asp-for="Rating" class="form-control" min="1" max="5" /></div>
+                <span asp-validation-for="Rating" class="text-danger"></span></div>
+            <div class="ht-form-actions">
+                <button type="submit" class="btn btn-primary ht-btn-arrow">Send Feedback <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+                <a asp-action="ClientDetails" asp-route-id="@ViewBag.ClientId" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

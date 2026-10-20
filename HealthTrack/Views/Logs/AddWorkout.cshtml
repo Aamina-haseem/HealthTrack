@@ -1,8 +1,24 @@
 @model HealthTrack.ViewModels.WorkoutLogCreateViewModel
 @{ ViewData["Title"] = "Log Workout"; }
-<h1>Log Workout</h1>
-<form asp-action="AddWorkout" method="post">
-    <partial name="_WorkoutForm" model="Model" />
-    <button class="btn btn-primary" type="submit">Save Workout</button><a asp-action="Index" class="btn btn-secondary">Cancel</a>
-</form>
+<div class="ht-form-page">
+    <aside class="ht-form-info">
+        <span class="ht-eyebrow">Activity Log</span>
+        <h1>Log Workout</h1>
+        <p>Record a workout or activity. It shows up on your dashboard charts straight away.</p>
+        <ul class="ht-form-tips">
+            <li><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i><span>Link it to your trainer's plan, or choose "No specific plan".</span></li>
+            <li><i class="bi bi-stopwatch" aria-hidden="true"></i><span>Duration is 1 to 600 minutes. Calories burned are 0 to 5,000.</span></li>
+            <li><i class="bi bi-calendar-x" aria-hidden="true"></i><span>The date cannot be in the future.</span></li>
+        </ul>
+    </aside>
+    <div class="ht-form-body">
+        <form asp-action="AddWorkout" method="post">
+            <partial name="_WorkoutForm" model="Model" />
+            <div class="ht-form-actions">
+                <button class="btn btn-primary ht-btn-arrow" type="submit">Save Workout <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }
