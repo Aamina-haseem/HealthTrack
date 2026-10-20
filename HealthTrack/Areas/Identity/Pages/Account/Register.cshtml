@@ -4,9 +4,9 @@
     ViewData["Title"] = "Register";
 }
 
-@* Same blue panel and glass card as the Login page. The form fields and
-   RegisterModel are unchanged; the "Use another service" section was removed
-   because HealthTrack only uses local accounts (Individual Accounts). *@
+@* Same blue panel and glass card as the Login page. The "Use another service"
+   section was removed because HealthTrack only uses local accounts (Individual Accounts).
+   Profile fields (name, date of birth, gender) were added for the Client profile. *@
 <section class="ht-auth" aria-labelledby="register-title">
     <div class="ht-auth-card">
         <a class="ht-auth-brand" asp-area="" asp-controller="Home" asp-action="Index">
@@ -17,6 +17,38 @@
 
         <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
             <div asp-validation-summary="ModelOnly" class="mb-3" role="alert"></div>
+
+            <div class="row">
+                <div class="col-sm-6 mb-3">
+                    <label asp-for="Input.FirstName" class="form-label">First name</label>
+                    <input asp-for="Input.FirstName" class="form-control" autocomplete="given-name" aria-required="true" placeholder="First name" />
+                    <span asp-validation-for="Input.FirstName"></span>
+                </div>
+                <div class="col-sm-6 mb-3">
+                    <label asp-for="Input.LastName" class="form-label">Last name</label>
+                    <input asp-for="Input.LastName" class="form-control" autocomplete="family-name" aria-required="true" placeholder="Last name" />
+                    <span asp-validation-for="Input.LastName"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6 mb-3">
+                    <label asp-for="Input.DateOfBirth" class="form-label">Date of birth</label>
+                    <input asp-for="Input.DateOfBirth" type="date" class="form-control" aria-required="true"
+                           max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                    <span asp-validation-for="Input.DateOfBirth"></span>
+                </div>
+                <div class="col-sm-6 mb-3">
+                    <label asp-for="Input.Gender" class="form-label">Gender</label>
+                    <select asp-for="Input.Gender" class="form-select" aria-required="true">
+                        <option value="">-- Select --</option>
+                        <option>Female</option>
+                        <option>Male</option>
+                        <option>Other</option>
+                    </select>
+                    <span asp-validation-for="Input.Gender"></span>
+                </div>
+            </div>
 
             <div class="mb-3">
                 <label asp-for="Input.Email" class="form-label">Email</label>
