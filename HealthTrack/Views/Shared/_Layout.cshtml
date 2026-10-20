@@ -1,4 +1,26 @@
 @using HealthTrack.Models
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@functions {
+    // Marks the sidebar link for the page that is open (orange highlight + aria-current for screen readers).
+    // A link matches when the controller is the same and, if actions are given, the action is one of them.
+    bool IsActive(string controller, params string[] actions)
+    {
+        var c = ViewContext.RouteData.Values["controller"]?.ToString();
+        var a = ViewContext.RouteData.Values["action"]?.ToString();
+        if (!string.Equals(c, controller, StringComparison.OrdinalIgnoreCase)) return false;
+        return actions.Length == 0 || actions.Any(x => string.Equals(x, a, StringComparison.OrdinalIgnoreCase));
+    }
+    string NavClass(string controller, params string[] actions) => IsActive(controller, actions) ? "nav-link active" : "nav-link";
+    string? Current(string controller, params string[] actions) => IsActive(controller, actions) ? "page" : null;
+}
+@{
+    var signedIn = User.Identity?.IsAuthenticated ?? false;
+    ApplicationUser? me = signedIn ? await UserManager.GetUserAsync(User) : null;
+    var displayName = me?.FullName ?? User.Identity?.Name ?? "";
+    var initials = string.Concat(displayName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(w => char.ToUpper(w[0])));
+    var roleName = User.IsInRole(AppRoles.Admin) ? "Administrator" : User.IsInRole(AppRoles.Trainer) ? "Trainer" : "Client";
+}
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 <head>
@@ -16,7 +38,139 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/HealthTrack.styles.css" asp-append-version="true" />
 </head>
-<body>
+<body class="@(signedIn ? "ht-app" : "")">
+    <a class="visually-hidden-focusable ht-skip-link" href="#main-content">Skip to main content</a>
+
+@if (signedIn)
+{
+    @* ===================== Signed-in pages: sidebar app layout ===================== *@
+    <div class="ht-shell">
+        @* On large screens the sidebar is always visible; on smaller screens it slides in (Bootstrap offcanvas). *@
+        <aside class="offcanvas-xl offcanvas-start ht-sidebar" tabindex="-1" id="htSidebar" aria-labelledby="htSidebarLabel">
+            <div class="offcanvas-header">
+                <a class="ht-brand" id="htSidebarLabel" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-heart-pulse-fill" aria-hidden="true"></i> HealthTrack
+                </a>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#htSidebar" aria-label="Close menu"></button>
+            </div>
+            <div class="offcanvas-body">
+                <div class="ht-sidebar-inner">
+                    <a class="ht-brand d-none d-xl-flex" asp-area="" asp-controller="Home" asp-action="Index">
+                        <i class="bi bi-heart-pulse-fill" aria-hidden="true"></i> HealthTrack
+                    </a>
+
+                    <nav aria-label="Main menu">
+                        <p class="ht-side-label">Menu</p>
+                        <ul class="nav flex-column ht-side-nav">
+                            @* Client menu *@
+                            @if (User.IsInRole(AppRoles.Client))
+                            {
+                                <li class="nav-item"><a class="@NavClass("Client", "Index")" aria-current="@Current("Client", "Index")" asp-area="" asp-controller="Client" asp-action="Index"><i class="bi bi-speedometer2" aria-hidden="true"></i> Dashboard</a></li>
+                                <li class="nav-item"><a class="@NavClass("Client", "WorkoutPlans", "WorkoutPlan")" aria-current="@Current("Client", "WorkoutPlans", "WorkoutPlan")" asp-area="" asp-controller="Client" asp-action="WorkoutPlans"><i class="bi bi-activity" aria-hidden="true"></i> Workouts</a></li>
+                                <li class="nav-item"><a class="@NavClass("Client", "DietPlans", "DietPlan")" aria-current="@Current("Client", "DietPlans", "DietPlan")" asp-area="" asp-controller="Client" asp-action="DietPlans"><i class="bi bi-egg-fried" aria-hidden="true"></i> Diet</a></li>
+                                <li class="nav-item"><a class="@NavClass("Logs")" aria-current="@Current("Logs")" asp-area="" asp-controller="Logs" asp-action="Index"><i class="bi bi-journal-plus" aria-hidden="true"></i> Log Activity</a></li>
+                                <li class="nav-item"><a class="@NavClass("Progress", "Index")" aria-current="@Current("Progress", "Index")" asp-area="" asp-controller="Progress" asp-action="Index"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i> Progress</a></li>
+                                <li class="nav-item"><a class="@NavClass("Appointments")" aria-current="@Current("Appointments")" asp-area="" asp-controller="Appointments" asp-action="Index"><i class="bi bi-calendar-check" aria-hidden="true"></i> Appointments</a></li>
+                            }
+
+                            @* Trainer menu *@
+                            @if (User.IsInRole(AppRoles.Trainer))
+                            {
+                                <li class="nav-item"><a class="@NavClass("Trainer", "Index")" aria-current="@Current("Trainer", "Index")" asp-area="" asp-controller="Trainer" asp-action="Index"><i class="bi bi-speedometer2" aria-hidden="true"></i> Dashboard</a></li>
+                                <li class="nav-item"><a class="@NavClass("Trainer", "Clients", "ClientDetails", "GiveFeedback")" aria-current="@Current("Trainer", "Clients", "ClientDetails", "GiveFeedback")" asp-area="" asp-controller="Trainer" asp-action="Clients"><i class="bi bi-people" aria-hidden="true"></i> My Clients</a></li>
+                                <li class="nav-item"><a class="@NavClass("WorkoutPlans")" aria-current="@Current("WorkoutPlans")" asp-area="" asp-controller="WorkoutPlans" asp-action="Index"><i class="bi bi-activity" aria-hidden="true"></i> Workout Plans</a></li>
+                                <li class="nav-item"><a class="@NavClass("DietPlans")" aria-current="@Current("DietPlans")" asp-area="" asp-controller="DietPlans" asp-action="Index"><i class="bi bi-egg-fried" aria-hidden="true"></i> Diet Plans</a></li>
+                                <li class="nav-item"><a class="@NavClass("Appointments")" aria-current="@Current("Appointments")" asp-area="" asp-controller="Appointments" asp-action="Index"><i class="bi bi-calendar-check" aria-hidden="true"></i> Appointments</a></li>
+                                <li class="nav-item"><a class="@NavClass("Progress", "Reports")" aria-current="@Current("Progress", "Reports")" asp-area="" asp-controller="Progress" asp-action="Reports"><i class="bi bi-bar-chart" aria-hidden="true"></i> Reports</a></li>
+                            }
+
+                            @* Administrator menu *@
+                            @if (User.IsInRole(AppRoles.Admin))
+                            {
+                                <li class="nav-item"><a class="@NavClass("Admin", "Index")" aria-current="@Current("Admin", "Index")" asp-area="" asp-controller="Admin" asp-action="Index"><i class="bi bi-speedometer2" aria-hidden="true"></i> Dashboard</a></li>
+                                <li class="nav-item"><a class="@NavClass("Admin", "Users", "CreateTrainer")" aria-current="@Current("Admin", "Users", "CreateTrainer")" asp-area="" asp-controller="Admin" asp-action="Users"><i class="bi bi-person-gear" aria-hidden="true"></i> Users</a></li>
+                                <li class="nav-item"><a class="@NavClass("Admin", "Assignments")" aria-current="@Current("Admin", "Assignments")" asp-area="" asp-controller="Admin" asp-action="Assignments"><i class="bi bi-diagram-3" aria-hidden="true"></i> Trainer Assignments</a></li>
+                                <li class="nav-item"><a class="@NavClass("Admin", "Reports")" aria-current="@Current("Admin", "Reports")" asp-area="" asp-controller="Admin" asp-action="Reports"><i class="bi bi-bar-chart" aria-hidden="true"></i> Reports</a></li>
+                            }
+                        </ul>
+
+                        <p class="ht-side-label">Account</p>
+                        <ul class="nav flex-column ht-side-nav">
+                            <li class="nav-item"><a class="@NavClass("Notifications")" aria-current="@Current("Notifications")" asp-area="" asp-controller="Notifications" asp-action="Index"><i class="bi bi-bell" aria-hidden="true"></i> Notifications</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index"><i class="bi bi-person-circle" aria-hidden="true"></i> My Profile</a></li>
+                        </ul>
+                    </nav>
+
+                    @* Signed-in user and logout at the bottom of the sidebar *@
+                    <div class="ht-side-user">
+                        <span class="ht-avatar" aria-hidden="true">@initials</span>
+                        <div class="ht-side-user-text">
+                            <span class="ht-side-user-name">@displayName</span>
+                            <span class="ht-side-user-role">@roleName</span>
+                        </div>
+                        <form asp-area="Identity" asp-page="/Account/Logout"
+                              asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
+                            <button type="submit" class="btn ht-icon-btn" title="Logout" aria-label="Logout">
+                                <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="ht-main">
+            @* Top bar: menu button (small screens), page name, date, notifications bell and profile *@
+            <header class="ht-topbar">
+                <button class="btn ht-icon-btn d-xl-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#htSidebar"
+                        aria-controls="htSidebar" aria-label="Open menu">
+                    <i class="bi bi-list" aria-hidden="true"></i>
+                </button>
+                <div class="ht-topbar-title">
+                    <span class="ht-crumb d-none d-sm-inline">HealthTrack</span>
+                    <i class="bi bi-chevron-right d-none d-sm-inline" aria-hidden="true"></i>
+                    <span>@ViewData["Title"]</span>
+                </div>
+                <div class="ht-topbar-actions">
+                    <span class="ht-date d-none d-md-inline-flex"><i class="bi bi-calendar3" aria-hidden="true"></i> @DateTime.Today.ToString("ddd, dd MMM yyyy")</span>
+                    <div class="ht-bell">@await Component.InvokeAsync("NotificationBell")</div>
+                    <a class="ht-topbar-user" asp-area="Identity" asp-page="/Account/Manage/Index" title="My profile">
+                        <span class="ht-avatar ht-avatar-sm" aria-hidden="true">@initials</span>
+                        <span class="d-none d-sm-inline">@displayName</span>
+                    </a>
+                </div>
+            </header>
+
+            <main role="main" id="main-content" class="ht-content" tabindex="-1">
+                @* Success / error messages set by controllers with TempData *@
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle"></i> @TempData["Success"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle"></i> @TempData["Error"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                @RenderBody()
+            </main>
+
+            <footer class="ht-app-footer">
+                &copy; 2026 HealthTrack · Personal Health &amp; Fitness Management ·
+                <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            </footer>
+        </div>
+    </div>
+}
+else
+{
+    @* ===================== Visitors: top navigation bar ===================== *@
     <header>
         <nav class="navbar navbar-expand-xl ht-navbar shadow-sm mb-4">
             <div class="container-fluid">
@@ -30,55 +184,9 @@
 
                 <div class="collapse navbar-collapse" id="mainNav">
                     <ul class="navbar-nav me-auto">
-                        @* Client navigation *@
-                        @if (User.IsInRole(AppRoles.Client))
-                        {
-                            <li class="nav-item"><a class="nav-link" asp-controller="Client" asp-action="Index"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Client" asp-action="WorkoutPlans"><i class="bi bi-activity"></i> Workouts</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Client" asp-action="DietPlans"><i class="bi bi-egg-fried"></i> Diet</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Logs" asp-action="Index"><i class="bi bi-journal-plus"></i> Log Activity</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Progress" asp-action="Index"><i class="bi bi-graph-up-arrow"></i> Progress</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Appointments" asp-action="Index"><i class="bi bi-calendar-check"></i> Appointments</a></li>
-                        }
-
-                        @* Trainer navigation *@
-                        @if (User.IsInRole(AppRoles.Trainer))
-                        {
-                            <li class="nav-item"><a class="nav-link" asp-controller="Trainer" asp-action="Index"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Trainer" asp-action="Clients"><i class="bi bi-people"></i> My Clients</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="WorkoutPlans" asp-action="Index"><i class="bi bi-activity"></i> Workout Plans</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="DietPlans" asp-action="Index"><i class="bi bi-egg-fried"></i> Diet Plans</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Appointments" asp-action="Index"><i class="bi bi-calendar-check"></i> Appointments</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Progress" asp-action="Reports"><i class="bi bi-bar-chart"></i> Reports</a></li>
-                        }
-
-                        @* Administrator navigation *@
-                        @if (User.IsInRole(AppRoles.Admin))
-                        {
-                            <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Index"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Users"><i class="bi bi-person-gear"></i> Users</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Assignments"><i class="bi bi-diagram-3"></i> Trainer Assignments</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Reports"><i class="bi bi-bar-chart"></i> Reports</a></li>
-                        }
-
-                        @* Navigation before sign-in *@
-                        @if (!(User.Identity?.IsAuthenticated ?? false))
-                        {
-                            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Home</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Privacy">Privacy</a></li>
-                        }
+                        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a></li>
                     </ul>
-
-                    @* Notifications bell with unread count (NotificationBellViewComponent, Task 8) *@
-                    @if (User.Identity?.IsAuthenticated ?? false)
-                    {
-                        <ul class="navbar-nav me-2">
-                            <li class="nav-item">
-                                @await Component.InvokeAsync("NotificationBell")
-                            </li>
-                        </ul>
-                    }
-
                     <partial name="_LoginPartial" />
                 </div>
             </div>
@@ -86,8 +194,7 @@
     </header>
 
     <div class="container">
-        <main role="main" class="pb-3">
-            @* Success / error messages set by controllers with TempData *@
+        <main role="main" id="main-content" class="pb-3" tabindex="-1">
             @if (TempData["Success"] != null)
             {
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -113,6 +220,7 @@
             <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+}
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

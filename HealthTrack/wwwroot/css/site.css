@@ -609,3 +609,320 @@ article.card:hover,
     animation-duration: 0.01ms !important;
   }
 }
+
+/* ---------- 8. App layout for signed-in pages: sidebar + top bar ---------- */
+
+/* Skip link: hidden until a keyboard user presses Tab */
+.ht-skip-link {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  z-index: 2000;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  background: var(--ht-primary);
+  color: var(--ht-on-primary);
+}
+
+.ht-app {
+  margin-bottom: 0;          /* the app footer is not absolutely positioned */
+}
+
+.ht-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar: always visible from 1200px, slides in below that (Bootstrap offcanvas-xl) */
+.ht-sidebar {
+  --bs-offcanvas-width: 270px;
+  --bs-offcanvas-bg: #0A0A0B;
+  --bs-offcanvas-border-color: #1F1F23;
+}
+
+@media (min-width: 1200px) {
+  .ht-sidebar {
+    position: sticky;
+    top: 0;
+    flex: 0 0 260px;
+    width: 260px;
+    height: 100vh;
+    background-color: #0A0A0B !important;
+    border-right: 1px solid #1F1F23;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* let the menu area fill the full height so the user box can sit at the bottom */
+  .ht-sidebar .offcanvas-body {
+    flex: 1 1 auto;
+  }
+}
+
+.ht-sidebar .offcanvas-body {
+  padding: 0;
+  overflow-y: auto;
+}
+
+.ht-sidebar-inner {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100%;
+  padding: 1.5rem 1rem 1rem;
+}
+
+.ht-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.75rem 1.5rem;
+  font-family: "Oswald", "Arial Narrow", "Segoe UI", sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  text-decoration: none;
+}
+
+.ht-brand i {
+  color: var(--ht-primary);
+}
+
+.offcanvas-header .ht-brand {
+  padding: 0;
+}
+
+.ht-side-label {
+  margin: 1.25rem 0.75rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #8B8B94;
+}
+
+.ht-side-nav .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.2rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.75rem;
+  color: var(--ht-muted);
+  font-weight: 500;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.ht-side-nav .nav-link i {
+  font-size: 1.1rem;
+  width: 1.25rem;
+  text-align: center;
+}
+
+.ht-side-nav .nav-link:hover {
+  background-color: #18181B;
+  color: #FFFFFF;
+}
+
+/* The page that is open: orange pill with dark text (6.6:1 contrast) */
+.ht-side-nav .nav-link.active {
+  background-color: var(--ht-primary);
+  color: var(--ht-on-primary);
+  font-weight: 600;
+  box-shadow: 0 0.5rem 1.25rem rgba(255, 107, 26, 0.25);
+}
+
+.ht-side-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: auto;           /* pushes the user box to the bottom of the sidebar */
+  padding: 0.85rem;
+  border: 1px solid #1F1F23;
+  border-radius: 1rem;
+  background-color: #121214;
+}
+
+.ht-side-user-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.ht-side-user-name {
+  color: #FFFFFF;
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ht-side-user-role {
+  color: var(--ht-muted);
+  font-size: 0.75rem;
+}
+
+.ht-avatar {
+  flex: 0 0 2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FF8A3D, #E85A0C);
+  color: var(--ht-on-primary);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.ht-avatar-sm {
+  flex-basis: 2rem;
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.75rem;
+}
+
+.ht-icon-btn {
+  --bs-btn-padding-x: 0.6rem;
+  --bs-btn-padding-y: 0.4rem;
+  --bs-btn-color: var(--ht-muted);
+  --bs-btn-hover-color: #FFFFFF;
+  --bs-btn-hover-bg: #27272A;
+  --bs-btn-border-color: transparent;
+  --bs-btn-hover-border-color: transparent;
+  --bs-btn-active-color: #FFFFFF;
+  --bs-btn-active-bg: #3F3F46;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+/* Main column: top bar, page content, footer */
+.ht-main {
+  flex: 1;
+  min-width: 0;               /* lets wide tables scroll inside the content instead of the page */
+  display: flex;
+  flex-direction: column;
+}
+
+.ht-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.5rem;
+  background-color: rgba(14, 14, 16, 0.85);
+  border-bottom: 1px solid #1F1F23;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.ht-topbar-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  color: #FFFFFF;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ht-topbar-title .ht-crumb,
+.ht-topbar-title i {
+  color: #8B8B94;
+  font-weight: 500;
+}
+
+.ht-topbar-title i {
+  font-size: 0.75rem;
+}
+
+.ht-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.ht-date {
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #27272A;
+  border-radius: 50rem;
+  color: var(--ht-muted);
+  font-size: 0.85rem;
+}
+
+.ht-bell .nav-link {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  border: 1px solid #27272A;
+  color: var(--ht-muted);
+}
+
+.ht-bell .nav-link:hover {
+  color: #FFFFFF;
+  border-color: var(--ht-primary);
+}
+
+.ht-bell .badge {
+  background-color: var(--ht-primary) !important;
+  color: var(--ht-on-primary);
+}
+
+.ht-topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem 0.25rem 0.25rem;
+  border: 1px solid #27272A;
+  border-radius: 50rem;
+  color: #FFFFFF;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.ht-topbar-user:hover {
+  border-color: var(--ht-primary);
+  color: #FFFFFF;
+}
+
+.ht-content {
+  flex: 1;
+  width: 100%;
+  max-width: 1440px;
+  padding: 1.75rem 1.5rem 2rem;
+}
+
+.ht-content:focus {
+  outline: none;
+}
+
+.ht-app-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #1F1F23;
+  color: #8B8B94;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 575.98px) {
+  .ht-topbar {
+    padding: 0.75rem 1rem;
+  }
+
+  .ht-content {
+    padding: 1.25rem 1rem 1.5rem;
+  }
+}
