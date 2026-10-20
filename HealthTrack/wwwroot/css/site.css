@@ -1090,3 +1090,260 @@ article.card:hover,
     height: 230px;
   }
 }
+
+/* ---------- 10. Form pages: orange info panel beside the form, inputs with icons ---------- */
+
+/* One card split in two: the orange panel (title, tips) and the form.
+   Stacks on phones and tablets, side by side from 992px. */
+.ht-form-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.5rem;
+  max-width: 1080px;
+  margin: 0 auto 2rem;
+  padding: 0.5rem;
+  border: 1px solid var(--ht-line);
+  border-radius: 1.5rem;
+  background-color: var(--ht-surface);
+  box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.35);
+}
+
+@media (min-width: 992px) {
+  .ht-form-page {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  }
+}
+
+/* Orange panel. Dark text on orange (6.7:1 or more), because white text on this orange fails contrast. */
+.ht-form-info {
+  position: relative;
+  overflow: hidden;
+  padding: 2rem 1.75rem;
+  border-radius: 1.1rem;
+  color: var(--ht-on-primary);
+  background: linear-gradient(150deg, var(--ht-primary-hover) 0%, var(--ht-primary) 60%);
+}
+
+/* Two soft circles in the bottom corner (decoration only) */
+.ht-form-info::before,
+.ht-form-info::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.ht-form-info::before {
+  width: 15rem;
+  height: 15rem;
+  right: -5rem;
+  bottom: -6rem;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.ht-form-info::after {
+  width: 7rem;
+  height: 7rem;
+  right: 5rem;
+  bottom: -4rem;
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.ht-form-info > * {
+  position: relative;
+  z-index: 1;
+}
+
+.ht-form-info .ht-eyebrow {
+  color: var(--ht-on-primary);
+}
+
+.ht-form-info h1 {
+  color: var(--ht-on-primary);
+  font-size: 1.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.ht-form-info p {
+  font-weight: 500;
+  margin-bottom: 0;
+}
+
+/* The plan or client this form is about, e.g. "Workout plan: Strength Builder" */
+.ht-form-context {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 50rem;
+  background-color: rgba(14, 14, 16, 0.12);
+  font-weight: 600;
+}
+
+/* Tips: one icon in a round badge per line */
+.ht-form-tips {
+  display: grid;
+  gap: 1rem;
+  margin: 1.75rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.ht-form-tips li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.ht-form-tips .bi {
+  flex: 0 0 2.25rem;
+  height: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: rgba(14, 14, 16, 0.12);
+  font-size: 1rem;
+}
+
+/* Form side */
+.ht-form-body {
+  padding: 2rem 1.75rem;
+}
+
+.ht-form-body .form-label {
+  margin-bottom: 0.4rem;
+  color: #D4D4D8;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.ht-form-body .form-text {
+  color: var(--ht-muted);
+}
+
+/* A group of related fields, e.g. "Schedule", with a small capital heading */
+.ht-form-group {
+  margin: 0 0 0.5rem;
+  padding: 0;
+  border: 0;
+}
+
+.ht-form-group legend {
+  margin-bottom: 0.75rem;
+  color: var(--ht-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* Input box with an icon inside on the left. The icon turns orange while the box has focus. */
+.ht-input {
+  position: relative;
+}
+
+.ht-input > .bi {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2.75rem;
+  height: 2.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ht-muted);
+  pointer-events: none;
+  transition: color 0.2s ease;
+}
+
+.ht-input > .form-control,
+.ht-input > .form-select {
+  min-height: 2.875rem;
+  padding-left: 2.75rem;
+  border-radius: 0.75rem;
+}
+
+.ht-input:focus-within > .bi {
+  color: var(--ht-primary);
+}
+
+/* Error text in a lighter red: 6.4:1 on the dark card (Bootstrap's red is only 3.9:1) */
+.ht-form-body .text-danger {
+  color: #F97066 !important;
+}
+
+/* A field that failed validation gets a red border (the message below says why) */
+.ht-form-body .input-validation-error {
+  border-color: #F97066;
+}
+
+.ht-form-body .field-validation-error,
+.ht-form-body .validation-summary-errors {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.875rem;
+}
+
+.ht-form-body .validation-summary-errors ul {
+  margin: 0 0 1rem;
+  padding-left: 1.1rem;
+}
+
+/* Buttons row under the form */
+.ht-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--ht-line);
+}
+
+/* Both buttons the same size */
+.ht-form-actions .btn {
+  padding: 0.65rem 1.4rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+}
+
+/* Main button with an arrow that slides right on hover or keyboard focus */
+.ht-btn-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.ht-btn-arrow .bi {
+  transition: transform 0.2s ease;
+}
+
+.ht-btn-arrow:hover .bi,
+.ht-btn-arrow:focus-visible .bi {
+  transform: translateX(4px);
+}
+
+@media (max-width: 991.98px) {
+  .ht-form-info {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .ht-form-tips {
+    gap: 0.6rem;
+    margin-top: 1.25rem;
+  }
+
+  .ht-form-tips .bi {
+    flex-basis: 1.9rem;
+    height: 1.9rem;
+    font-size: 0.875rem;
+  }
+
+  .ht-form-body {
+    padding: 1.5rem 1rem;
+  }
+}

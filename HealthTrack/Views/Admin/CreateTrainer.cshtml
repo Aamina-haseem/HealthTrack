@@ -3,74 +3,109 @@
     ViewData["Title"] = "Add Trainer";
 }
 
-<div class="row justify-content-center">
-    <div class="col-lg-8">
+<div class="ht-form-page">
+    @* Orange info panel: page title and tips *@
+    <aside class="ht-form-info">
         <span class="ht-eyebrow">Administrator</span>
-        <h1 class="mb-1">Add a Trainer / Health Professional</h1>
-        <p class="text-muted">Trainer accounts can only be created by the administrator. Give the trainer the temporary password; they can change it under their profile.</p>
+        <h1>Add a Trainer / Health Professional</h1>
+        <p>Trainer accounts can only be created by the administrator. Give the trainer the temporary password; they can change it under their profile.</p>
+        <ul class="ht-form-tips">
+            <li><i class="bi bi-envelope" aria-hidden="true"></i><span>The trainer signs in with this email address.</span></li>
+            <li><i class="bi bi-shield-lock" aria-hidden="true"></i><span>Accounts lock for a while after 5 wrong passwords.</span></li>
+            <li><i class="bi bi-diagram-3" aria-hidden="true"></i><span>Assign clients to the new trainer from Trainer Assignments.</span></li>
+        </ul>
+    </aside>
 
-        <div class="card"><div class="card-body">
-            <form asp-action="CreateTrainer" method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+    <div class="ht-form-body">
+        <form asp-action="CreateTrainer" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+            <fieldset class="ht-form-group">
+                <legend>Trainer details</legend>
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label asp-for="FirstName" class="form-label"></label>
-                        <input asp-for="FirstName" class="form-control" />
+                        <div class="ht-input">
+                            <i class="bi bi-person" aria-hidden="true"></i>
+                            <input asp-for="FirstName" class="form-control" />
+                        </div>
                         <span asp-validation-for="FirstName" class="text-danger small"></span>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label asp-for="LastName" class="form-label"></label>
-                        <input asp-for="LastName" class="form-control" />
+                        <div class="ht-input">
+                            <i class="bi bi-person" aria-hidden="true"></i>
+                            <input asp-for="LastName" class="form-control" />
+                        </div>
                         <span asp-validation-for="LastName" class="text-danger small"></span>
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label asp-for="Email" class="form-label"></label>
-                    <input asp-for="Email" class="form-control" placeholder="trainer@healthtrack.com" />
+                    <div class="ht-input">
+                        <i class="bi bi-envelope" aria-hidden="true"></i>
+                        <input asp-for="Email" class="form-control" placeholder="trainer@healthtrack.com" />
+                    </div>
                     <span asp-validation-for="Email" class="text-danger small"></span>
                 </div>
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label asp-for="Specialization" class="form-label"></label>
-                        <select asp-for="Specialization" asp-items="ViewBag.Specializations" class="form-select">
-                            <option value="">-- Select --</option>
-                        </select>
+                        <div class="ht-input">
+                            <i class="bi bi-award" aria-hidden="true"></i>
+                            <select asp-for="Specialization" asp-items="ViewBag.Specializations" class="form-select">
+                                <option value="">-- Select --</option>
+                            </select>
+                        </div>
                         <span asp-validation-for="Specialization" class="text-danger small"></span>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label asp-for="Gender" class="form-label"></label>
-                        <select asp-for="Gender" class="form-select">
-                            <option value="">-- Optional --</option>
-                            <option>Female</option>
-                            <option>Male</option>
-                            <option>Other</option>
-                        </select>
+                        <div class="ht-input">
+                            <i class="bi bi-gender-ambiguous" aria-hidden="true"></i>
+                            <select asp-for="Gender" class="form-select">
+                                <option value="">-- Optional --</option>
+                                <option>Female</option>
+                                <option>Male</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
+            </fieldset>
+
+            <fieldset class="ht-form-group">
+                <legend>Temporary password</legend>
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label asp-for="Password" class="form-label"></label>
-                        <input asp-for="Password" class="form-control" autocomplete="new-password" />
+                        <div class="ht-input">
+                            <i class="bi bi-lock" aria-hidden="true"></i>
+                            <input asp-for="Password" class="form-control" autocomplete="new-password" />
+                        </div>
                         <span asp-validation-for="Password" class="text-danger small"></span>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label asp-for="ConfirmPassword" class="form-label"></label>
-                        <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" />
+                        <div class="ht-input">
+                            <i class="bi bi-lock" aria-hidden="true"></i>
+                            <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" />
+                        </div>
                         <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
                     </div>
                 </div>
-                <p class="small text-muted"><i class="bi bi-shield-lock"></i> At least 8 characters with an uppercase letter, a lowercase letter, a number and a symbol.</p>
+                <p class="form-text mt-0"><i class="bi bi-shield-lock" aria-hidden="true"></i> At least 8 characters with an uppercase letter, a lowercase letter, a number and a symbol.</p>
+            </fieldset>
 
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-person-check"></i> Create Trainer Account</button>
-                    <a asp-action="Users" class="btn btn-outline-secondary">Cancel</a>
-                </div>
-            </form>
-        </div></div>
+            <div class="ht-form-actions">
+                <button type="submit" class="btn btn-primary ht-btn-arrow">Create Trainer Account <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+                <a asp-action="Users" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
     </div>
 </div>
 

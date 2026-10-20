@@ -1,9 +1,25 @@
 @model HealthTrack.ViewModels.DietPlanItemCreateViewModel
 @{ ViewData["Title"] = "Add Planned Meal"; }
-<h1>Add Meal</h1><p class="text-muted">Diet plan: @ViewBag.PlanTitle</p>
-<form asp-action="AddMeal" asp-route-id="@ViewBag.PlanId" method="post">
-    <partial name="_MealForm" model="Model" />
-    <button type="submit" class="btn btn-primary">Add Meal</button>
-    <a asp-action="Details" asp-route-id="@ViewBag.PlanId" class="btn btn-secondary">Cancel</a>
-</form>
+<div class="ht-form-page">
+    <aside class="ht-form-info">
+        <span class="ht-eyebrow">Diet Plans</span>
+        <h1>Add Meal</h1>
+        <p>Add a planned meal so your client knows what to eat and when.</p>
+        <p class="ht-form-context"><i class="bi bi-journal-text" aria-hidden="true"></i> Diet plan: @ViewBag.PlanTitle</p>
+        <ul class="ht-form-tips">
+            <li><i class="bi bi-basket" aria-hidden="true"></i><span>List the foods separated by commas.</span></li>
+            <li><i class="bi bi-fire" aria-hidden="true"></i><span>Calories can be from 0 to 3,000 for one meal.</span></li>
+            <li><i class="bi bi-clock" aria-hidden="true"></i><span>The meal time is optional.</span></li>
+        </ul>
+    </aside>
+    <div class="ht-form-body">
+        <form asp-action="AddMeal" asp-route-id="@ViewBag.PlanId" method="post">
+            <partial name="_MealForm" model="Model" />
+            <div class="ht-form-actions">
+                <button type="submit" class="btn btn-primary ht-btn-arrow">Add Meal <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+                <a asp-action="Details" asp-route-id="@ViewBag.PlanId" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }
