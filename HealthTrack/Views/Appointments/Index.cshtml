@@ -1,0 +1,104 @@
+@model HealthTrack.ViewModels.AppointmentListViewModel
+@{
+    ViewData["Title"] = "Appointments";
+    string[] statuses = { "Pending", "Approved", "Completed", "Cancelled" };
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+    <div>
+        <span class="ht-eyebrow">@(Model.IsTrainer ? "Trainer" : "Client")</span>
+        <h1 class="mb-1">Appointments</h1>
+        <p class="text-muted mb-0">
+            @if (Model.IsTrainer)
+            {
+                <text>Approve, reschedule or cancel consultations booked by your clients.</text>
+            }
+            else
+            {
+                <text>Book consultations with a trainer or health professional and follow their status.</text>
+            }
+        </p>
+    </div>
+    @if (!Model.IsTrainer)
+    {
+        <a asp-action="Create" class="btn btn-primary"><i class="bi bi-calendar-plus"></i> Book Appointment</a>
+    }
+</div>
+
+@if (Model.IsTrainer && Model.PendingCount > 0)
+{
+    <div class="alert alert-warning">
+        <i class="bi bi-hourglass-split"></i>
+        You have <strong>@Model.PendingCount</strong> appointment request(s) waiting for approval.
+    </div>
+}
+
+@* Status filter *@
+<nav class="mb-3 d-flex flex-wrap gap-2" aria-label="Filter by status">
+    <a asp-action="Index" class="btn btn-sm @(string.IsNullOrEmpty(Model.StatusFilter) ? "btn-primary" : "btn-outline-primary")">All</a>
+    @foreach (var s in statuses)
+    {
+        <a asp-action="Index" asp-route-status="@s"
+           class="btn btn-sm @(Model.StatusFilter == s ? "btn-primary" : "btn-outline-primary")">@s</a>
+    }
+</nav>
+
+@if (Model.Appointments.Count == 0)
+{
+    <div class="card"><div class="card-body">
+        <div class="ht-empty"><i class="bi bi-calendar" aria-hidden="true"></i>No appointments to show.</div>
+    </div></div>
+}
+else
+{
+    <div class="card"><div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Date &amp; Time</th>
+                        <th>@(Model.IsTrainer ? "Client" : "Trainer")</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var a in Model.Appointments)
+                    {
+                        bool open = a.Status == AppointmentStatus.Pending || a.Status == AppointmentStatus.Approved;
+                        <tr>
+                            <td>@a.AppointmentDate.ToString("ddd dd MMM yyyy, HH:mm")</td>
+                            <td>@(Model.IsTrainer ? a.Client?.FullName : a.Trainer?.FullName)</td>
+                            <td>@a.Reason</td>
+                            <td><partial name="_StatusBadge" model="a.Status" /></td>
+                            <td class="text-end">
+                                <div class="d-inline-flex flex-wrap gap-1 justify-content-end">
+                                    <a asp-action="Details" asp-route-id="@a.Id" class="btn btn-sm btn-outline-primary">Details</a>
+
+                                    @if (Model.IsTrainer && a.Status == AppointmentStatus.Pending)
+                                    {
+                                        <form asp-action="Approve" asp-route-id="@a.Id" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                        </form>
+                                    }
+                                    @if (Model.IsTrainer && open)
+                                    {
+                                        <a asp-action="Reschedule" asp-route-id="@a.Id" class="btn btn-sm btn-outline-secondary">Reschedule</a>
+                                    }
+                                    @if (open)
+                                    {
+                                        <form asp-action="Cancel" asp-route-id="@a.Id" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('Cancel this appointment?');">Cancel</button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div></div>
+}

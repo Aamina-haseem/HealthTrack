@@ -1,180 +1,169 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
+// Customised for HealthTrack: extra profile fields, age validation,
+// automatic "Client" role and exception handling.
+#nullable disable
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
+using HealthTrack.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
-using HealthTrack.Data;
-using HealthTrack.Models;
 
-namespace HealthTrack.Areas.Identity.Pages.Account;
-
-public class RegisterModel : PageModel
+namespace HealthTrack.Areas.Identity.Pages.Account
 {
-    private readonly SignInManager<ApplicationUser> _signInManager;
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IUserStore<ApplicationUser> _userStore;
-    private readonly IUserEmailStore<ApplicationUser> _emailStore;
-    private readonly ILogger<RegisterModel> _logger;
-    private readonly IEmailSender _emailSender;
-
-    public RegisterModel(
-        UserManager<ApplicationUser> userManager,
-        IUserStore<ApplicationUser> userStore,
-        SignInManager<ApplicationUser> signInManager,
-        ILogger<RegisterModel> logger,
-        IEmailSender emailSender)
-    {
-        _userManager = userManager;
-        _userStore = userStore;
-        _emailStore = GetEmailStore();
-        _signInManager = signInManager;
-        _logger = logger;
-        _emailSender = emailSender;
-    }
-
     /// <summary>
-    ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    /// Handles self-registration. Every self-registered user becomes a Client;
+    /// Trainer accounts are created by the Admin (Task 4).
     /// </summary>
-    [BindProperty]
-    public InputModel Input { get; set; } = default!;
-
-    /// <summary>
-    ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
-    /// </summary>
-    public string? ReturnUrl { get; set; }
-
-    /// <summary>
-    ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
-    /// </summary>
-    public IList<AuthenticationScheme>? ExternalLogins { get; set; }
-
-    /// <summary>
-    ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
-    /// </summary>
-    public class InputModel
+    public class RegisterModel : PageModel
     {
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        [Required]
-        [EmailAddress]
-        [Display(Name = "Email")]
-        public string Email { get; set; } = default!;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ILogger<RegisterModel> _logger;
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
-        [DataType(DataType.Password)]
-        [Display(Name = "Password")]
-        public string Password { get; set; } = default!;
-
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
-        public string? ConfirmPassword { get; set; }
-    }
-
-
-    public async Task OnGetAsync(string? returnUrl = null)
-    {
-        ReturnUrl = returnUrl;
-        ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-    }
-
-    public async Task<IActionResult> OnPostAsync(string? returnUrl = null)
-    {
-        returnUrl ??= Url.Content("~/");
-        ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-        if (ModelState.IsValid)
+        public RegisterModel(
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
+            ILogger<RegisterModel> logger)
         {
-            var user = CreateUser();
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _logger = logger;
+        }
 
-            await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
-            await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
-            var result = await _userManager.CreateAsync(user, Input.Password);
+        [BindProperty]
+        public InputModel Input { get; set; }
 
-            if (result.Succeeded)
+        public string ReturnUrl { get; set; }
+
+        /// <summary>
+        /// The registration form fields with their validation rules.
+        /// </summary>
+        public class InputModel
+        {
+            [Required(ErrorMessage = "Please enter your first name.")]
+            [StringLength(50)]
+            [RegularExpression(@"^[a-zA-Z\s'-]+$", ErrorMessage = "First name can only contain letters.")]
+            [Display(Name = "First Name")]
+            public string FirstName { get; set; }
+
+            [Required(ErrorMessage = "Please enter your last name.")]
+            [StringLength(50)]
+            [RegularExpression(@"^[a-zA-Z\s'-]+$", ErrorMessage = "Last name can only contain letters.")]
+            [Display(Name = "Last Name")]
+            public string LastName { get; set; }
+
+            [Required(ErrorMessage = "Please enter your date of birth.")]
+            [DataType(DataType.Date)]
+            [Display(Name = "Date of Birth")]
+            public DateTime? DateOfBirth { get; set; }
+
+            [Required(ErrorMessage = "Please select your gender.")]
+            public string Gender { get; set; }
+
+            [Required(ErrorMessage = "Please enter your email address.")]
+            [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
+            [Display(Name = "Email")]
+            public string Email { get; set; }
+
+            [Required(ErrorMessage = "Please enter a password.")]
+            [StringLength(100, MinimumLength = 8, ErrorMessage = "The password must be at least 8 characters long.")]
+            [DataType(DataType.Password)]
+            [Display(Name = "Password")]
+            public string Password { get; set; }
+
+            [DataType(DataType.Password)]
+            [Display(Name = "Confirm Password")]
+            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+            public string ConfirmPassword { get; set; }
+        }
+
+        public void OnGet(string returnUrl = null)
+        {
+            ReturnUrl = returnUrl;
+        }
+
+        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+        {
+            returnUrl ??= Url.Content("~/");
+
+            // Business rule: users must be between 13 and 100 years old
+            if (Input.DateOfBirth.HasValue)
             {
-                _logger.LogInformation("User created a new account with password.");
-
-                var userId = await _userManager.GetUserIdAsync(user);
-                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                var callbackUrl = Url.Page(
-                    "/Account/ConfirmEmail",
-                    pageHandler: null,
-                    values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
-                    protocol: Request.Scheme)!;
-
-                await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-
-                if (_userManager.Options.SignIn.RequireConfirmedAccount)
+                int age = CalculateAge(Input.DateOfBirth.Value);
+                if (age < 13 || age > 100)
                 {
-                    return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
-                }
-                else
-                {
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return LocalRedirect(returnUrl);
+                    ModelState.AddModelError("Input.DateOfBirth", "You must be between 13 and 100 years old to register.");
                 }
             }
+
+            if (!ModelState.IsValid)
+            {
+                return Page();   // show the form again with error messages
+            }
+
+            try
+            {
+                var user = new ApplicationUser
+                {
+                    UserName = Input.Email.Trim(),
+                    Email = Input.Email.Trim(),
+                    FirstName = Input.FirstName.Trim(),
+                    LastName = Input.LastName.Trim(),
+                    DateOfBirth = Input.DateOfBirth,
+                    Gender = Input.Gender,
+                    CreatedAt = DateTime.Now,
+                    IsActive = true
+                };
+
+                // Identity hashes the password before saving it - it is never stored as plain text
+                var result = await _userManager.CreateAsync(user, Input.Password);
+
+                if (result.Succeeded)
+                {
+                    // Every self-registered user is a Client
+                    var roleResult = await _userManager.AddToRoleAsync(user, AppRoles.Client);
+                    if (!roleResult.Succeeded)
+                    {
+                        // Undo the account so we never have a user without a role
+                        await _userManager.DeleteAsync(user);
+                        AddErrors(roleResult);
+                        return Page();
+                    }
+
+                    _logger.LogInformation("New client registered: {Email}", user.Email);
+
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    TempData["Success"] = $"Welcome to HealthTrack, {user.FirstName}! Your account has been created.";
+                    return LocalRedirect(returnUrl);
+                }
+
+                // e.g. "Email is already taken", "Password needs an uppercase letter"
+                AddErrors(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Registration failed for {Email}", Input.Email);
+                ModelState.AddModelError(string.Empty, "Something went wrong while creating your account. Please try again.");
+            }
+
+            return Page();
+        }
+
+        /// <summary>Calculates age in full years from a date of birth.</summary>
+        private static int CalculateAge(DateTime dateOfBirth)
+        {
+            int age = DateTime.Today.Year - dateOfBirth.Year;
+            if (dateOfBirth.Date > DateTime.Today.AddYears(-age)) age--;   // birthday not reached yet this year
+            return age;
+        }
+
+        /// <summary>Copies Identity errors into the form so the user can see them.</summary>
+        private void AddErrors(IdentityResult result)
+        {
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError(string.Empty, error.Description);
             }
         }
-
-        // If we got this far, something failed, redisplay form
-        return Page();
-    }
-
-    private ApplicationUser CreateUser()
-    {
-        try
-        {
-            return Activator.CreateInstance<ApplicationUser>();
-        }
-        catch
-        {
-            throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
-                $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
-                $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
-        }
-    }
-
-    private IUserEmailStore<ApplicationUser> GetEmailStore()
-    {
-        if (!_userManager.SupportsUserEmail)
-        {
-            throw new NotSupportedException("The default UI requires a user store with email support.");
-        }
-        return (IUserEmailStore<ApplicationUser>)_userStore;
     }
 }

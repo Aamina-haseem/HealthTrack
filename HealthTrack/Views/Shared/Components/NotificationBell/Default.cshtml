@@ -1,0 +1,13 @@
+@model int
+@* Navbar bell. Model = number of unread notifications for the signed-in user. *@
+<a class="nav-link position-relative" asp-area="" asp-controller="Notifications" asp-action="Index"
+   title="Notifications" aria-label="Notifications, @Model unread">
+    <i class="bi bi-bell-fill"></i>
+    @if (Model > 0)
+    {
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            @(Model > 9 ? "9+" : Model.ToString())
+            <span class="visually-hidden">unread notifications</span>
+        </span>
+    }
+</a>

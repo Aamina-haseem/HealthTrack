@@ -145,8 +145,8 @@ namespace HealthTrack.Data.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("TrainerNotes")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.HasKey("Id");
 
@@ -290,8 +290,8 @@ namespace HealthTrack.Data.Migrations
                         .HasColumnType("float");
 
                     b.Property<string>("Notes")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<int?>("RestingHeartRate")
                         .HasColumnType("int");

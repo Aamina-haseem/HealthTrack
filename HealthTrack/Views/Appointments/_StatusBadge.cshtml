@@ -1,0 +1,12 @@
+@model HealthTrack.Models.AppointmentStatus
+@* Coloured badge for an appointment status, reused on every appointment page *@
+@{
+    string css = Model switch
+    {
+        AppointmentStatus.Approved => "text-bg-success",
+        AppointmentStatus.Pending => "text-bg-warning",
+        AppointmentStatus.Completed => "text-bg-primary",
+        _ => "text-bg-secondary"
+    };
+}
+<span class="badge rounded-pill @css">@Model</span>

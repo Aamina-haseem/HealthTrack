@@ -1,0 +1,101 @@
+@model HealthTrack.ViewModels.AssignmentsViewModel
+@{
+    ViewData["Title"] = "Trainer Assignments";
+}
+
+<div class="mb-4">
+    <span class="ht-eyebrow">Administrator</span>
+    <h1 class="mb-1">Trainer Assignments</h1>
+    <p class="text-muted mb-0">Each client has one active trainer. Re-assigning a client ends the old assignment but keeps it as history.</p>
+</div>
+
+<div class="row g-4">
+    @* Assign form *@
+    <section class="col-lg-4">
+        <div class="card mb-4"><div class="card-body">
+            <h2 class="ht-card-title">Assign a Trainer</h2>
+            <form asp-action="Assign" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+                <div class="mb-3">
+                    <label asp-for="Input.ClientId" class="form-label"></label>
+                    <select asp-for="Input.ClientId" asp-items="Model.Clients" class="form-select">
+                        <option value="">-- Select client --</option>
+                    </select>
+                    <span asp-validation-for="Input.ClientId" class="text-danger small"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Input.TrainerId" class="form-label"></label>
+                    <select asp-for="Input.TrainerId" asp-items="Model.Trainers" class="form-select">
+                        <option value="">-- Select trainer --</option>
+                    </select>
+                    <span asp-validation-for="Input.TrainerId" class="text-danger small"></span>
+                </div>
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-diagram-3"></i> Assign</button>
+            </form>
+        </div></div>
+
+        <div class="card"><div class="card-body">
+            <h2 class="ht-card-title">Clients Without a Trainer</h2>
+            @if (Model.UnassignedClientNames.Count == 0)
+            {
+                <p class="text-muted mb-0"><i class="bi bi-check-circle text-success"></i> Every active client has a trainer.</p>
+            }
+            else
+            {
+                <ul class="mb-0">
+                    @foreach (var name in Model.UnassignedClientNames)
+                    {
+                        <li>@name</li>
+                    }
+                </ul>
+            }
+        </div></div>
+    </section>
+
+    @* Current assignments *@
+    <section class="col-lg-8"><div class="card"><div class="card-body">
+        <h2 class="ht-card-title">Current Assignments</h2>
+        @if (Model.ActiveAssignments.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-diagram-3" aria-hidden="true"></i>No clients are assigned yet.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead><tr><th>Trainer</th><th>Client</th><th>Assigned On</th><th class="text-end">Action</th></tr></thead>
+                    <tbody>
+                        @foreach (var a in Model.ActiveAssignments)
+                        {
+                            <tr>
+                                <td>
+                                    @a.Trainer?.FullName
+                                    @if (!string.IsNullOrEmpty(a.Trainer?.Specialization))
+                                    {
+                                        <br /><small class="text-muted">@a.Trainer.Specialization</small>
+                                    }
+                                </td>
+                                <td>@a.Client?.FullName</td>
+                                <td>@a.AssignedDate.ToString("dd MMM yyyy")</td>
+                                <td class="text-end">
+                                    <form asp-action="Unassign" asp-route-id="@a.Id" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                onclick="return confirm('Remove this assignment?');">Remove</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        @if (Model.HistoryCount > 0)
+        {
+            <p class="small text-muted mt-3 mb-0"><i class="bi bi-clock-history"></i> @Model.HistoryCount earlier assignment(s) kept as history.</p>
+        }
+    </div></div></section>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
