@@ -3,33 +3,31 @@
    only apply to Views/Home/Index.cshtml, so no other page is affected.
    Colours come from the theme variables in wwwroot/css/site.css. */
 
-/* ---------- Hero: blue gradient panel with soft shapes ---------- */
+/* ---------- Hero: gym photo with a dark fade so the text stays readable ---------- */
+/* Photo: wwwroot/images/hero.jpg (Victor Freitas, Unsplash). The fade is darkest on the left,
+   behind the text, and lets the photo show through on the right. */
 .landing-hero {
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  min-height: 34rem;
   padding: 3.5rem 2.5rem;
   margin-bottom: 1rem;
   border-radius: 2rem;
+  border: 1px solid var(--ht-line);
   color: #FFFFFF;
-  background: var(--ht-gradient);
-  box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.25);
-}
-
-.landing-hero::before {
-  content: "";
-  position: absolute;
-  left: -7rem;
-  bottom: -9rem;
-  width: 24rem;
-  height: 24rem;
-  border-radius: 50%;
-  border: 3rem solid rgba(255, 107, 26, 0.18);
-  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(14, 14, 16, 0.96) 0%, rgba(14, 14, 16, 0.9) 42%, rgba(14, 14, 16, 0.45) 75%, rgba(14, 14, 16, 0.25) 100%),
+    url("/images/hero.jpg") center 40% / cover no-repeat,
+    var(--ht-bg);
+  box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.45);
 }
 
 .landing-hero > .row {
   position: relative;
   z-index: 1;
+  width: 100%;
 }
 
 .landing-hero .ht-eyebrow {
@@ -69,43 +67,28 @@
   color: #FFB27A;
 }
 
-/* The arch-shaped preview with a soft light-blue circle behind it */
+/* Preview card floating on the photo, with two chips around it */
 .hero-visual {
   position: relative;
-  height: 28rem;
-  max-width: 28rem;
-  margin: 0 auto;
-}
-
-.hero-ring {
-  position: absolute;
-  inset: 2rem -2rem auto -2rem;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, rgba(255, 107, 26, 0.55), rgba(255, 107, 26, 0.04) 70%);
-}
-
-.hero-arch {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform: translateX(-50%);
-  width: 15rem;
   height: 25rem;
-  border-radius: 999px 999px 2rem 2rem;   /* tall arch: round top, soft bottom */
-  background: rgba(255, 255, 255, 0.14);   /* frosted glass, like the login card */
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.4);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-  overflow: hidden;
+  max-width: 26rem;
+  margin-left: auto;
 }
 
-.arch-inner {
+.hero-card {
   position: absolute;
-  inset: auto 1.25rem 1.75rem 1.25rem;
+  right: 0;
+  bottom: 0;
+  width: 17rem;
   display: flex;
   flex-direction: column;
+  padding: 1.5rem 1.25rem;
+  border-radius: 1.5rem;
+  background: rgba(14, 14, 16, 0.72);      /* dark frosted glass over the photo */
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.5);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
 }
 
 .arch-label,
@@ -147,14 +130,14 @@
   margin-right: 0.25rem;
 }
 
-/* Chips sit on the empty upper part of the arch, away from the chart text */
+/* Chips sit above the card, away from the chart text */
 .chip-top {
-  top: 3rem;
+  top: 1.5rem;
   left: 0;
 }
 
 .chip-bottom {
-  top: 9.5rem;
+  top: 5.25rem;
   right: 0;
 }
 
@@ -192,6 +175,51 @@
 
 .role-card-featured {
   border: 2px solid var(--ht-primary);
+}
+
+/* Photo cards: picture on top, text below */
+.photo-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--ht-line);
+  border-radius: 1.5rem;
+  background: var(--ht-surface);
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.35);
+}
+
+.photo-card img {
+  width: 100%;
+  height: 16rem;
+  object-fit: cover;
+  display: block;
+}
+
+.photo-card-body {
+  padding: 1.5rem 1.75rem 1.75rem;
+}
+
+.photo-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 50rem;
+  background-color: rgba(255, 107, 26, 0.12);
+  color: var(--ht-link);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.photo-card h3 {
+  font-size: 1.35rem;
+  margin: 1rem 0 0.5rem;
+  color: var(--ht-primary-dark);
+}
+
+.photo-card p {
+  color: var(--ht-muted);
+  margin: 0;
 }
 
 /* Feature tiles */
@@ -308,6 +336,14 @@
   margin-bottom: 1.5rem;
 }
 
+/* Photo credits under the call to action */
+.photo-credits {
+  text-align: center;
+  color: var(--ht-muted);
+  font-size: 0.8rem;
+  margin: 0 0 1rem;
+}
+
 /* ---------- Gentle entrance animation ---------- */
 .fade-up {
   animation: fade-up 0.7s ease-out both;
@@ -339,22 +375,17 @@
     justify-content: center;
   }
 
-  .hero-visual {
-    height: 23rem;
-    max-width: 20rem;
+  .landing-hero {
+    min-height: 0;
+    background:
+      linear-gradient(180deg, rgba(14, 14, 16, 0.88) 0%, rgba(14, 14, 16, 0.92) 100%),
+      url("/images/hero.jpg") center / cover no-repeat,
+      var(--ht-bg);
   }
 
-  .hero-arch {
-    width: 12rem;
-    height: 20rem;
+  .photo-card img {
+    height: 13rem;
   }
-
-  .hero-ring {
-    inset: 2rem -1rem auto -1rem;
-  }
-
-  .chip-top { top: 2rem; left: 0; }
-  .chip-bottom { top: 7.5rem; right: 0; }
 }
 
 /* No movement for people who ask their system for reduced motion */

@@ -5,11 +5,22 @@
     ViewData["Title"] = "Log in";
 }
 
-@* Blue panel with a frosted-glass card. Only the look changed: the form still
+@* Photo panel beside a dark card. Only the look changed: the form still
    posts to LoginModel exactly as the scaffolded Identity page did.
    The "Use another service" section was removed because HealthTrack only
    uses local accounts (Individual Accounts). *@
-<section class="ht-auth" aria-labelledby="login-title">
+<section class="ht-auth ht-auth-split" aria-labelledby="login-title">
+    @* Photo: wwwroot/images/auth.jpg (Jadon Johnson, Unsplash), set in site.css *@
+    <div class="ht-auth-photo">
+        <span class="ht-eyebrow">Welcome back</span>
+        <p class="ht-auth-quote">Every session counts.</p>
+        <ul class="ht-auth-points">
+            <li><i class="bi bi-check2-circle" aria-hidden="true"></i> Your workout and diet plans in one place</li>
+            <li><i class="bi bi-check2-circle" aria-hidden="true"></i> Log a workout or meal in seconds</li>
+            <li><i class="bi bi-check2-circle" aria-hidden="true"></i> See your weight and calorie trends</li>
+        </ul>
+    </div>
+
     <div class="ht-auth-card">
         <a class="ht-auth-brand" asp-area="" asp-controller="Home" asp-action="Index">
             <i class="bi bi-heart-pulse-fill" aria-hidden="true"></i> HealthTrack
@@ -22,13 +33,19 @@
 
             <div class="mb-3">
                 <label asp-for="Input.Email" class="form-label">Email</label>
-                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                <div class="ht-input">
+                    <i class="bi bi-envelope" aria-hidden="true"></i>
+                    <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                </div>
                 <span asp-validation-for="Input.Email"></span>
             </div>
 
             <div class="mb-2">
                 <label asp-for="Input.Password" class="form-label">Password</label>
-                <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Password" />
+                <div class="ht-input">
+                    <i class="bi bi-lock" aria-hidden="true"></i>
+                    <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Password" />
+                </div>
                 <span asp-validation-for="Input.Password"></span>
             </div>
 
@@ -40,7 +57,7 @@
                 <a id="forgot-password" asp-page="./ForgotPassword">Forgot password?</a>
             </div>
 
-            <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Sign in</button>
+            <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary ht-btn-arrow justify-content-center">Sign in <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
         </form>
 
         <p class="ht-auth-footer">

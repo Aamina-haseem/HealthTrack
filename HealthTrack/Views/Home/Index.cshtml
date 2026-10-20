@@ -9,7 +9,7 @@
     else if (User.IsInRole(AppRoles.Admin)) { dashboardController = "Admin"; }
 }
 
-@* ===== 1. Hero ===== *@
+@* ===== 1. Hero: gym photo (wwwroot/images/hero.jpg) with a dark fade so the text stays readable ===== *@
 <section class="landing-hero" aria-labelledby="hero-title">
     <div class="row align-items-center g-5">
         <div class="col-lg-6 fade-up">
@@ -36,20 +36,18 @@
             </ul>
         </div>
 
-        @* Decorative preview of the app. aria-hidden because it repeats what the text says. *@
-        <div class="col-lg-6 fade-up delay-1" aria-hidden="true">
+        @* Decorative preview of the app floating on the photo. aria-hidden because it repeats what the text says.
+           Hidden on small screens so the text and buttons come first. *@
+        <div class="col-lg-5 offset-lg-1 fade-up delay-1 d-none d-lg-block" aria-hidden="true">
             <div class="hero-visual">
-                <div class="hero-ring"></div>
-                <div class="hero-arch">
-                    <div class="arch-inner">
-                        <span class="arch-label">Weight trend</span>
-                        <svg viewBox="0 0 220 110" class="arch-chart" focusable="false">
-                            <polyline points="5,20 45,32 85,45 125,58 165,80 215,92" fill="none" stroke="#FF6B1A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
-                            <circle cx="215" cy="92" r="6" fill="#FFFFFF" />
-                        </svg>
-                        <span class="arch-value">-3.6 kg</span>
-                        <span class="arch-caption">example over 6 weeks</span>
-                    </div>
+                <div class="hero-card">
+                    <span class="arch-label">Weight trend</span>
+                    <svg viewBox="0 0 220 110" class="arch-chart" focusable="false">
+                        <polyline points="5,20 45,32 85,45 125,58 165,80 215,92" fill="none" stroke="#FF6B1A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                        <circle cx="215" cy="92" r="6" fill="#FFFFFF" />
+                    </svg>
+                    <span class="arch-value">-3.6 kg</span>
+                    <span class="arch-caption">example over 6 weeks</span>
                 </div>
                 <div class="hero-chip chip-top"><i class="bi bi-activity"></i> Workout logged · 45 min</div>
                 <div class="hero-chip chip-bottom"><i class="bi bi-heart-pulse"></i> BMI 25.6</div>
@@ -104,7 +102,39 @@
     </div>
 </section>
 
-@* ===== 3. Features ===== *@
+@* ===== 3. Training and nutrition (photos: wwwroot/images/training.jpg and nutrition.jpg) ===== *@
+<section class="landing-section" aria-labelledby="plans-title">
+    <div class="section-head">
+        <span class="ht-eyebrow">Plans that fit you</span>
+        <h2 id="plans-title">Training and nutrition, side by side</h2>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-6">
+            <article class="photo-card h-100">
+                <img src="/images/training.jpg" width="1000" height="667" loading="lazy"
+                     alt="A trainer kneels beside a client and corrects her dumbbell row in a gym" />
+                <div class="photo-card-body">
+                    <span class="photo-tag"><i class="bi bi-stopwatch" aria-hidden="true"></i> Workout plans</span>
+                    <h3>Coached by a real trainer</h3>
+                    <p>Your trainer builds a day-by-day plan with sets, reps and durations, then follows your logs and gives feedback.</p>
+                </div>
+            </article>
+        </div>
+        <div class="col-md-6">
+            <article class="photo-card h-100">
+                <img src="/images/nutrition.jpg" width="1000" height="750" loading="lazy"
+                     alt="A bowl of grilled meat, vegetables and greens on a dark table" />
+                <div class="photo-card-body">
+                    <span class="photo-tag"><i class="bi bi-egg-fried" aria-hidden="true"></i> Diet plans</span>
+                    <h3>Eat to a daily target</h3>
+                    <p>Diet plans set a calorie target and planned meals. Log what you eat and compare it with what you burn.</p>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+
+@* ===== 4. Features ===== *@
 <section class="landing-section" aria-labelledby="features-title">
     <div class="section-head">
         <span class="ht-eyebrow">Features</span>
@@ -144,7 +174,7 @@
     </div>
 </section>
 
-@* ===== 4. How it works ===== *@
+@* ===== 5. How it works ===== *@
 <section class="landing-section" aria-labelledby="steps-title">
     <div class="section-head">
         <span class="ht-eyebrow">How it works</span>
@@ -157,7 +187,7 @@
     </ol>
 </section>
 
-@* ===== 5. Final call to action (only for visitors who are not signed in) ===== *@
+@* ===== 6. Final call to action (only for visitors who are not signed in) ===== *@
 @if (dashboardController is null)
 {
     <section class="landing-cta" aria-labelledby="cta-title">
@@ -166,3 +196,12 @@
         <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary btn-lg">Get started <i class="bi bi-arrow-right"></i></a>
     </section>
 }
+
+@* Photo credits: free photos under the Unsplash License (https://unsplash.com/license) *@
+<p class="photo-credits">
+    Photos from Unsplash by
+    <a href="https://unsplash.com/photos/person-about-to-lift-the-barbel-WvDYdXDzkhs">Victor Freitas</a>,
+    <a href="https://unsplash.com/photos/a-woman-running-on-a-running-track-at-night-7Dqwq45QfYo">Jadon Johnson</a>,
+    <a href="https://unsplash.com/photos/a-man-and-woman-exercising-wSUlQl8HPYc">maxhome fitness</a> and
+    <a href="https://unsplash.com/photos/a-delicious-bowl-of-food-with-meat-and-vegetables-uj9c3fZH9_U">Valentin</a>.
+</p>

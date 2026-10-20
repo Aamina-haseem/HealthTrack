@@ -1347,3 +1347,86 @@ article.card:hover,
     padding: 1.5rem 1rem;
   }
 }
+
+/* ---------- 11. Login and Register: photo panel beside the form ---------- */
+
+/* From 992px: the photo on the left and the card on the right.
+   Below that, the photo becomes a short banner above the card. */
+.ht-auth-split {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+  padding: 0.75rem;
+}
+
+@media (min-width: 992px) {
+  .ht-auth-split {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    padding: 0.75rem 2rem 0.75rem 0.75rem;
+  }
+}
+
+/* The photo replaces the decorative ring in the corner */
+.ht-auth-split::before {
+  display: none;
+}
+
+/* Photo: wwwroot/images/auth.jpg (Jadon Johnson, Unsplash).
+   A dark fade at the bottom keeps the white text readable. */
+.ht-auth-photo {
+  position: relative;
+  z-index: 1;
+  align-self: stretch;
+  justify-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 12rem;
+  padding: 1.5rem;
+  border-radius: 1.1rem;
+  overflow: hidden;
+  color: #FFFFFF;
+  background:
+    linear-gradient(180deg, rgba(14, 14, 16, 0.1) 0%, rgba(14, 14, 16, 0.6) 45%, rgba(14, 14, 16, 0.95) 100%),
+    url("/images/auth.jpg") 42% 40% / cover no-repeat,
+    var(--ht-bg);
+}
+
+.ht-auth-photo .ht-eyebrow {
+  color: #FFB27A;
+}
+
+.ht-auth-quote {
+  margin: 0;
+  font-family: "Oswald", "Arial Narrow", "Segoe UI", sans-serif;
+  font-size: clamp(1.75rem, 3vw, 2.6rem);
+  font-weight: 600;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.ht-auth-points {
+  display: grid;
+  gap: 0.6rem;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+  color: #E4E4E7;
+}
+
+.ht-auth-points .bi {
+  margin-right: 0.4rem;
+  color: var(--ht-primary);
+}
+
+@media (min-width: 992px) {
+  .ht-auth-photo {
+    min-height: 36rem;
+    padding: 2.5rem;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .ht-auth-points {
+    display: none;
+  }
+}
