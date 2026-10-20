@@ -1,0 +1,61 @@
+﻿@model HealthTrack.ViewModels.WorkoutPlanItemCreateViewModel
+
+@{
+    ViewData["Title"] = "Edit Exercise";
+}
+
+<h1>Edit Exercise</h1>
+<p class="text-muted">Workout plan: @ViewBag.PlanTitle</p>
+
+<form asp-action="EditExercise" asp-route-id="@ViewBag.ExerciseId" method="post">
+    @Html.AntiForgeryToken()
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="ExerciseName" class="form-label"></label>
+        <input asp-for="ExerciseName" class="form-control" />
+        <span asp-validation-for="ExerciseName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DayOfWeek" class="form-label"></label>
+        <select asp-for="DayOfWeek"
+                asp-items="Html.GetEnumSelectList<DayOfWeek>()"
+                class="form-select"></select>
+        <span asp-validation-for="DayOfWeek" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Sets" class="form-label"></label>
+        <input asp-for="Sets" class="form-control" />
+        <span asp-validation-for="Sets" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Reps" class="form-label"></label>
+        <input asp-for="Reps" class="form-control" />
+        <span asp-validation-for="Reps" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DurationMinutes" class="form-label"></label>
+        <input asp-for="DurationMinutes" class="form-control" />
+        <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Notes" class="form-label"></label>
+        <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Notes" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a asp-action="Details"
+       asp-route-id="@ViewBag.PlanId"
+       class="btn btn-secondary">Back to Plan</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

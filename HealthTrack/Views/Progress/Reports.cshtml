@@ -1,0 +1,102 @@
+@model HealthTrack.ViewModels.TrainerReportViewModel
+@{
+    ViewData["Title"] = "Client Performance Report";
+
+    // ProgressController.Reports only includes clients actively assigned to this trainer,
+    // so the charts below cannot show anyone else's data.
+    var activityChart = Model.PopularActivities
+        .Select(a => new { activity = a.Activity, sessions = a.Sessions }).ToList();
+    var minutesChart = Model.Clients
+        .Select(c => new { name = c.Name, minutes = c.WorkoutMinutes, calories = c.CaloriesBurned }).ToList();
+}
+<div class="d-flex justify-content-between align-items-center">
+    <h1>Client Performance Report</h1>
+    <button type="button" class="btn btn-outline-secondary d-print-none" onclick="window.print()">Print Report</button>
+</div>
+<p class="text-muted">
+    @if (Model.FilteredClientName is not null) { <text>Showing <strong>@Model.FilteredClientName</strong> only. </text> }
+    Only active clients currently assigned to you are included.
+</p>
+@if (Model.Clients.Count == 0) { <div class="alert alert-info">No assigned client activity to report.</div> }
+else {
+<div class="table-responsive"><table class="table table-striped align-middle">
+    <thead><tr><th>Client</th><th>Workout Plans</th><th>Diet Plans</th>
+        <th>Workouts</th><th>Meals</th><th>Workout Minutes</th><th>Calories Burned</th>
+        <th>Latest Weight</th><th>Latest BMI</th><th>Last Activity</th></tr></thead>
+    <tbody>@foreach (var x in Model.Clients) {
+        <tr><td><a asp-controller="Trainer" asp-action="ClientDetails" asp-route-id="@x.ClientId">@x.Name</a></td>
+            <td>@x.WorkoutPlanCount</td><td>@x.DietPlanCount</td><td>@x.WorkoutCount</td>
+            <td>@x.MealCount</td><td>@x.WorkoutMinutes</td><td>@x.CaloriesBurned</td>
+            <td>@(x.LatestWeightKg?.ToString("0.0") ?? "—")</td>
+            <td>@(x.LatestBmi?.ToString("0.0") ?? "—")</td>
+            <td>@(x.LastActivity?.ToString("dd MMM yyyy") ?? "Never")</td></tr>
+    }</tbody>
+</table></div>
+
+<div class="row g-3 mt-2">
+    <div class="col-lg-6">
+        <h2 class="h4">Workout Minutes per Client</h2>
+        <div class="card"><div class="card-body">
+            <canvas id="minutesChart" height="160" role="img"
+                    aria-label="Bar chart of total workout minutes and calories burned for each client"></canvas>
+        </div></div>
+    </div>
+    <div class="col-lg-6">
+        <h2 class="h4">Popular Logged Activities</h2>
+        @if (Model.PopularActivities.Count == 0) { <p class="text-muted">No workouts logged yet.</p> }
+        else {
+            <div class="card"><div class="card-body">
+                <canvas id="activityChart" height="160" role="img"
+                        aria-label="Bar chart of the most logged workout activities"></canvas>
+            </div></div>
+            <ol class="mt-2">@foreach (var a in Model.PopularActivities) { <li>@a.Activity — @a.Sessions sessions</li> }</ol>
+        }
+    </div>
+</div>
+}
+<a asp-controller="Trainer" asp-action="Index" class="btn btn-secondary d-print-none mt-3">Dashboard</a>
+
+@section Scripts {
+<script>
+    // Json.Serialize safely encodes client names and activity names typed by users.
+    const minutesData = @Json.Serialize(minutesChart);
+    const activityData = @Json.Serialize(activityChart);
+
+    const minutesCanvas = document.getElementById('minutesChart');
+    if (minutesCanvas && minutesData.length > 0) {
+        new Chart(minutesCanvas, {
+            type: 'bar',
+            data: {
+                labels: minutesData.map(c => c.name),
+                datasets: [
+                    { label: 'Workout minutes', data: minutesData.map(c => c.minutes), yAxisID: 'y', borderColor: '#0B6FD6', backgroundColor: 'rgba(11, 111, 214, 0.85)', borderRadius: 6 },
+                    { label: 'Calories burned (kcal)', data: minutesData.map(c => c.calories), yAxisID: 'y1', borderColor: '#6FB8F8', backgroundColor: 'rgba(111, 184, 248, 0.85)', borderRadius: 6 }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: 'Minutes' } },
+                    y1: { beginAtZero: true, position: 'right', title: { display: true, text: 'kcal' }, grid: { drawOnChartArea: false } }
+                }
+            }
+        });
+    }
+
+    const activityCanvas = document.getElementById('activityChart');
+    if (activityCanvas && activityData.length > 0) {
+        new Chart(activityCanvas, {
+            type: 'bar',
+            data: {
+                labels: activityData.map(a => a.activity),
+                datasets: [{ label: 'Sessions logged', data: activityData.map(a => a.sessions), borderColor: '#0B6FD6', backgroundColor: 'rgba(11, 111, 214, 0.85)', borderRadius: 6 }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                scales: { x: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'Sessions' } } }
+            }
+        });
+    }
+</script>
+}

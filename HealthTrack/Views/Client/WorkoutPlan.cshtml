@@ -1,0 +1,17 @@
+@model HealthTrack.ViewModels.WorkoutPlanDetailsViewModel
+@{ ViewData["Title"] = "My Workout Plan"; }
+<h1>@Model.Plan.Title</h1>
+<p>@(Model.Plan.Description ?? "No description")</p>
+<p><strong>Goal:</strong> @(Model.Plan.Goal ?? "Not set") · <strong>Difficulty:</strong> @Model.Plan.Difficulty</p>
+<h2 class="h4">Exercises</h2>
+@if (Model.Exercises.Count == 0) { <div class="alert alert-info">Your trainer has not added exercises yet.</div> }
+else {
+<table class="table table-striped"><thead><tr><th>Day</th><th>Exercise</th><th>Sets</th><th>Reps</th><th>Minutes</th><th>Notes</th></tr></thead>
+<tbody>@foreach (var e in Model.Exercises) {
+<tr><td>@e.DayOfWeek</td><td>@e.ExerciseName</td><td>@e.Sets</td><td>@e.Reps</td><td>@e.DurationMinutes</td><td>@(e.Notes ?? "—")</td></tr>
+}</tbody></table>
+}
+<div class="d-flex flex-wrap gap-2 mt-3">
+    <a asp-action="WorkoutPlans" class="btn btn-outline-primary"><i class="bi bi-arrow-left"></i> My Workout Plans</a>
+    <a asp-action="Index" class="btn btn-secondary">Dashboard</a>
+</div>

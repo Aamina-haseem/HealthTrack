@@ -1,0 +1,9 @@
+@model HealthTrack.ViewModels.DietPlanCreateViewModel
+@{ ViewData["Title"] = "Create Diet Plan"; }
+<h1>Create Diet Plan</h1>
+<form asp-action="Create" method="post">
+    <partial name="_PlanForm" model="Model" />
+    <button class="btn btn-primary" type="submit">Create Plan</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

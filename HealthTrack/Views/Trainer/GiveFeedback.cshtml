@@ -1,0 +1,15 @@
+@model HealthTrack.ViewModels.FeedbackCreateViewModel
+@{ ViewData["Title"] = "Give Feedback"; }
+<h1>Feedback for @ViewBag.ClientName</h1>
+<form asp-action="GiveFeedback" asp-route-id="@ViewBag.ClientId" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="mb-3"><label asp-for="Message" class="form-label"></label>
+        <textarea asp-for="Message" rows="5" class="form-control"></textarea>
+        <span asp-validation-for="Message" class="text-danger"></span></div>
+    <div class="mb-3"><label asp-for="Rating" class="form-label"></label>
+        <input asp-for="Rating" class="form-control" />
+        <span asp-validation-for="Rating" class="text-danger"></span></div>
+    <button type="submit" class="btn btn-primary">Send Feedback</button>
+    <a asp-action="ClientDetails" asp-route-id="@ViewBag.ClientId" class="btn btn-secondary">Cancel</a>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -1,0 +1,9 @@
+@model HealthTrack.ViewModels.HealthMeasurementCreateViewModel
+@{ ViewData["Title"] = "Record Measurement"; }
+<h1>Record Measurement</h1>
+<p class="text-muted">BMI is calculated from your weight and height after saving.</p>
+<form asp-action="AddMeasurement" method="post">
+    <partial name="_MeasurementForm" model="Model" />
+    <button class="btn btn-primary" type="submit">Save Measurement</button><a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

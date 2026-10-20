@@ -1,0 +1,134 @@
+@model HealthTrack.ViewModels.ClientDashboardViewModel
+@{ ViewData["Title"] = "Client Dashboard"; }
+
+@* Welcome banner. Every number on this page comes from the signed-in client's own records. *@
+<section class="ht-hero">
+    <div class="row align-items-center g-4">
+        <div class="col-md-8">
+            <span class="ht-eyebrow">Client Dashboard</span>
+            <h1>Welcome back, @Model.Name</h1>
+            <p class="text-muted mb-4">Your plans, health activity and trainer feedback in one place.</p>
+            <nav class="d-flex flex-wrap gap-2" aria-label="Client pages">
+                <a asp-controller="Logs" asp-action="Index" class="btn btn-primary"><i class="bi bi-journal-plus"></i> Log Activity</a>
+                <a asp-controller="Progress" asp-action="Index" class="btn btn-outline-primary"><i class="bi bi-graph-up-arrow"></i> My Progress</a>
+            </nav>
+        </div>
+        <div class="col-md-4 ht-hero-figure">
+            <span class="ht-eyebrow">Latest BMI</span>
+            <span class="value">@(Model.LatestMeasurement?.BMI.ToString("0.0") ?? "—")</span>
+            <small class="text-muted">
+                @(Model.LatestMeasurement is null ? "No measurement yet" : $"{Model.LatestMeasurement.WeightKg:0.0} kg on {Model.LatestMeasurement.Date:dd MMM}")
+            </small>
+        </div>
+    </div>
+</section>
+
+@* Summary numbers *@
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3"><div class="card ht-stat h-100"><div class="card-body">
+        <span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-activity"></i></span>
+        <div><p class="ht-stat-value">@Model.WorkoutPlans.Count</p><p class="ht-stat-label">Workout Plans</p></div>
+    </div></div></div>
+    <div class="col-6 col-lg-3"><div class="card ht-stat h-100"><div class="card-body">
+        <span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-egg-fried"></i></span>
+        <div><p class="ht-stat-value">@Model.DietPlans.Count</p><p class="ht-stat-label">Diet Plans</p></div>
+    </div></div></div>
+    <div class="col-6 col-lg-3"><div class="card ht-stat h-100"><div class="card-body">
+        <span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-calendar-check"></i></span>
+        <div><p class="ht-stat-value">@Model.UpcomingAppointments.Count</p><p class="ht-stat-label">Upcoming</p></div>
+    </div></div></div>
+    <div class="col-6 col-lg-3"><div class="card ht-stat h-100"><div class="card-body">
+        <span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-bell"></i></span>
+        <div><p class="ht-stat-value">@Model.UnreadNotifications</p><p class="ht-stat-label">Unread Alerts</p></div>
+    </div></div></div>
+</div>
+
+<div class="row g-4">
+    <section class="col-lg-6"><div class="card h-100"><div class="card-body">
+        <h2 class="ht-card-title">My Workout Plans</h2>
+        @if (Model.WorkoutPlans.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-activity" aria-hidden="true"></i>No workout plan yet. Your trainer will assign one.</div>
+        }
+        else
+        {
+            <ul class="list-group list-group-flush">@foreach (var x in Model.WorkoutPlans) {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>@x.Title <small class="text-muted">· @x.Difficulty</small></span>
+                    <a asp-action="WorkoutPlan" asp-route-id="@x.Id" class="btn btn-sm btn-outline-primary">Open</a>
+                </li>
+            }</ul>
+        }
+    </div></div></section>
+
+    <section class="col-lg-6"><div class="card h-100"><div class="card-body">
+        <h2 class="ht-card-title">My Diet Plans</h2>
+        @if (Model.DietPlans.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-egg-fried" aria-hidden="true"></i>No diet plan yet. Your trainer will assign one.</div>
+        }
+        else
+        {
+            <ul class="list-group list-group-flush">@foreach (var x in Model.DietPlans) {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>@x.Title <small class="text-muted">· @x.DailyCalorieTarget kcal/day</small></span>
+                    <a asp-action="DietPlan" asp-route-id="@x.Id" class="btn btn-sm btn-outline-primary">Open</a>
+                </li>
+            }</ul>
+        }
+    </div></div></section>
+
+    <section class="col-lg-6"><div class="card h-100"><div class="card-body">
+        <h2 class="ht-card-title">Recent Workouts</h2>
+        @if (Model.RecentWorkouts.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-stopwatch" aria-hidden="true"></i>No workouts logged yet.
+                <div class="mt-2"><a asp-controller="Logs" asp-action="AddWorkout" class="btn btn-sm btn-primary">Log a workout</a></div>
+            </div>
+        }
+        else
+        {
+            <ul class="list-group list-group-flush">@foreach (var x in Model.RecentWorkouts) {
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>@x.ExerciseName <small class="text-muted">· @x.Date.ToString("dd MMM")</small></span>
+                    <span class="text-muted">@x.DurationMinutes min · @x.CaloriesBurned kcal</span>
+                </li>
+            }</ul>
+        }
+    </div></div></section>
+
+    <section class="col-lg-6"><div class="card h-100"><div class="card-body">
+        <h2 class="ht-card-title">Upcoming Appointments</h2>
+        @if (Model.UpcomingAppointments.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-calendar" aria-hidden="true"></i>No appointments scheduled.</div>
+        }
+        else
+        {
+            <ul class="list-group list-group-flush">@foreach (var x in Model.UpcomingAppointments) {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>@x.AppointmentDate.ToString("ddd dd MMM, HH:mm")</span>
+                    @* Approved is confirmed; anything else is still waiting for the trainer *@
+                    <span class="badge rounded-pill @(x.Status == HealthTrack.Models.AppointmentStatus.Approved ? "text-bg-success" : "text-bg-secondary")">@x.Status</span>
+                </li>
+            }</ul>
+        }
+    </div></div></section>
+
+    <section class="col-12"><div class="card"><div class="card-body">
+        <h2 class="ht-card-title">Recent Trainer Feedback</h2>
+        @if (Model.RecentFeedback.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-chat-heart" aria-hidden="true"></i>No feedback yet.</div>
+        }
+        else
+        {
+            <ul class="list-group list-group-flush">@foreach (var x in Model.RecentFeedback) {
+                <li class="list-group-item">
+                    <small class="text-muted">@x.CreatedAt.ToString("dd MMM yyyy")@(x.Rating is null ? "" : $" · Rating {x.Rating}/5")</small>
+                    <div>@x.Message</div>
+                </li>
+            }</ul>
+        }
+    </div></div></section>
+</div>

@@ -1,0 +1,17 @@
+@model HealthTrack.ViewModels.DietPlanDetailsViewModel
+@{ ViewData["Title"] = "My Diet Plan"; }
+<h1>@Model.Plan.Title</h1>
+<p>@(Model.Plan.Description ?? "No description")</p>
+<p><strong>Daily calorie target:</strong> @Model.Plan.DailyCalorieTarget kcal</p>
+<h2 class="h4">Planned Meals</h2>
+@if (Model.Meals.Count == 0) { <div class="alert alert-info">Your trainer has not added meals yet.</div> }
+else {
+<table class="table table-striped"><thead><tr><th>Meal</th><th>Food</th><th>Calories</th><th>Time</th></tr></thead>
+<tbody>@foreach (var meal in Model.Meals) {
+<tr><td>@meal.MealType</td><td>@meal.FoodItems</td><td>@meal.Calories</td><td>@(meal.MealTime?.ToString(@"hh\:mm") ?? "Not set")</td></tr>
+}</tbody></table>
+}
+<div class="d-flex flex-wrap gap-2 mt-3">
+    <a asp-action="DietPlans" class="btn btn-outline-primary"><i class="bi bi-arrow-left"></i> My Diet Plans</a>
+    <a asp-action="Index" class="btn btn-secondary">Dashboard</a>
+</div>

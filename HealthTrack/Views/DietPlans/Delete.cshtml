@@ -1,0 +1,8 @@
+@model HealthTrack.Models.DietPlan
+@{ ViewData["Title"] = "Delete Diet Plan"; }
+<h1>Delete Diet Plan</h1>
+<p>Delete <strong>@Model.Title</strong> and its planned meals? Client meal logs will remain.</p>
+<form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+    <button class="btn btn-danger" type="submit">Delete Plan</button>
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Cancel</a>
+</form>

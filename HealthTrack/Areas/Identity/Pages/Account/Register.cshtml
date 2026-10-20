@@ -1,101 +1,51 @@
 @page
 @model RegisterModel
 @{
-    ViewData["Title"] = "Create your account";
+    ViewData["Title"] = "Register";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-9 col-lg-7">
-        <div class="card shadow-sm border-0">
-            <div class="card-body p-4 p-md-5">
-                <h2 class="text-success mb-1"><i class="bi bi-person-plus"></i> Create your account</h2>
-                <p class="text-muted mb-4">Join HealthTrack to track your workouts, meals and progress.</p>
+@* Same blue panel and glass card as the Login page. The form fields and
+   RegisterModel are unchanged; the "Use another service" section was removed
+   because HealthTrack only uses local accounts (Individual Accounts). *@
+<section class="ht-auth" aria-labelledby="register-title">
+    <div class="ht-auth-card">
+        <a class="ht-auth-brand" asp-area="" asp-controller="Home" asp-action="Index">
+            <i class="bi bi-heart-pulse-fill" aria-hidden="true"></i> HealthTrack
+        </a>
+        <h1 id="register-title">Create account</h1>
+        <p class="ht-auth-sub">Start tracking your workouts, meals and progress.</p>
 
-                <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            <div asp-validation-summary="ModelOnly" class="mb-3" role="alert"></div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="form-floating">
-                                <input asp-for="Input.FirstName" class="form-control" placeholder="First name" autocomplete="given-name" />
-                                <label asp-for="Input.FirstName"></label>
-                            </div>
-                            <span asp-validation-for="Input.FirstName" class="text-danger small"></span>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="form-floating">
-                                <input asp-for="Input.LastName" class="form-control" placeholder="Last name" autocomplete="family-name" />
-                                <label asp-for="Input.LastName"></label>
-                            </div>
-                            <span asp-validation-for="Input.LastName" class="text-danger small"></span>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="form-floating">
-                                <input asp-for="Input.DateOfBirth" type="date" class="form-control"
-                                       max="@DateTime.Today.ToString("yyyy-MM-dd")" />
-                                <label asp-for="Input.DateOfBirth"></label>
-                            </div>
-                            <span asp-validation-for="Input.DateOfBirth" class="text-danger small"></span>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="form-floating">
-                                <select asp-for="Input.Gender" class="form-select">
-                                    <option value="">-- Select --</option>
-                                    <option>Female</option>
-                                    <option>Male</option>
-                                    <option>Other</option>
-                                </select>
-                                <label asp-for="Input.Gender"></label>
-                            </div>
-                            <span asp-validation-for="Input.Gender" class="text-danger small"></span>
-                        </div>
-                    </div>
-
-                    <div class="form-floating mb-3">
-                        <input asp-for="Input.Email" class="form-control" autocomplete="username" placeholder="name@example.com" />
-                        <label asp-for="Input.Email"></label>
-                    </div>
-                    <span asp-validation-for="Input.Email" class="text-danger small d-block mb-2"></span>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="form-floating">
-                                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" placeholder="password" />
-                                <label asp-for="Input.Password"></label>
-                            </div>
-                            <span asp-validation-for="Input.Password" class="text-danger small"></span>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="form-floating">
-                                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" placeholder="password" />
-                                <label asp-for="Input.ConfirmPassword"></label>
-                            </div>
-                            <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
-                        </div>
-                    </div>
-
-                    <p class="small text-muted">
-                        <i class="bi bi-shield-lock"></i>
-                        Password: at least 8 characters, with an uppercase letter, a lowercase letter, a number and a symbol.
-                    </p>
-
-                    <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-success">
-                        <i class="bi bi-person-check"></i> Register
-                    </button>
-
-                    <p class="text-center mt-3 mb-0">
-                        Already have an account?
-                        <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">Log in</a>
-                    </p>
-                </form>
+            <div class="mb-3">
+                <label asp-for="Input.Email" class="form-label">Email</label>
+                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                <span asp-validation-for="Input.Email"></span>
             </div>
-        </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Password" class="form-label">Password</label>
+                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Password" />
+                <span asp-validation-for="Input.Password"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Input.ConfirmPassword" class="form-label">Confirm password</label>
+                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Type it again" />
+                <span asp-validation-for="Input.ConfirmPassword"></span>
+            </div>
+
+            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Create account</button>
+        </form>
+
+        <p class="ht-auth-footer mb-0">
+            Already have an account?
+            <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">Log in</a>
+        </p>
     </div>
-</div>
+</section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-} 
+}

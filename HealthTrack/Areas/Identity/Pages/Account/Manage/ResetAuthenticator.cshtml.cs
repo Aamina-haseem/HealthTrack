@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using HealthTrack.Data;
+using HealthTrack.Models;
 
 namespace HealthTrack.Areas.Identity.Pages.Account.Manage;
 
