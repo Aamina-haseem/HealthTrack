@@ -1,0 +1,101 @@
+@model HealthTrack.ViewModels.AdminUsersViewModel
+@{
+    ViewData["Title"] = "Manage Users";
+    string[] roles = { AppRoles.Client, AppRoles.Trainer, AppRoles.Admin };
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+    <div>
+        <span class="ht-eyebrow">Administrator</span>
+        <h1 class="mb-1">Manage Users</h1>
+        <p class="text-muted mb-0">Search accounts, add trainers and activate or deactivate users.</p>
+    </div>
+    <a asp-action="CreateTrainer" class="btn btn-primary"><i class="bi bi-person-plus"></i> Add Trainer</a>
+</div>
+
+@* Search + role filter (GET form, so the URL can be bookmarked) *@
+<form asp-action="Users" method="get" class="card mb-3"><div class="card-body">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-6">
+            <label for="search" class="form-label">Search by name or email</label>
+                <input id="search" name="search" value="@Model.Search"            <input id="search" name="search" value="@Model.Search" class="form-control" placeholder="e.g. Amal or client1" />
+        <div class="col-md-3">
+            <label for="role" class="form-label">Role</label>
+            <select id="role" name="role" class="form-select">
+                <option value="">All roles</option>
+                @foreach (var r in roles)
+                {
+                    <option value="@r" selected="@(Model.RoleFilter == r)">@r</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1"><i class="bi bi-search"></i> Search</button>
+            <a asp-action="Users" class="btn btn-outline-secondary">Clear</a>
+        </div>
+    </div>
+</div></form>
+
+@if (Model.Users.Count == 0)
+{
+    <div class="card"><div class="card-body">
+        <div class="ht-empty"><i class="bi bi-people" aria-hidden="true"></i>No users match your search.</div>
+    </div></div>
+}
+else
+{
+    <div class="card"><div class="card-body">
+        <p class="text-muted small mb-2">@Model.Users.Count user(s) found</p>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Status</th><th class="text-end">Action</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var u in Model.Users)
+                    {
+                        <tr class="@(u.IsActive ? "" : "text-muted")">
+                            <td>
+                                @u.FullName
+                                @if (!string.IsNullOrEmpty(u.Specialization))
+                                {
+                                    <br /><small class="text-muted">@u.Specialization</small>
+                                }
+                            </td>
+                            <td>@u.Email</td>
+                            <td>@u.Role</td>
+                            <td>@u.CreatedAt.ToString("dd MMM yyyy")</td>
+                            <td>
+                                <span class="badge rounded-pill @(u.IsActive ? "text-bg-success" : "text-bg-secondary")">
+                                    @(u.IsActive ? "Active" : "Inactive")
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                @if (u.Id == Model.CurrentAdminId)
+                                {
+                                    <span class="small text-muted">(you)</span>
+                                }
+                                else
+                                {
+                                    <form asp-action="ToggleActive" asp-route-id="@u.Id" method="post" class="d-inline">
+                                        @if (u.IsActive)
+                                        {
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('Deactivate this account? The user will be signed out and cannot log in, but their records are kept.');">
+                                                Deactivate
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" class="btn btn-sm btn-outline-success">Activate</button>
+                                        }
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div></div>
+}

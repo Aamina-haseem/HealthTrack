@@ -1,0 +1,79 @@
+@model HealthTrack.ViewModels.CreateTrainerViewModel
+@{
+    ViewData["Title"] = "Add Trainer";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <span class="ht-eyebrow">Administrator</span>
+        <h1 class="mb-1">Add a Trainer / Health Professional</h1>
+        <p class="text-muted">Trainer accounts can only be created by the administrator. Give the trainer the temporary password; they can change it under their profile.</p>
+
+        <div class="card"><div class="card-body">
+            <form asp-action="CreateTrainer" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="FirstName" class="form-label"></label>
+                        <input asp-for="FirstName" class="form-control" />
+                        <span asp-validation-for="FirstName" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="LastName" class="form-label"></label>
+                        <input asp-for="LastName" class="form-control" />
+                        <span asp-validation-for="LastName" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" placeholder="trainer@healthtrack.com" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Specialization" class="form-label"></label>
+                        <select asp-for="Specialization" asp-items="ViewBag.Specializations" class="form-select">
+                            <option value="">-- Select --</option>
+                        </select>
+                        <span asp-validation-for="Specialization" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Gender" class="form-label"></label>
+                        <select asp-for="Gender" class="form-select">
+                            <option value="">-- Optional --</option>
+                            <option>Female</option>
+                            <option>Male</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Password" class="form-label"></label>
+                        <input asp-for="Password" class="form-control" autocomplete="new-password" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ConfirmPassword" class="form-label"></label>
+                        <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                    </div>
+                </div>
+                <p class="small text-muted"><i class="bi bi-shield-lock"></i> At least 8 characters with an uppercase letter, a lowercase letter, a number and a symbol.</p>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-person-check"></i> Create Trainer Account</button>
+                    <a asp-action="Users" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div></div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

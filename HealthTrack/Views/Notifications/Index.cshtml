@@ -1,0 +1,78 @@
+@model List<HealthTrack.Models.Notification>
+@{
+    ViewData["Title"] = "Notifications";
+    int unread = Model.Count(n => !n.IsRead);
+
+    // Icon for each notification type
+    string IconFor(NotificationType type) => type switch
+    {
+        NotificationType.Appointment => "bi-calendar-check",
+        NotificationType.Workout => "bi-activity",
+        NotificationType.Meal => "bi-egg-fried",
+        NotificationType.Feedback => "bi-chat-heart",
+        _ => "bi-info-circle"
+    };
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+    <div>
+        <span class="ht-eyebrow">Notifications</span>
+        <h1 class="mb-1">Your Notifications</h1>
+        <p class="text-muted mb-0">Reminders for appointments, workouts and meals, plus updates from your trainer or clients.</p>
+    </div>
+    @if (unread > 0)
+    {
+        <form asp-action="MarkAllAsRead" method="post">
+            <button type="submit" class="btn btn-outline-primary"><i class="bi bi-check2-all"></i> Mark all as read (@unread)</button>
+        </form>
+    }
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="card"><div class="card-body">
+        <div class="ht-empty"><i class="bi bi-bell-slash" aria-hidden="true"></i>You have no notifications yet.</div>
+    </div></div>
+}
+else
+{
+    <div class="card"><div class="card-body p-0">
+        <ul class="list-group list-group-flush">
+            @foreach (var n in Model)
+            {
+                <li class="list-group-item d-flex flex-wrap gap-3 align-items-start @(n.IsRead ? "" : "bg-light")">
+                    <span class="ht-stat-icon" aria-hidden="true"><i class="bi @IconFor(n.Type)"></i></span>
+                    <div class="flex-grow-1">
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <strong class="@(n.IsRead ? "fw-normal" : "")">@n.Title</strong>
+                            @if (!n.IsRead)
+                            {
+                                <span class="badge rounded-pill text-bg-primary">New</span>
+                            }
+                            <small class="text-muted">@n.CreatedAt.ToString("dd MMM yyyy, HH:mm")</small>
+                        </div>
+                        <p class="mb-0 text-muted">@n.Message</p>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        @if (!string.IsNullOrEmpty(n.Link))
+                        {
+                            <form asp-action="Open" asp-route-id="@n.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-primary">View</button>
+                            </form>
+                        }
+                        @if (!n.IsRead)
+                        {
+                            <form asp-action="MarkAsRead" asp-route-id="@n.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Mark read</button>
+                            </form>
+                        }
+                        <form asp-action="Delete" asp-route-id="@n.Id" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Delete this notification?');">Delete</button>
+                        </form>
+                    </div>
+                </li>
+            }
+        </ul>
+    </div></div>
+}

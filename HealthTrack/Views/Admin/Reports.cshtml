@@ -1,0 +1,177 @@
+@model HealthTrack.ViewModels.AdminReportViewModel
+@using System.Text.Json
+@{
+    ViewData["Title"] = "System Reports";
+
+    string BadgeFor(string level) => level switch
+    {
+        "High" => "text-bg-success",
+        "Medium" => "text-bg-primary",
+        "Low" => "text-bg-warning",
+        _ => "text-bg-secondary"
+    };
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+    <div>
+        <span class="ht-eyebrow">Administrator</span>
+        <h1 class="mb-1">System Reports</h1>
+        <p class="text-muted mb-0">Client engagement, popular routines and trainer performance. Generated @Model.GeneratedAt.ToString("dd MMM yyyy, HH:mm").</p>
+    </div>
+    <button type="button" class="btn btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
+</div>
+
+@* ===== 1. Client engagement ===== *@
+<div class="row g-4 mb-4">
+    <section class="col-lg-4"><div class="card h-100"><div class="card-body">
+        <h2 class="ht-card-title">Engagement Overview</h2>
+        <p class="text-muted small">Logs in the last 30 days: 20+ High, 8-19 Medium, 1-7 Low, 0 Inactive.</p>
+        <canvas id="engagementChart" height="220" aria-label="Doughnut chart of client engagement"></canvas>
+    </div></div></section>
+
+    <section class="col-lg-8"><div class="card h-100"><div class="card-body">
+        <h2 class="ht-card-title">Client Engagement (last 30 days)</h2>
+        @if (Model.ClientEngagement.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-people" aria-hidden="true"></i>No active clients yet.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead>
+                        <tr><th>Client</th><th>Trainer</th><th class="text-end">Workouts</th><th class="text-end">Meals</th><th class="text-end">Measurements</th><th class="text-end">kcal Burned</th><th>Last Activity</th><th>Level</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in Model.ClientEngagement)
+                        {
+                            <tr>
+                                <td>@c.Name</td>
+                                <td>@c.TrainerName</td>
+                                <td class="text-end">@c.WorkoutsLast30Days</td>
+                                <td class="text-end">@c.MealsLast30Days</td>
+                                <td class="text-end">@c.MeasurementsLast30Days</td>
+                                <td class="text-end">@c.CaloriesBurnedLast30Days</td>
+                                <td>@(c.LastActivity?.ToString("dd MMM yyyy") ?? "—")</td>
+                                <td><span class="badge rounded-pill @BadgeFor(c.EngagementLevel)">@c.EngagementLevel</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div></div></section>
+</div>
+
+@* ===== 2. Popular routines ===== *@
+<div class="row g-4 mb-4">
+    <section class="col-lg-6"><div class="card h-100"><div class="card-body">
+        <h2 class="ht-card-title">Most Logged Activities</h2>
+        @if (Model.PopularActivities.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-activity" aria-hidden="true"></i>No workouts logged yet.</div>
+        }
+        else
+        {
+            <canvas id="activitiesChart" height="180" aria-label="Bar chart of most logged activities"></canvas>
+        }
+    </div></div></section>
+
+    <section class="col-lg-6"><div class="card h-100"><div class="card-body">
+        <h2 class="ht-card-title">Most Assigned Workout Plans</h2>
+        @if (Model.PopularWorkoutPlans.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-clipboard" aria-hidden="true"></i>No workout plans created yet.</div>
+        }
+        else
+        {
+            <ol class="list-group list-group-numbered list-group-flush">
+                @foreach (var p in Model.PopularWorkoutPlans)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span class="ms-2 me-auto">@p.Activity</span>
+                        <span class="badge rounded-pill text-bg-primary">@p.Sessions client(s)</span>
+                    </li>
+                }
+            </ol>
+        }
+    </div></div></section>
+</div>
+
+@* ===== 3. Trainer performance ===== *@
+<section class="card mb-4"><div class="card-body">
+    <h2 class="ht-card-title">Trainer Performance</h2>
+    @if (Model.TrainerPerformance.Count == 0)
+    {
+        <div class="ht-empty"><i class="bi bi-person-badge" aria-hidden="true"></i>No trainers yet.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+                <thead>
+                    <tr><th>Trainer</th><th>Specialization</th><th class="text-end">Clients</th><th class="text-end">Workout Plans</th><th class="text-end">Diet Plans</th><th class="text-end">Appointments Completed</th><th class="text-end">Feedback Given</th><th class="text-end">Avg. Progress Rating</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model.TrainerPerformance)
+                    {
+                        <tr>
+                            <td>@t.Name</td>
+                            <td>@(t.Specialization ?? "—")</td>
+                            <td class="text-end">@t.Clients</td>
+                            <td class="text-end">@t.WorkoutPlans</td>
+                            <td class="text-end">@t.DietPlans</td>
+                            <td class="text-end">@t.AppointmentsCompleted</td>
+                            <td class="text-end">@t.FeedbackGiven</td>
+                            <td class="text-end">@(t.AverageRating?.ToString("0.0") ?? "—")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div></section>
+
+@section Scripts {
+    <script>
+        // Chart.js is loaded once in _Layout.cshtml
+        (function () {
+            if (typeof Chart === 'undefined') return;
+
+            const engagement = document.getElementById('engagementChart');
+            if (engagement) {
+                new Chart(engagement, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['High', 'Medium', 'Low', 'Inactive'],
+                        datasets: [{
+                            data: [@Model.HighEngagement, @Model.MediumEngagement, @Model.LowEngagement, @Model.InactiveClients],
+                            backgroundColor: ['#198754', '#0d6efd', '#ffc107', '#adb5bd']
+                        }]
+                    },
+                    options: { plugins: { legend: { position: 'bottom' } } }
+                });
+            }
+
+            const activities = document.getElementById('activitiesChart');
+            if (activities) {
+                new Chart(activities, {
+                    type: 'bar',
+                    data: {
+                        labels: @Html.Raw(JsonSerializer.Serialize(Model.PopularActivities.Select(a => a.Activity))),
+                        datasets: [{
+                            label: 'Sessions logged',
+                            data: @Html.Raw(JsonSerializer.Serialize(Model.PopularActivities.Select(a => a.Sessions))),
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        plugins: { legend: { display: false } },
+                        scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
+                    }
+                });
+            }
+        })();
+    </script>
+}

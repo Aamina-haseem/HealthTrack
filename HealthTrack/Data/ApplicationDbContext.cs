@@ -1,6 +1,8 @@
-﻿using HealthTrack.Models;
+using HealthTrack.Models;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HealthTrack.Data
 {
@@ -10,9 +12,15 @@ namespace HealthTrack.Data
     /// </summary>
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        // Used to encrypt sensitive health text columns (see OnModelCreating)
+        private readonly IDataProtector _protector;
+
+        public ApplicationDbContext(
+            DbContextOptions<ApplicationDbContext> options,
+            IDataProtectionProvider dataProtectionProvider)
             : base(options)
         {
+            _protector = dataProtectionProvider.CreateProtector(HealthDataEncryption.Purpose);
         }
 
         // Each DbSet becomes a table in SQL Server
@@ -47,6 +55,29 @@ namespace HealthTrack.Data
             {
                 foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
             }
+
+            // ---------------------------------------------------------------
+            // SECURITY: encryption at rest for sensitive health text
+            // ---------------------------------------------------------------
+            // A value converter runs automatically on every save and load:
+            //   C# (plain text)  --Encrypt-->  SQL Server (cipher text)
+            //   SQL Server       --Decrypt-->  C# (plain text)
+            // Anyone who opens the database directly only sees unreadable text.
+            var protector = _protector;
+            var encryptedText = new ValueConverter<string, string>(
+                plain => HealthDataEncryption.Encrypt(protector, plain),
+                stored => HealthDataEncryption.Decrypt(protector, stored));
+
+            // Encrypted text is longer than the original, so the columns are widened to 2000.
+            builder.Entity<HealthMeasurement>()
+                .Property(h => h.Notes)
+                .HasMaxLength(2000)
+                .HasConversion(encryptedText);
+
+            builder.Entity<Appointment>()
+                .Property(a => a.TrainerNotes)
+                .HasMaxLength(2000)
+                .HasConversion(encryptedText);
         }
     }
 }
