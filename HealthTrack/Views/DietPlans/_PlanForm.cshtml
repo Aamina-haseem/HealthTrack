@@ -1,31 +1,46 @@
+@* =====================================================================
+   FILE:    Views/DietPlans/_PlanForm.cshtml
+   PURPOSE: The diet plan fields, shared by "Create Diet Plan" and "Edit Diet Plan"
+            so both forms always match. Grouped into "About the plan" and "Schedule".
+   ===================================================================== *@
 @model HealthTrack.ViewModels.DietPlanCreateViewModel
 @using Microsoft.AspNetCore.Mvc.Rendering
+@* Only the trainer's active assigned clients, prepared by DietPlansController.LoadClientsAsync *@
 @{ var clients = (IEnumerable<SelectListItem>)ViewBag.Clients; }
+@* Errors that are not about one field *@
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+@* Group 1: who the plan is for and what it is *@
 <fieldset class="ht-form-group">
     <legend>About the plan</legend>
+    @* Client drop-down (the server checks the choice is really assigned to this trainer) *@
     <div class="mb-3"><label asp-for="ClientId" class="form-label">Client</label>
         <div class="ht-input"><i class="bi bi-person" aria-hidden="true"></i>
             <select asp-for="ClientId" asp-items="clients" class="form-select"><option value="">-- Select a client --</option></select></div>
         <span asp-validation-for="ClientId" class="text-danger"></span></div>
+    @* Plan title *@
     <div class="mb-3"><label asp-for="Title" class="form-label"></label>
         <div class="ht-input"><i class="bi bi-type" aria-hidden="true"></i><input asp-for="Title" class="form-control" placeholder="e.g. Balanced Weight Loss" /></div>
         <span asp-validation-for="Title" class="text-danger"></span></div>
+    @* Optional description *@
     <div class="mb-3"><label asp-for="Description" class="form-label"></label>
         <div class="ht-input"><i class="bi bi-card-text" aria-hidden="true"></i><textarea asp-for="Description" class="form-control" rows="3"></textarea></div>
         <span asp-validation-for="Description" class="text-danger"></span></div>
+    @* Daily calorie target (800 to 6,000 kcal) *@
     <div class="mb-3"><label asp-for="DailyCalorieTarget" class="form-label"></label>
         <div class="ht-input"><i class="bi bi-fire" aria-hidden="true"></i><input asp-for="DailyCalorieTarget" class="form-control" /></div>
         <span asp-validation-for="DailyCalorieTarget" class="text-danger"></span></div>
 </fieldset>
 
+@* Group 2: when the plan runs *@
 <fieldset class="ht-form-group">
     <legend>Schedule</legend>
     <div class="row">
+        @* Start date *@
         <div class="col-sm-6 mb-3"><label asp-for="StartDate" class="form-label"></label>
             <div class="ht-input"><i class="bi bi-calendar-event" aria-hidden="true"></i><input asp-for="StartDate" class="form-control" /></div>
             <span asp-validation-for="StartDate" class="text-danger"></span></div>
+        @* Optional end date (cannot be before the start date) *@
         <div class="col-sm-6 mb-3"><label asp-for="EndDate" class="form-label"></label>
             <div class="ht-input"><i class="bi bi-calendar-check" aria-hidden="true"></i><input asp-for="EndDate" class="form-control" /></div>
             <span asp-validation-for="EndDate" class="text-danger"></span></div>

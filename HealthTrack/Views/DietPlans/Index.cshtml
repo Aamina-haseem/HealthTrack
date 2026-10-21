@@ -1,12 +1,20 @@
+@* =====================================================================
+   FILE:    Views/DietPlans/Index.cshtml
+   PURPOSE: The trainer's list of diet plans they have written
+            (DietPlansController.Index already filters to the signed-in trainer).
+   ===================================================================== *@
 @model IReadOnlyList<HealthTrack.Models.DietPlan>
 @{ ViewData["Title"] = "Diet Plans"; }
 <h1>Diet Plans</h1>
+@* Button to the create form *@
 <p><a asp-action="Create" class="btn btn-primary">Create Diet Plan</a></p>
+@* Empty state, otherwise a table of plans *@
 @if (Model.Count == 0) { <div class="alert alert-info">No diet plans yet.</div> }
 else {
     <div class="table-responsive"><table class="table table-striped">
         <thead><tr><th>Title</th><th>Daily target</th><th>Start</th><th>End</th><th></th></tr></thead>
         <tbody>@foreach (var p in Model) {
+            @* One row per plan; an empty end date means the plan is ongoing *@
             <tr><td>@p.Title</td><td>@p.DailyCalorieTarget kcal</td><td>@p.StartDate.ToString("dd MMM yyyy")</td>
             <td>@(p.EndDate?.ToString("dd MMM yyyy") ?? "Ongoing")</td>
             <td><a asp-action="Details" asp-route-id="@p.Id" class="btn btn-sm btn-outline-primary">View</a></td></tr>

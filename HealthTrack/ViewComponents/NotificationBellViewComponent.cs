@@ -1,8 +1,18 @@
-using HealthTrack.Models;
-using HealthTrack.Repositories.Interfaces;
-using HealthTrack.Services;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+// =====================================================================
+// FILE:    ViewComponents/NotificationBellViewComponent.cs
+// PURPOSE: The bell icon in the top bar with the number of unread notifications
+//          (Task 8). Every page uses it through the layout. Each time it loads it
+//          first creates any due reminders, then counts the unread notifications.
+// KEY IDEAS: a View Component is a reusable piece of UI with its own logic (like a
+//            mini controller); try/catch keeps the page working if this fails.
+// VIEW:    Views/Shared/Components/NotificationBell/Default.cshtml
+// =====================================================================
+
+using HealthTrack.Models;                  // ApplicationUser
+using HealthTrack.Repositories.Interfaces; // INotificationRepository
+using HealthTrack.Services;                // INotificationService
+using Microsoft.AspNetCore.Identity;       // UserManager
+using Microsoft.AspNetCore.Mvc;            // ViewComponent, IViewComponentResult
 
 namespace HealthTrack.ViewComponents
 {
@@ -13,11 +23,12 @@ namespace HealthTrack.ViewComponents
     /// </summary>
     public class NotificationBellViewComponent : ViewComponent
     {
-        private readonly INotificationRepository _notifications;
-        private readonly INotificationService _notificationService;
-        private readonly UserManager<ApplicationUser> _users;
-        private readonly ILogger<NotificationBellViewComponent> _logger;
+        private readonly INotificationRepository _notifications;          // reads the unread count
+        private readonly INotificationService _notificationService;       // creates due reminders
+        private readonly UserManager<ApplicationUser> _users;             // finds the signed-in user's id
+        private readonly ILogger<NotificationBellViewComponent> _logger;  // writes errors to the log
 
+        // Constructor: the services are injected by ASP.NET Core
         public NotificationBellViewComponent(
             INotificationRepository notifications,
             INotificationService notificationService,
@@ -30,12 +41,13 @@ namespace HealthTrack.ViewComponents
             _logger = logger;
         }
 
+        // Called by the layout with: @await Component.InvokeAsync("NotificationBell")
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            int unreadCount = 0;
-            var userId = _users.GetUserId(UserClaimsPrincipal);
+            int unreadCount = 0;                                      // 0 if the user is not signed in
+            var userId = _users.GetUserId(UserClaimsPrincipal);       // the signed-in user's id (or null)
 
-            if (userId is not null)
+            if (userId is not null)                                   // only for signed-in users
             {
                 try
                 {
@@ -50,7 +62,7 @@ namespace HealthTrack.ViewComponents
                 }
             }
 
-            return View(unreadCount);
+            return View(unreadCount);                                 // renders Default.cshtml with the number
         }
     }
 }

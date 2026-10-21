@@ -1,5 +1,13 @@
 @page
 @model RegisterModel
+@* =====================================================================
+   FILE:    Areas/Identity/Pages/Account/Register.cshtml
+   PURPOSE: The Register page's markup (the logic is in Register.cshtml.cs): a
+            two-column form (name, date of birth, gender, email, password) beside
+            a photo panel. New accounts always become Clients, and the age must
+            be 13-100 (checked on the server).
+   ===================================================================== *@
+@* Page title *@
 @{
     ViewData["Title"] = "Register";
 }
@@ -15,16 +23,21 @@
         <h1 id="register-title">Create account</h1>
         <p class="ht-auth-sub">Start tracking your workouts, meals and progress.</p>
 
+        @* Posts to RegisterModel.OnPostAsync; the anti-forgery token is added automatically *@
         <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            @* Errors not tied to one field, e.g. "Email is already taken" *@
             <div asp-validation-summary="ModelOnly" class="mb-3" role="alert"></div>
 
+            @* Two columns on tablets and up (col-sm-6), one column on phones *@
             <div class="row g-3">
                 <div class="col-sm-6">
                     <label asp-for="Input.FirstName" class="form-label">First name</label>
                     <div class="ht-input">
                         <i class="bi bi-person" aria-hidden="true"></i>
+                        @* autocomplete lets the browser fill in the name *@
                         <input asp-for="Input.FirstName" class="form-control" autocomplete="given-name" aria-required="true" placeholder="First name" />
                     </div>
+                    @* Error message for this field (from the InputModel attributes) *@
                     <span asp-validation-for="Input.FirstName"></span>
                 </div>
                 <div class="col-sm-6">
@@ -40,6 +53,7 @@
                     <label asp-for="Input.DateOfBirth" class="form-label">Date of birth</label>
                     <div class="ht-input">
                         <i class="bi bi-calendar-event" aria-hidden="true"></i>
+                        @* Date picker; max = today, so a future date cannot be picked (the 13-100 rule is checked on the server) *@
                         <input asp-for="Input.DateOfBirth" type="date" class="form-control" aria-required="true"
                                max="@DateTime.Today.ToString("yyyy-MM-dd")" />
                     </div>
@@ -49,6 +63,7 @@
                     <label asp-for="Input.Gender" class="form-label">Gender</label>
                     <div class="ht-input">
                         <i class="bi bi-gender-ambiguous" aria-hidden="true"></i>
+                        @* The empty first option forces a real choice ([Required]) *@
                         <select asp-for="Input.Gender" class="form-select" aria-required="true">
                             <option value="">-- Select --</option>
                             <option>Female</option>
@@ -63,6 +78,7 @@
                     <label asp-for="Input.Email" class="form-label">Email</label>
                     <div class="ht-input">
                         <i class="bi bi-envelope" aria-hidden="true"></i>
+                        @* The email is also the username *@
                         <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
                     </div>
                     <span asp-validation-for="Input.Email"></span>
@@ -72,6 +88,7 @@
                     <label asp-for="Input.Password" class="form-label">Password</label>
                     <div class="ht-input">
                         <i class="bi bi-lock" aria-hidden="true"></i>
+                        @* autocomplete="new-password" lets password managers suggest a strong password *@
                         <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Password" />
                     </div>
                     <span asp-validation-for="Input.Password"></span>
@@ -80,19 +97,23 @@
                     <label asp-for="Input.ConfirmPassword" class="form-label">Confirm password</label>
                     <div class="ht-input">
                         <i class="bi bi-lock" aria-hidden="true"></i>
+                        @* Must match Password ([Compare] in the InputModel) *@
                         <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Type it again" />
                     </div>
                     <span asp-validation-for="Input.ConfirmPassword"></span>
                 </div>
             </div>
 
+            @* The password rules (set in Program.cs) shown before the user types *@
             <p class="ht-auth-hint"><i class="bi bi-shield-lock" aria-hidden="true"></i> 8+ characters with an uppercase letter, a lowercase letter, a number and a symbol.</p>
 
+            @* Submit button *@
             <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary ht-btn-arrow justify-content-center">Create account <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
         </form>
 
         <p class="ht-auth-footer mb-0">
             Already have an account?
+            @* Link to Login, keeping the return URL *@
             <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">Log in</a>
         </p>
     </div>
@@ -109,6 +130,7 @@
     </div>
 </section>
 
+@* Browser-side validation using the same rules as the server *@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

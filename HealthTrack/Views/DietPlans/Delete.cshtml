@@ -1,8 +1,16 @@
+@* =====================================================================
+   FILE:    Views/DietPlans/Delete.cshtml
+   PURPOSE: "Are you sure?" page before a trainer deletes a diet plan
+            (DietPlansController.Delete). The real delete is a POST with an
+            anti-forgery token; the client's own meal logs are not deleted.
+   ===================================================================== *@
 @model HealthTrack.Models.DietPlan
 @{ ViewData["Title"] = "Delete Diet Plan"; }
 <h1>Delete Diet Plan</h1>
 <p>Delete <strong>@Model.Title</strong> and its planned meals? Client meal logs will remain.</p>
+@* Posts to DietPlansController.DeleteConfirmed (ActionName "Delete") *@
 <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
     <button class="btn btn-danger" type="submit">Delete Plan</button>
+    @* Cancel goes back to the plan without deleting anything *@
     <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Cancel</a>
 </form>

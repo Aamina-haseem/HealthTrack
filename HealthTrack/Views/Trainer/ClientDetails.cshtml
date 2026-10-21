@@ -1,4 +1,13 @@
+@* =====================================================================
+   FILE:    Views/Trainer/ClientDetails.cshtml
+   PURPOSE: One client's progress for their trainer (TrainerController.ClientDetails):
+            profile header, summary cards, weight trend, recent workouts, plans,
+            meals and the trainer's feedback.
+   SECURITY: the controller only builds this page for a client actively assigned
+            to the signed-in trainer.
+   ===================================================================== *@
 @model HealthTrack.ViewModels.TrainerClientDetailsViewModel
+@* Helper methods used only on this page *@
 @functions {
     // WHO adult BMI bands (same as the client's own dashboard)
     static string BmiCategory(double bmi) =>
@@ -16,9 +25,11 @@
 
     // TrainerController.ClientDetails only builds this page for a client actively assigned to this trainer.
     var client = Model.Client;
+    @* Initials for the round avatar, e.g. "JD" *@
     var initials = $"{client.FirstName.FirstOrDefault()}{client.LastName.FirstOrDefault()}".ToUpper();
     var latest = Model.RecentMeasurements.FirstOrDefault();                       // newest first
     var weights = Model.RecentMeasurements.OrderBy(m => m.Date).ToList();          // oldest first, for the chart
+    @* Newest minus oldest weight shown (null with fewer than 2 measurements) *@
     var weightChange = weights.Count > 1 ? Math.Round(weights[^1].WeightKg - weights[0].WeightKg, 1) : (double?)null;
     var lastWorkout = Model.RecentWorkouts.FirstOrDefault();
 }
@@ -27,12 +38,14 @@
 <section class="ht-hero ht-hero-compact">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
         <div class="d-flex align-items-center gap-3">
+            @* Avatar circle with the initials (hidden from screen readers) *@
             <span class="ht-profile-avatar" aria-hidden="true">@initials</span>
             <div>
                 <span class="ht-eyebrow">Client Progress</span>
                 <h1>@client.FullName</h1>
                 <p class="ht-profile-meta mb-0">
                     <span><i class="bi bi-envelope" aria-hidden="true"></i> @client.Email</span>
+                    @* Age and gender only when they are known *@
                     @if (client.DateOfBirth is not null)
                     {
                         <span><i class="bi bi-person" aria-hidden="true"></i> @Age(client.DateOfBirth.Value) years@(string.IsNullOrEmpty(client.Gender) ? "" : $" · {client.Gender}")</span>
@@ -41,6 +54,7 @@
                 </p>
             </div>
         </div>
+        @* Actions for this client *@
         <nav class="d-flex flex-wrap gap-2" aria-label="Client actions">
             <a asp-action="GiveFeedback" asp-route-id="@client.Id" class="btn btn-primary"><i class="bi bi-chat-heart"></i> Give Feedback</a>
             <a asp-controller="Progress" asp-action="Reports" asp-route-id="@client.Id" class="btn btn-outline-primary"><i class="bi bi-bar-chart"></i> Performance Report</a>
@@ -55,6 +69,7 @@
         <div class="ht-kpi-head"><span class="ht-stat-label">Latest weight</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-speedometer2"></i></span></div>
         <p class="ht-kpi-value">@(latest is null ? "—" : latest.WeightKg.ToString("0.0")) <small>kg</small></p>
         <span class="ht-delta">
+            @* Weight change, or a hint when there are not enough measurements *@
             @if (weightChange is null)
             {
                 <i class="bi bi-dash" aria-hidden="true"></i> @("Needs two measurements")
@@ -71,11 +86,13 @@
     <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
         <div class="ht-kpi-head"><span class="ht-stat-label">BMI</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-heart-pulse"></i></span></div>
         <p class="ht-kpi-value">@(latest is null ? "—" : latest.BMI.ToString("0.0"))</p>
+        @* BMI category from the BmiCategory() helper above *@
         <span class="ht-delta"><i class="bi bi-info-circle" aria-hidden="true"></i> @(latest is null ? "No measurements yet" : BmiCategory(latest.BMI))</span>
     </div></div></div>
 
     <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
         <div class="ht-kpi-head"><span class="ht-stat-label">Last workout</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-activity"></i></span></div>
+        @* Date of the most recent workout *@
         <p class="ht-kpi-value">@(lastWorkout is null ? "—" : lastWorkout.Date.ToString("dd MMM"))</p>
         <span class="ht-delta"><i class="bi bi-stopwatch" aria-hidden="true"></i> @(lastWorkout is null ? "No workouts logged" : $"{lastWorkout.ExerciseName} · {lastWorkout.DurationMinutes} min")</span>
     </div></div></div>
@@ -97,6 +114,7 @@
             </div>
             @if (latest is not null) { <span class="ht-chart-figure">@latest.WeightKg.ToString("0.0") kg</span> }
         </div>
+        @* Weight chart, with a "Show data" table *@
         @if (weights.Count == 0)
         {
             <div class="ht-empty"><i class="bi bi-graph-up" aria-hidden="true"></i>No measurements logged yet.</div>
@@ -115,6 +133,7 @@
 
     <section class="col-xl-5"><div class="card h-100"><div class="card-body">
         <h2 class="ht-card-title">Recent Workouts</h2>
+        @* Latest workouts: activity, date, minutes and calories *@
         @if (Model.RecentWorkouts.Count == 0)
         {
             <div class="ht-empty"><i class="bi bi-activity" aria-hidden="true"></i>No workouts logged.</div>
@@ -145,6 +164,7 @@
                 <a asp-controller="DietPlans" asp-action="Create" class="btn btn-sm btn-outline-primary" title="New diet plan"><i class="bi bi-plus-lg"></i> Diet</a>
             </div>
         </div>
+        @* Plans this trainer made for the client; each title opens the plan *@
         @if (Model.WorkoutPlans.Count == 0 && Model.DietPlans.Count == 0)
         {
             <div class="ht-empty"><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>No plans yet. Create one with the buttons above.</div>
@@ -174,6 +194,7 @@
 
     <section class="col-xl-4"><div class="card h-100"><div class="card-body">
         <h2 class="ht-card-title">Recent Meals</h2>
+        @* Latest meals the client logged *@
         @if (Model.RecentMeals.Count == 0)
         {
             <div class="ht-empty"><i class="bi bi-egg-fried" aria-hidden="true"></i>No meals logged.</div>
@@ -195,6 +216,7 @@
 
     <section class="col-xl-4"><div class="card h-100"><div class="card-body">
         <h2 class="ht-card-title">Your Feedback</h2>
+        @* Feedback this trainer has given, newest first *@
         @if (Model.Feedback.Count == 0)
         {
             <div class="ht-empty"><i class="bi bi-chat-heart" aria-hidden="true"></i>No feedback yet. <a asp-action="GiveFeedback" asp-route-id="@client.Id">Write the first one</a>.</div>
@@ -212,6 +234,7 @@
                                 @if (f.Rating is not null)
                                 {
                                     <span class="ht-stars" aria-label="Rating @f.Rating out of 5">
+                                        @* Five stars, filled up to the rating *@
                                         @for (var i = 1; i <= 5; i++) { <i class="bi @(i <= f.Rating ? "bi-star-fill" : "bi-star")" aria-hidden="true"></i> }
                                     </span>
                                 }
@@ -225,9 +248,11 @@
     </div></div></section>
 </div>
 
+@* Chart scripts *@
 @section Scripts {
 <script>
     // Json.Serialize encodes the values safely. The drawing is done by the shared HT helpers in site.js.
+    @* Only the date label and the weight are sent to the browser *@
     const weights = @Json.Serialize(weights.Select(m => new { label = m.Date.ToString("dd MMM"), value = Math.Round(m.WeightKg, 1) }));
     HT.spark('sparkWeight', weights.map(p => p.value));
     HT.line('weightChart', weights.map(p => p.label), weights.map(p => p.value), 'Weight', 'kg');

@@ -1,4 +1,13 @@
+@* =====================================================================
+   FILE:    Views/Client/Index.cshtml
+   PURPOSE: The client's home dashboard (ClientController.Index): KPI cards with
+            sparklines, weight trend, most logged activities, calories this week,
+            upcoming appointments, plans, trainer feedback and recent workouts.
+   CHARTS:  drawn by the shared HT helpers in wwwroot/js/site.js (Chart.js). Every
+            chart has a "Show data" table so the numbers are readable without it.
+   ===================================================================== *@
 @model HealthTrack.ViewModels.ClientDashboardViewModel
+@* Small helper methods used only on this page *@
 @functions {
     // "+20 min vs last week" style text for the KPI cards
     static string Change(int now, int before, string unit)
@@ -9,6 +18,7 @@
     static string ArrowIcon(int now, int before) =>
         now > before ? "bi-arrow-up-right" : now < before ? "bi-arrow-down-right" : "bi-dash";
 }
+@* Page title (browser tab) and the newest measurement in a short variable *@
 @{
     ViewData["Title"] = "Client Dashboard";
     var latest = Model.LatestMeasurement;
@@ -20,9 +30,11 @@
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
         <div>
             <span class="ht-eyebrow">Client Dashboard</span>
+            @* Greets the signed-in client by name *@
             <h1>Welcome back, @Model.Name</h1>
             <p class="text-muted mb-0">Your plans, activity and progress in one place.</p>
         </div>
+        @* Quick links to the most common tasks *@
         <nav class="d-flex flex-wrap gap-2" aria-label="Quick actions">
             <a asp-controller="Logs" asp-action="AddWorkout" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Log Workout</a>
             <a asp-controller="Logs" asp-action="AddMeasurement" class="btn btn-outline-primary"><i class="bi bi-rulers"></i> Add Measurement</a>
@@ -35,8 +47,10 @@
 <div class="row g-3 mb-4">
     <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
         <div class="ht-kpi-head"><span class="ht-stat-label">Weight</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-speedometer"></i></span></div>
+        @* Latest weight, or a dash when nothing is recorded *@
         <p class="ht-kpi-value">@(latest is null ? "—" : latest.WeightKg.ToString("0.0")) <small>kg</small></p>
         <span class="ht-delta">
+            @* Change since the first measurement; the arrow points up or down *@
             @if (Model.WeightChange is double change)
             {
                 <i class="bi @(change < 0 ? "bi-arrow-down-right" : change > 0 ? "bi-arrow-up-right" : "bi-dash")" aria-hidden="true"></i>
@@ -47,11 +61,13 @@
                 <span>Add two measurements to see a change</span>
             }
         </span>
+        @* Tiny trend line (sparkline), drawn by HT.spark in the script at the bottom *@
         <div class="ht-spark" aria-hidden="true"><canvas id="sparkWeight"></canvas></div>
     </div></div></div>
 
     <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
         <div class="ht-kpi-head"><span class="ht-stat-label">Body Mass Index</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-heart-pulse"></i></span></div>
+        @* Latest BMI and its category (e.g. Healthy weight) *@
         <p class="ht-kpi-value">@(latest is null ? "—" : latest.BMI.ToString("0.0"))</p>
         <span class="ht-delta">
             <i class="bi bi-info-circle" aria-hidden="true"></i>
@@ -62,6 +78,7 @@
 
     <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
         <div class="ht-kpi-head"><span class="ht-stat-label">Workout minutes · 7 days</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-stopwatch"></i></span></div>
+        @* Minutes this week, compared with last week by the Change() helper *@
         <p class="ht-kpi-value">@Model.MinutesThisWeek <small>min</small></p>
         <span class="ht-delta"><i class="bi @ArrowIcon(Model.MinutesThisWeek, Model.MinutesLastWeek)" aria-hidden="true"></i> @Change(Model.MinutesThisWeek, Model.MinutesLastWeek, "min")</span>
         <div class="ht-spark" aria-hidden="true"><canvas id="sparkMinutes"></canvas></div>
@@ -69,6 +86,7 @@
 
     <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
         <div class="ht-kpi-head"><span class="ht-stat-label">Calories burned · 7 days</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-fire"></i></span></div>
+        @* Calories burned this week, compared with last week *@
         <p class="ht-kpi-value">@Model.BurnedThisWeek <small>kcal</small></p>
         <span class="ht-delta"><i class="bi @ArrowIcon(Model.BurnedThisWeek, Model.BurnedLastWeek)" aria-hidden="true"></i> @Change(Model.BurnedThisWeek, Model.BurnedLastWeek, "kcal")</span>
         <div class="ht-spark" aria-hidden="true"><canvas id="sparkBurned"></canvas></div>
@@ -83,11 +101,13 @@
                 <h2 class="ht-card-title">Weight Trend</h2>
                 <p class="ht-chart-sub">Every measurement you have recorded, in kilograms.</p>
             </div>
+            @* Big number beside the chart title: the latest weight *@
             @if (latest is not null)
             {
                 <span class="ht-chart-figure">@latest.WeightKg.ToString("0.0") kg</span>
             }
         </div>
+        @* Empty state with a link, otherwise the chart *@
         @if (Model.WeightTrend.Count == 0)
         {
             <div class="ht-empty"><i class="bi bi-graph-up" aria-hidden="true"></i>No measurements yet.
@@ -96,7 +116,9 @@
         }
         else
         {
+            @* The chart is drawn into this canvas; role and aria-label describe it to screen readers *@
             <div class="ht-chart"><canvas id="weightChart" role="img" aria-label="Line chart of your weight in kilograms over time"></canvas></div>
+            @* "Show data": the same numbers as a table (accessible alternative to the chart) *@
             <details class="ht-chart-table">
                 <summary>Show data</summary>
                 <table class="table table-sm mb-0"><thead><tr><th>Date</th><th>Weight (kg)</th></tr></thead>
@@ -113,12 +135,14 @@
                 <p class="ht-chart-sub">Sessions in the last 30 days.</p>
             </div>
         </div>
+        @* Most logged activities in the last 30 days *@
         @if (Model.TopActivities.Count == 0)
         {
             <div class="ht-empty"><i class="bi bi-activity" aria-hidden="true"></i>No workouts in the last 30 days.</div>
         }
         else
         {
+            @* Ranked bar chart (HT.ranked) *@
             <div class="ht-chart ht-chart-sm"><canvas id="activityChart" role="img" aria-label="Bar chart of your most logged activities"></canvas></div>
             <details class="ht-chart-table">
                 <summary>Show data</summary>
@@ -139,6 +163,7 @@
                 <p class="ht-chart-sub">Burned in workouts compared with eaten in meals, per day.</p>
             </div>
         </div>
+        @* Empty state when nothing was logged in the last 7 days *@
         @if (Model.WeekBurned.Sum() + Model.WeekEaten.Sum() == 0)
         {
             <div class="ht-empty"><i class="bi bi-fire" aria-hidden="true"></i>No workouts or meals logged in the last 7 days.
@@ -147,6 +172,7 @@
         }
         else
         {
+            @* Grouped bars: burned vs eaten for each day (HT.bars) *@
             <div class="ht-chart"><canvas id="caloriesChart" role="img" aria-label="Grouped bar chart of calories burned and eaten for each of the last 7 days"></canvas></div>
             <details class="ht-chart-table">
                 <summary>Show data</summary>
@@ -162,6 +188,7 @@
             <h2 class="ht-card-title">Upcoming Appointments</h2>
             <a asp-controller="Appointments" asp-action="Create" class="btn btn-sm btn-outline-primary">Book</a>
         </div>
+        @* The next appointments with their status *@
         @if (Model.UpcomingAppointments.Count == 0)
         {
             <div class="ht-empty"><i class="bi bi-calendar" aria-hidden="true"></i>No appointments scheduled.</div>
@@ -187,6 +214,7 @@
             <h2 class="ht-card-title">My Workout Plans</h2>
             <a asp-action="WorkoutPlans" class="btn btn-sm btn-outline-secondary">All</a>
         </div>
+        @* Up to 4 workout plans assigned by the trainer *@
         @if (Model.WorkoutPlans.Count == 0)
         {
             <div class="ht-empty"><i class="bi bi-activity" aria-hidden="true"></i>No workout plan yet. Your trainer will assign one.</div>
@@ -207,6 +235,7 @@
             <h2 class="ht-card-title">My Diet Plans</h2>
             <a asp-action="DietPlans" class="btn btn-sm btn-outline-secondary">All</a>
         </div>
+        @* Up to 4 diet plans assigned by the trainer *@
         @if (Model.DietPlans.Count == 0)
         {
             <div class="ht-empty"><i class="bi bi-egg-fried" aria-hidden="true"></i>No diet plan yet. Your trainer will assign one.</div>
@@ -224,6 +253,7 @@
 
     <section class="col-lg-6 col-xl-4"><div class="card h-100"><div class="card-body">
         <h2 class="ht-card-title">Trainer Feedback</h2>
+        @* Latest trainer feedback, with the optional 1-5 rating *@
         @if (Model.RecentFeedback.Count == 0)
         {
             <div class="ht-empty"><i class="bi bi-chat-heart" aria-hidden="true"></i>No feedback yet.</div>
@@ -244,6 +274,7 @@
             <h2 class="ht-card-title">Recent Workouts</h2>
             <a asp-controller="Logs" asp-action="Index" class="btn btn-sm btn-outline-secondary">All logs</a>
         </div>
+        @* The latest workouts as a table *@
         @if (Model.RecentWorkouts.Count == 0)
         {
             <div class="ht-empty"><i class="bi bi-stopwatch" aria-hidden="true"></i>No workouts logged yet.
@@ -262,6 +293,7 @@
     </div></div></section>
 </div>
 
+@* Page scripts go into the Scripts section, rendered at the end of _Layout after Chart.js and site.js *@
 @section Scripts {
 <script>
     // Chart data comes from the view model; Json.Serialize encodes it safely.
@@ -269,10 +301,12 @@
     const weight = @Json.Serialize(Model.WeightTrend);
     const topActs = @Json.Serialize(Model.TopActivities);   // (not "top": that name is reserved by the browser)
 
+    @* Sparklines in the KPI cards *@
     HT.spark('sparkWeight', weight.map(p => p.value));
     HT.spark('sparkMinutes', @Json.Serialize(Model.WeekMinutes));
     HT.spark('sparkBurned', @Json.Serialize(Model.WeekBurned));
 
+    @* The three main charts *@
     HT.line('weightChart', weight.map(p => p.label), weight.map(p => p.value), 'Weight', 'kg');
     HT.ranked('activityChart', topActs.map(p => p.label), topActs.map(p => p.value), 'Sessions');
     HT.bars('caloriesChart', @Json.Serialize(Model.WeekLabels), [

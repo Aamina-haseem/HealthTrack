@@ -1,15 +1,22 @@
+@* =====================================================================
+   FILE:    Views/Appointments/Create.cshtml
+   PURPOSE: The client's "Book an Appointment" page (AppointmentsController.Create).
+            The booking rules come from AppointmentRules, so the tips always match the server.
+   ===================================================================== *@
 @model HealthTrack.ViewModels.AppointmentCreateViewModel
 @using HealthTrack.ViewModels
 @{
     ViewData["Title"] = "Book Appointment";
 }
 
+@* Two-part card: orange info panel on the left, the form on the right (site.css section 10) *@
 <div class="ht-form-page">
     @* Orange info panel: page title and the booking rules *@
     <aside class="ht-form-info">
         <span class="ht-eyebrow">Appointments</span>
         <h1>Book an Appointment</h1>
         <p>Choose a trainer or health professional and a time. They will approve or suggest another time.</p>
+        @* Tips, each with an icon (icons are decorative, so hidden from screen readers) *@
         <ul class="ht-form-tips">
             <li><i class="bi bi-clock" aria-hidden="true"></i><span>Appointments start between @AppointmentRules.OpeningHour.ToString("00"):00 and @AppointmentRules.ClosingHour.ToString("00"):00.</span></li>
             <li><i class="bi bi-calendar-range" aria-hidden="true"></i><span>Book at least 1 hour ahead, and up to @AppointmentRules.MaxDaysAhead days ahead.</span></li>
@@ -17,11 +24,15 @@
         </ul>
     </aside>
 
+    @* The form itself *@
     <div class="ht-form-body">
+        @* Posts to Create; the form tag helper adds the anti-forgery token automatically. *@
         <form asp-action="Create" method="post">
+            @* Errors that are not about one field, e.g. "could not be saved" *@
             <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
 
             <div class="mb-3">
+                @* Trainer drop-down: only active trainers (the server checks the choice again) *@
                 <label asp-for="TrainerId" class="form-label"></label>
                 <div class="ht-input">
                     <i class="bi bi-person-badge" aria-hidden="true"></i>
@@ -37,6 +48,7 @@
             </div>
 
             <div class="mb-3">
+                @* Date and time (the min attribute stops past times in the browser) *@
                 <label asp-for="AppointmentDate" class="form-label"></label>
                 <div class="ht-input">
                     <i class="bi bi-calendar-event" aria-hidden="true"></i>
@@ -51,6 +63,7 @@
             </div>
 
             <div class="mb-3">
+                @* Why the appointment is needed (5 to 250 characters) *@
                 <label asp-for="Reason" class="form-label"></label>
                 <div class="ht-input">
                     <i class="bi bi-chat-left-text" aria-hidden="true"></i>
@@ -60,6 +73,7 @@
                 <span asp-validation-for="Reason" class="text-danger small"></span>
             </div>
 
+            @* Buttons: save (arrow button) and cancel (back without saving) *@
             <div class="ht-form-actions">
                 <button type="submit" class="btn btn-primary ht-btn-arrow">Request Appointment <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
                 <a asp-action="Index" class="btn btn-outline-secondary">Back</a>
@@ -68,6 +82,7 @@
     </div>
 </div>
 
+@* Browser-side validation using the same rules as the view model (the server checks again) *@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

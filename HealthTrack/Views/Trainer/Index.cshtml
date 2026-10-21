@@ -1,4 +1,12 @@
+@* =====================================================================
+   FILE:    Views/Trainer/Index.cshtml
+   PURPOSE: The trainer's home dashboard (TrainerController.Index): KPI cards,
+            client workout minutes (14 days), popular activities, minutes by
+            client, upcoming appointments and the assigned clients table.
+            Only clients actively assigned to this trainer are included.
+   ===================================================================== *@
 @model HealthTrack.ViewModels.TrainerDashboardViewModel
+@* Helpers: "+3 workouts vs last week" text and the matching arrow icon *@
 @functions {
     static string Change(int now, int before, string unit)
     {
@@ -8,6 +16,7 @@
     static string ArrowIcon(int now, int before) =>
         now > before ? "bi-arrow-up-right" : now < before ? "bi-arrow-down-right" : "bi-dash";
 }
+@* Page title shown in the browser tab *@
 @{ ViewData["Title"] = "Trainer Dashboard"; }
 
 @* Only clients actively assigned to this trainer are loaded by TrainerController.Index. *@
@@ -18,6 +27,7 @@
             <h1>Welcome back, @Model.Name</h1>
             <p class="text-muted mb-0">How your clients are training, at a glance.</p>
         </div>
+        @* Quick links: create plans or open the full report *@
         <nav class="d-flex flex-wrap gap-2" aria-label="Quick actions">
             <a asp-controller="WorkoutPlans" asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Workout Plan</a>
             <a asp-controller="DietPlans" asp-action="Create" class="btn btn-outline-primary"><i class="bi bi-plus-lg"></i> New Diet Plan</a>
@@ -30,24 +40,28 @@
 <div class="row g-3 mb-4">
     <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
         <div class="ht-kpi-head"><span class="ht-stat-label">Active clients</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-people"></i></span></div>
+        @* Active clients assigned to this trainer *@
         <p class="ht-kpi-value">@Model.Clients.Count</p>
         <span class="ht-delta"><i class="bi bi-person-check" aria-hidden="true"></i> Assigned to you</span>
     </div></div></div>
 
     <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
         <div class="ht-kpi-head"><span class="ht-stat-label">Client workouts · 7 days</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-activity"></i></span></div>
+        @* Workouts logged by these clients this week, compared with last week *@
         <p class="ht-kpi-value">@Model.WorkoutsThisWeek</p>
         <span class="ht-delta"><i class="bi @ArrowIcon(Model.WorkoutsThisWeek, Model.WorkoutsLastWeek)" aria-hidden="true"></i> @Change(Model.WorkoutsThisWeek, Model.WorkoutsLastWeek, "workouts")</span>
     </div></div></div>
 
     <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
         <div class="ht-kpi-head"><span class="ht-stat-label">Requests to approve</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-hourglass-split"></i></span></div>
+        @* Appointment requests waiting for this trainer's approval *@
         <p class="ht-kpi-value">@Model.PendingRequests</p>
         <a class="ht-delta" asp-controller="Appointments" asp-action="Index"><i class="bi bi-arrow-right" aria-hidden="true"></i> Review appointments</a>
     </div></div></div>
 
     <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
         <div class="ht-kpi-head"><span class="ht-stat-label">Plans created</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-clipboard2-pulse"></i></span></div>
+        @* Plans this trainer has created *@
         <p class="ht-kpi-value">@(Model.WorkoutPlanCount + Model.DietPlanCount)</p>
         <span class="ht-delta"><i class="bi bi-activity" aria-hidden="true"></i> @Model.WorkoutPlanCount workout · @Model.DietPlanCount diet</span>
     </div></div></div>
@@ -63,12 +77,14 @@
             </div>
             <span class="ht-chart-figure">@Model.DailyMinutes.Sum() min</span>
         </div>
+        @* Empty state when no client trained in the last 14 days *@
         @if (Model.DailyMinutes.Sum() == 0)
         {
             <div class="ht-empty"><i class="bi bi-graph-up" aria-hidden="true"></i>No client workouts in the last 14 days.</div>
         }
         else
         {
+            @* Line chart (HT.line); the "Show data" table below has the same numbers *@
             <div class="ht-chart"><canvas id="minutesChart" role="img" aria-label="Line chart of workout minutes logged by your clients each day for 14 days"></canvas></div>
             <details class="ht-chart-table">
                 <summary>Show data</summary>
@@ -86,6 +102,7 @@
                 <p class="ht-chart-sub">Sessions across your clients, last 30 days.</p>
             </div>
         </div>
+        @* Most logged activities across this trainer's clients *@
         @if (Model.TopActivities.Count == 0)
         {
             <div class="ht-empty"><i class="bi bi-activity" aria-hidden="true"></i>No workouts logged yet.</div>
@@ -112,6 +129,7 @@
                 <p class="ht-chart-sub">Total workout minutes per client, last 30 days.</p>
             </div>
         </div>
+        @* Workout minutes per client, last 30 days (ranked bars) *@
         @if (Model.MinutesByClient.Count == 0 || Model.MinutesByClient.Sum(p => p.Value) == 0)
         {
             <div class="ht-empty"><i class="bi bi-people" aria-hidden="true"></i>No client workouts in the last 30 days.</div>
@@ -133,6 +151,7 @@
             <h2 class="ht-card-title">Upcoming Appointments</h2>
             <a asp-controller="Appointments" asp-action="Index" class="btn btn-sm btn-outline-secondary">All</a>
         </div>
+        @* Next appointments; pending ones are shown in amber *@
         @if (Model.UpcomingAppointments.Count == 0)
         {
             <div class="ht-empty"><i class="bi bi-calendar" aria-hidden="true"></i>No upcoming appointments.</div>
@@ -156,6 +175,7 @@
         <h2 class="ht-card-title">Assigned Clients</h2>
         <a asp-action="Clients" class="btn btn-sm btn-outline-secondary">All clients</a>
     </div>
+    @* Assigned clients with their latest numbers *@
     @if (Model.Clients.Count == 0)
     {
         <div class="ht-empty"><i class="bi bi-people" aria-hidden="true"></i>No clients are assigned to you yet. The administrator assigns clients to trainers.</div>
@@ -169,12 +189,14 @@
                     <td>@(c.LatestWeightKg is null ? "—" : $"{c.LatestWeightKg:0.0} kg")</td>
                     <td>@(c.LatestBmi?.ToString("0.0") ?? "—")</td>
                     <td>@c.WorkoutCount</td>
+                    @* Opens the client's progress page (the controller checks the assignment again) *@
                     <td class="text-end"><a asp-action="ClientDetails" asp-route-id="@c.ClientId" class="btn btn-sm btn-outline-primary">View Progress</a></td></tr>
             }</tbody>
         </table></div>
     }
 </div></section>
 
+@* Chart scripts, rendered at the end of _Layout *@
 @section Scripts {
 <script>
     // Chart data comes from the view model; Json.Serialize encodes it safely.
@@ -183,6 +205,7 @@
     const acts = @Json.Serialize(Model.TopActivities);
     const perClient = @Json.Serialize(Model.MinutesByClient);
 
+    @* true = start the y-axis at zero *@
     HT.line('minutesChart', days, minutes, 'Workout minutes', 'min', true);
     HT.ranked('activityChart', acts.map(p => p.label), acts.map(p => p.value), 'Sessions');
     HT.ranked('clientChart', perClient.map(p => p.label), perClient.map(p => p.value), 'Minutes');

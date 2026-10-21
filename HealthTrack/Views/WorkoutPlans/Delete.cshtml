@@ -1,10 +1,18 @@
+@* =====================================================================
+   FILE:    Views/WorkoutPlans/Delete.cshtml
+   PURPOSE: "Are you sure?" page before a trainer deletes a workout plan
+            (WorkoutPlansController.Delete). The real delete is a POST with an
+            anti-forgery token; the client's workout logs are kept (just unlinked).
+   ===================================================================== *@
 @model HealthTrack.Models.WorkoutPlan
 @{
     ViewData["Title"] = "Delete Workout Plan";
 }
 <h1>Delete Workout Plan</h1>
 <p>Delete <strong>@Model.Title</strong> and all its exercises? Previous workout logs will remain.</p>
+@* Posts to WorkoutPlansController.DeleteConfirmed (ActionName "Delete") *@
 <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
     <button class="btn btn-danger" type="submit">Delete Plan</button>
+    @* Cancel goes back to the plan without deleting anything *@
     <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Cancel</a>
 </form>

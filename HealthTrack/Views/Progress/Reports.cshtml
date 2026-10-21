@@ -1,3 +1,9 @@
+@* =====================================================================
+   FILE:    Views/Progress/Reports.cshtml
+   PURPOSE: The trainer's "Client Performance Report" (Task 7, ProgressController.Reports):
+            workout minutes, calories burned and popular activities charts plus a
+            table of every figure. ?id= limits it to one client. Printable.
+   ===================================================================== *@
 @model HealthTrack.ViewModels.TrainerReportViewModel
 @{
     ViewData["Title"] = "Client Performance Report";
@@ -6,6 +12,7 @@
     // so the charts below cannot show anyone else's data.
     var activityChart = Model.PopularActivities
         .Select(a => new { activity = a.Activity, sessions = a.Sessions }).ToList();
+    @* Name, minutes and calories for each client *@
     var minutesChart = Model.Clients
         .Select(c => new { name = c.Name, minutes = c.WorkoutMinutes, calories = c.CaloriesBurned }).ToList();
 }
@@ -17,10 +24,12 @@
             <span class="ht-eyebrow">Reports</span>
             <h1>Client Performance Report</h1>
             <p class="text-muted mb-0">
+                @* When the report is for one client (?id=), say so *@
                 @if (Model.FilteredClientName is not null) { <text>Showing <strong>@Model.FilteredClientName</strong> only. </text> }
                 Only active clients currently assigned to you are included.
             </p>
         </div>
+        @* d-print-none: these buttons are hidden on the printed page *@
         <nav class="d-flex flex-wrap gap-2 d-print-none" aria-label="Report actions">
             <button type="button" class="btn btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer"></i> Print Report</button>
             <a asp-controller="Trainer" asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-speedometer2"></i> Dashboard</a>
@@ -28,6 +37,7 @@
     </div>
 </section>
 
+@* Empty state when there is nothing to report *@
 @if (Model.Clients.Count == 0)
 {
     <div class="card"><div class="card-body"><div class="ht-empty"><i class="bi bi-people" aria-hidden="true"></i>No assigned client activity to report.</div></div></div>
@@ -39,6 +49,7 @@ else
         <section class="col-xl-4"><div class="card ht-chart-card h-100"><div class="card-body">
             <h2 class="ht-card-title">Workout Minutes</h2>
             <p class="ht-chart-sub">Total minutes logged per client.</p>
+            @* Ranked bars (HT.ranked) *@
             <div class="ht-chart ht-chart-sm"><canvas id="minutesChart" role="img" aria-label="Bar chart of total workout minutes for each client"></canvas></div>
         </div></div></section>
 
@@ -69,6 +80,7 @@ else
             <thead><tr><th scope="col">Client</th><th scope="col">Workout Plans</th><th scope="col">Diet Plans</th>
                 <th scope="col">Workouts</th><th scope="col">Meals</th><th scope="col">Minutes</th><th scope="col">kcal Burned</th>
                 <th scope="col">Latest Weight</th><th scope="col">Latest BMI</th><th scope="col">Last Activity</th></tr></thead>
+            @* One row per client; the name links to their progress page *@
             <tbody>@foreach (var x in Model.Clients) {
                 <tr><td class="fw-semibold"><a asp-controller="Trainer" asp-action="ClientDetails" asp-route-id="@x.ClientId">@x.Name</a></td>
                     <td>@x.WorkoutPlanCount</td><td>@x.DietPlanCount</td><td>@x.WorkoutCount</td>
@@ -81,6 +93,7 @@ else
     </div></section>
 }
 
+@* Chart scripts *@
 @section Scripts {
 <script>
     // Json.Serialize safely encodes client names and activity names typed by users.

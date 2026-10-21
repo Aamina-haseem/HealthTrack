@@ -1,3 +1,10 @@
+@* =====================================================================
+   FILE:    Views/Notifications/Index.cshtml
+   PURPOSE: The Notifications page for any signed-in user (Task 8,
+            NotificationsController.Index): newest first, unread ones highlighted
+            with a "New" badge, and View / Mark read / Delete buttons. Every button
+            is a small POST form, so each one carries an anti-forgery token.
+   ===================================================================== *@
 @model List<HealthTrack.Models.Notification>
 @{
     ViewData["Title"] = "Notifications";
@@ -14,6 +21,7 @@
     };
 }
 
+@* Page heading, with "Mark all as read" when something is unread *@
 <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
     <div>
         <span class="ht-eyebrow">Notifications</span>
@@ -30,6 +38,7 @@
 
 @if (Model.Count == 0)
 {
+    @* Empty state *@
     <div class="card"><div class="card-body">
         <div class="ht-empty"><i class="bi bi-bell-slash" aria-hidden="true"></i>You have no notifications yet.</div>
     </div></div>
@@ -38,13 +47,16 @@ else
 {
     <div class="card"><div class="card-body p-0">
         <ul class="list-group list-group-flush">
+            @* One list item per notification; unread ones get a highlighted background *@
             @foreach (var n in Model)
             {
                 <li class="list-group-item d-flex flex-wrap gap-3 align-items-start @(n.IsRead ? "" : "bg-light")">
+                    @* Icon for the notification type *@
                     <span class="ht-stat-icon" aria-hidden="true"><i class="bi @IconFor(n.Type)"></i></span>
                     <div class="flex-grow-1">
                         <div class="d-flex flex-wrap align-items-center gap-2">
                             <strong class="@(n.IsRead ? "fw-normal" : "")">@n.Title</strong>
+                            @* "New" badge, so unread is shown in words as well as colour *@
                             @if (!n.IsRead)
                             {
                                 <span class="badge rounded-pill text-bg-primary">New</span>
@@ -53,7 +65,9 @@ else
                         </div>
                         <p class="mb-0 text-muted">@n.Message</p>
                     </div>
+                    @* Buttons for this notification *@
                     <div class="d-flex flex-wrap gap-2">
+                        @* View: marks it read and opens the related page (only links inside the site) *@
                         @if (!string.IsNullOrEmpty(n.Link))
                         {
                             <form asp-action="Open" asp-route-id="@n.Id" method="post" class="d-inline">

@@ -1,3 +1,10 @@
+@* =====================================================================
+   FILE:    Views/Progress/Index.cshtml
+   PURPOSE: The client's "My Progress" page (Task 7, ProgressController.Index):
+            summary cards for the last 30 days, weight and BMI trend charts,
+            calories burned vs eaten for the last 7 days, and recent measurement
+            and workout tables.
+   ===================================================================== *@
 @model HealthTrack.ViewModels.ProgressDashboardViewModel
 @{
     ViewData["Title"] = "My Progress";
@@ -19,7 +26,9 @@
         burned = days.Select(d => Model.Workouts.Where(w => w.Date.Date == d).Sum(w => w.CaloriesBurned)).ToList(),
         eaten = days.Select(d => Model.Meals.Where(m => m.Date.Date == d).Sum(m => m.Calories)).ToList()
     };
+    @* true when anything was logged in the last 7 days (chart or empty state) *@
     var hasRecentCalories = calorieData.burned.Any(x => x > 0) || calorieData.eaten.Any(x => x > 0);
+    @* Newest measurement (the list is oldest first) *@
     var latest = Model.Measurements.LastOrDefault();
 }
 
@@ -31,6 +40,7 @@
             <h1>Your Progress</h1>
             <p class="text-muted mb-0">Based on your own recorded workouts, meals and measurements.</p>
         </div>
+        @* Links to the logs and back to the dashboard *@
         <nav class="d-flex flex-wrap gap-2" aria-label="Progress actions">
             <a asp-controller="Logs" asp-action="Index" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add or Edit Logs</a>
             <a asp-controller="Client" asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-speedometer2"></i> Dashboard</a>
@@ -42,6 +52,7 @@
 <div class="row g-3 mb-4">
     <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
         <div class="ht-kpi-head"><span class="ht-stat-label">Weight change</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-graph-down-arrow"></i></span></div>
+        @* Weight change with a + or - sign, or a dash *@
         <p class="ht-kpi-value">@(Model.WeightChangeKg?.ToString("+0.0;-0.0;0.0") ?? "—") <small>kg</small></p>
         <span class="ht-delta"><i class="bi bi-speedometer2" aria-hidden="true"></i> @(latest is null ? "No measurements yet" : $"Now {latest.WeightKg:0.0} kg")</span>
         <div class="ht-spark" aria-hidden="true"><canvas id="sparkWeight"></canvas></div>
@@ -49,6 +60,7 @@
 
     <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
         <div class="ht-kpi-head"><span class="ht-stat-label">Workout minutes</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-stopwatch"></i></span></div>
+        @* Totals for the last 30 days, calculated in ProgressController *@
         <p class="ht-kpi-value">@Model.WorkoutMinutesLast30Days <small>min</small></p>
         <span class="ht-delta"><i class="bi bi-calendar3" aria-hidden="true"></i> Last 30 days</span>
     </div></div></div>
@@ -76,12 +88,14 @@
             </div>
             @if (latest is not null) { <span class="ht-chart-figure">@latest.WeightKg.ToString("0.0") kg</span> }
         </div>
+        @* Weight chart, or a link to record the first measurement *@
         @if (Model.Measurements.Count == 0)
         {
             <div class="ht-empty"><i class="bi bi-graph-up" aria-hidden="true"></i>Record a health measurement to see your trend. <a asp-controller="Logs" asp-action="AddMeasurement">Record one</a>.</div>
         }
         else
         {
+            @* A trend needs at least two points *@
             @if (Model.Measurements.Count == 1)
             {
                 <p class="text-muted small">Only one measurement so far. Add another to see a trend line.</p>
@@ -104,6 +118,7 @@
         }
         else
         {
+            @* BMI has its own chart so each line has a sensible scale *@
             <div class="ht-chart ht-chart-sm"><canvas id="bmiChart" role="img" aria-label="Line chart of your BMI over time"></canvas></div>
         }
     </div></div></section>
@@ -117,6 +132,7 @@
             <p class="ht-chart-sub">Burned in workouts compared with eaten in meals, per day.</p>
         </div>
     </div>
+    @* Grouped bars: burned vs eaten per day, with a "Show data" table *@
     @if (!hasRecentCalories)
     {
         <div class="ht-empty"><i class="bi bi-fire" aria-hidden="true"></i>No workouts or meals logged in the last 7 days.</div>
@@ -145,6 +161,7 @@
         {
             <div class="table-responsive"><table class="table table-hover align-middle mb-0">
                 <thead><tr><th scope="col">Date</th><th scope="col">Weight</th><th scope="col">BMI</th><th scope="col">Resting HR</th></tr></thead>
+                @* Newest 10 measurements *@
                 <tbody>@foreach (var m in Model.Measurements.OrderByDescending(x => x.Date).Take(10)) {
                     <tr><td>@m.Date.ToString("dd MMM yyyy")</td><td class="fw-semibold">@m.WeightKg.ToString("0.0") kg</td><td>@m.BMI.ToString("0.0")</td>
                         <td>@(m.RestingHeartRate is null ? "—" : $"{m.RestingHeartRate} bpm")</td></tr>
@@ -163,6 +180,7 @@
         {
             <div class="table-responsive"><table class="table table-hover align-middle mb-0">
                 <thead><tr><th scope="col">Date</th><th scope="col">Workout</th><th scope="col">Minutes</th><th scope="col">kcal</th></tr></thead>
+                @* Newest 10 workouts *@
                 <tbody>@foreach (var x in Model.Workouts.OrderByDescending(x => x.Date).Take(10)) {
                     <tr><td>@x.Date.ToString("dd MMM yyyy")</td><td class="fw-semibold">@x.ExerciseName</td>
                         <td>@x.DurationMinutes</td><td>@x.CaloriesBurned</td></tr>
@@ -172,6 +190,7 @@
     </div></div></section>
 </div>
 
+@* Chart scripts, rendered at the end of _Layout *@
 @section Scripts {
 <script>
     // Json.Serialize encodes the data safely, so text typed by users
@@ -181,6 +200,7 @@
 
     HT.spark('sparkWeight', weightPoints.map(p => p.weight));
     HT.line('weightChart', weightPoints.map(p => p.date), weightPoints.map(p => p.weight), 'Weight', 'kg');
+    @* Empty unit: BMI has no unit *@
     HT.line('bmiChart', weightPoints.map(p => p.date), weightPoints.map(p => p.bmi), 'BMI', '');
     HT.bars('calorieChart', calories.labels, [
         { label: 'Burned in workouts', values: calories.burned },

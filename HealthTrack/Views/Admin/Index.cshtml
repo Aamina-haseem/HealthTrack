@@ -1,10 +1,19 @@
+@* =====================================================================
+   FILE:    Views/Admin/Index.cshtml
+   PURPOSE: The admin's home dashboard (AdminController.Index): KPI cards for
+            users, logs, appointments and unassigned clients; charts for activity,
+            users by role, logs by type, appointments by status and clients per
+            trainer; and the newest accounts.
+   ===================================================================== *@
 @model HealthTrack.ViewModels.AdminDashboardViewModel
 @{
     ViewData["Title"] = "Admin Dashboard";
 
     // Everything below comes from AdminDashboardViewModel (built in AdminController.Index).
     var totalUsers = Model.ActiveUsers + Model.InactiveUsers;
+    @* Admins = everyone who is neither a client nor a trainer (never below 0) *@
     var admins = Math.Max(0, totalUsers - Model.TotalClients - Model.TotalTrainers);
+    @* All logs of the last 7 days added together *@
     var weekLogs = Model.WorkoutLogsLast7Days + Model.MealLogsLast7Days + Model.MeasurementsLast7Days;
 }
 
@@ -16,6 +25,7 @@
             <h1>Welcome back, @Model.Name</h1>
             <p class="text-muted mb-0">User activity, system usage and trainer assignments at a glance.</p>
         </div>
+        @* Shortcuts to the admin pages *@
         <nav class="d-flex flex-wrap gap-2" aria-label="Admin pages">
             <a asp-action="CreateTrainer" class="btn btn-primary"><i class="bi bi-person-plus"></i> Add Trainer</a>
             <a asp-action="Assignments" class="btn btn-outline-primary"><i class="bi bi-diagram-3"></i> Assign Trainers</a>
@@ -29,6 +39,7 @@
 <div class="row g-3 mb-4">
     <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
         <div class="ht-kpi-head"><span class="ht-stat-label">Users</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-people"></i></span></div>
+        @* All accounts, split into active / inactive and new this month *@
         <p class="ht-kpi-value">@totalUsers</p>
         <span class="ht-delta"><i class="bi bi-person-check" aria-hidden="true"></i> @Model.ActiveUsers active · @Model.InactiveUsers inactive</span>
         <span class="ht-delta"><i class="bi bi-person-plus" aria-hidden="true"></i> @Model.NewUsersLast30Days new in 30 days</span>
@@ -36,6 +47,7 @@
 
     <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
         <div class="ht-kpi-head"><span class="ht-stat-label">Logs · 7 days</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-journal-check"></i></span></div>
+        @* Logs of the last 7 days, with a sparkline *@
         <p class="ht-kpi-value">@weekLogs</p>
         <span class="ht-delta"><i class="bi bi-activity" aria-hidden="true"></i> Workouts, meals and measurements</span>
         <div class="ht-spark" aria-hidden="true"><canvas id="sparkActivity"></canvas></div>
@@ -43,6 +55,7 @@
 
     <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
         <div class="ht-kpi-head"><span class="ht-stat-label">Appointments</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-calendar-check"></i></span></div>
+        @* Appointment numbers by status *@
         <p class="ht-kpi-value">@Model.UpcomingAppointments <small>upcoming</small></p>
         <span class="ht-delta"><i class="bi bi-hourglass-split" aria-hidden="true"></i> @Model.PendingAppointments waiting for approval</span>
         <span class="ht-delta"><i class="bi bi-check2-circle" aria-hidden="true"></i> @Model.CompletedAppointments completed</span>
@@ -51,6 +64,7 @@
     <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
         <div class="ht-kpi-head"><span class="ht-stat-label">Unassigned clients</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-person-exclamation"></i></span></div>
         <p class="ht-kpi-value">@Model.UnassignedClients</p>
+        @* A link to Assignments only when someone still needs a trainer *@
         @if (Model.UnassignedClients == 0)
         {
             <span class="ht-delta"><i class="bi bi-check2-circle" aria-hidden="true"></i> Every active client has a trainer</span>
@@ -72,6 +86,7 @@
             </div>
             <span class="ht-chart-figure">@weekLogs logs</span>
         </div>
+        @* Logs per day (HT.line), with a "Show data" table *@
         <div class="ht-chart"><canvas id="activityChart" role="img" aria-label="Line chart of logs per day for the last 7 days"></canvas></div>
         <details class="ht-chart-table">
             <summary>Show data</summary>
@@ -89,6 +104,7 @@
             </div>
             <span class="ht-chart-figure">@totalUsers</span>
         </div>
+        @* Donut chart (HT.donut); the aria-label reads the numbers out *@
         <div class="ht-chart ht-chart-sm"><canvas id="roleChart" role="img" aria-label="Donut chart of users by role: @Model.TotalClients clients, @Model.TotalTrainers trainers, @admins administrators"></canvas></div>
         <details class="ht-chart-table">
             <summary>Show data</summary>
@@ -103,11 +119,13 @@
 <div class="row g-4 mb-4">
     <section class="col-lg-6 col-xl-4"><div class="card ht-chart-card h-100"><div class="card-body">
         <h2 class="ht-card-title">Logs by Type · 7 days</h2>
+        @* Bars: workouts vs meals vs measurements *@
         <div class="ht-chart ht-chart-sm"><canvas id="typeChart" role="img" aria-label="Bar chart of logs by type: @Model.WorkoutLogsLast7Days workouts, @Model.MealLogsLast7Days meals, @Model.MeasurementsLast7Days measurements"></canvas></div>
     </div></div></section>
 
     <section class="col-lg-6 col-xl-4"><div class="card ht-chart-card h-100"><div class="card-body">
         <h2 class="ht-card-title">Appointments by Status</h2>
+        @* Bars: appointments by status *@
         <div class="ht-chart ht-chart-sm"><canvas id="statusChart" role="img" aria-label="Bar chart of appointments: @Model.PendingAppointments pending, @Model.UpcomingAppointments upcoming, @Model.CompletedAppointments completed"></canvas></div>
     </div></div></section>
 
@@ -116,6 +134,7 @@
             <h2 class="ht-card-title">Clients per Trainer</h2>
             <a asp-action="Assignments" class="btn btn-sm btn-outline-primary">Manage</a>
         </div>
+        @* How many clients each trainer has (ranked bars) *@
         @if (Model.TrainerWorkload.Count == 0)
         {
             <div class="ht-empty"><i class="bi bi-person-badge" aria-hidden="true"></i>No trainers yet. <a asp-action="CreateTrainer">Add one</a>.</div>
@@ -141,6 +160,7 @@
         <h2 class="ht-card-title">Newest Accounts</h2>
         <a asp-action="Users" class="btn btn-sm btn-outline-secondary">All users</a>
     </div>
+    @* The newest accounts; status is written as text, not colour alone *@
     @if (Model.RecentUsers.Count == 0)
     {
         <div class="ht-empty"><i class="bi bi-people" aria-hidden="true"></i>No users yet.</div>
@@ -171,16 +191,19 @@
     }
 </div></section>
 
+@* Chart scripts; the numbers come from the view model *@
 @section Scripts {
 <script>
     // Chart data comes from AdminDashboardViewModel; Json.Serialize encodes it safely.
     // The drawing is done by the shared HT helpers in site.js.
     const activityLabels = @Json.Serialize(Model.ActivityLabels);
     const activityCounts = @Json.Serialize(Model.ActivityCounts);
+    @* Only the name and client count are sent to the browser *@
     const workload = @Json.Serialize(Model.TrainerWorkload.Select(t => new { t.Name, t.ClientCount }));
 
     HT.spark('sparkActivity', activityCounts);
     HT.line('activityChart', activityLabels, activityCounts, 'Logs', 'logs', true);
+    @* caption 'users' is the word under the total in the middle of the donut *@
     HT.donut('roleChart', ['Clients', 'Trainers', 'Administrators'],
         [@Model.TotalClients, @Model.TotalTrainers, @admins], { caption: 'users' });
     HT.bars('typeChart', ['Workouts', 'Meals', 'Measurements'],

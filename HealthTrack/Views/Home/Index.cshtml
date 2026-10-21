@@ -1,8 +1,17 @@
-﻿@{
+﻿@* =====================================================================
+   FILE:    Views/Home/Index.cshtml
+   PURPOSE: The public landing page (HomeController.Index), seen by everyone: hero
+            photo, the three roles, training and nutrition photos, features, how it
+            works and a final call to action. Signed-in users get a "Go to my
+            dashboard" button instead of Register / Log in.
+   STYLES:  Views/Home/Index.cshtml.css (scoped CSS: it only applies to this page).
+   ===================================================================== *@
+@{
     ViewData["Title"] = "Personal Health & Fitness";
 
     // Signed-in users get a button to their own dashboard instead of Register/Login.
     // The dashboard pages themselves still check the role on the server.
+    @* null = a visitor who is not signed in *@
     string? dashboardController = null;
     if (User.IsInRole(AppRoles.Client)) { dashboardController = "Client"; }
     else if (User.IsInRole(AppRoles.Trainer)) { dashboardController = "Trainer"; }
@@ -14,12 +23,14 @@
     <div class="row align-items-center g-5">
         <div class="col-lg-6 fade-up">
             <span class="ht-eyebrow">Personal health &amp; fitness</span>
+            @* The only h1 on the page; aria-labelledby on the section points to it *@
             <h1 id="hero-title" class="hero-title">Train with purpose.<br /><span class="text-sky">Track with clarity.</span></h1>
             <p class="hero-lead">
                 HealthTrack brings clients and trainers together: personalised workout and diet plans,
                 quick daily logs, appointments, and progress charts that show how far you have come.
             </p>
             <div class="d-flex flex-wrap gap-2">
+                @* Signed in: one button to their dashboard; visitors: Register and Log in *@
                 @if (dashboardController is not null)
                 {
                     <a asp-controller="@dashboardController" asp-action="Index" class="btn btn-light btn-lg"><i class="bi bi-speedometer2"></i> Go to my dashboard</a>
@@ -30,6 +41,7 @@
                     <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-light btn-lg">Log in</a>
                 }
             </div>
+            @* Two short selling points *@
             <ul class="hero-points" aria-label="Highlights">
                 <li><i class="bi bi-check2-circle" aria-hidden="true"></i> Plans made for you by a trainer</li>
                 <li><i class="bi bi-check2-circle" aria-hidden="true"></i> Weight, BMI and calorie trends</li>
@@ -42,6 +54,7 @@
             <div class="hero-visual">
                 <div class="hero-card">
                     <span class="arch-label">Weight trend</span>
+                    @* A drawn example line, not real data *@
                     <svg viewBox="0 0 220 110" class="arch-chart" focusable="false">
                         <polyline points="5,20 45,32 85,45 125,58 165,80 215,92" fill="none" stroke="#FF6B1A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
                         <circle cx="215" cy="92" r="6" fill="#FFFFFF" />
@@ -62,6 +75,7 @@
         <span class="ht-eyebrow">Who it is for</span>
         <h2 id="roles-title">One platform, three roles</h2>
     </div>
+    @* One card per role; the middle one is highlighted *@
     <div class="row g-4">
         <div class="col-md-4">
             <article class="card role-card h-100"><div class="card-body">
@@ -111,6 +125,7 @@
     <div class="row g-4">
         <div class="col-md-6">
             <article class="photo-card h-100">
+                @* width/height stop the page jumping while the photo loads; loading="lazy" waits until it is scrolled near; alt describes the photo *@
                 <img src="/images/training.jpg" width="1000" height="667" loading="lazy"
                      alt="A trainer kneels beside a client and corrects her dumbbell row in a gym" />
                 <div class="photo-card-body">
@@ -122,6 +137,7 @@
         </div>
         <div class="col-md-6">
             <article class="photo-card h-100">
+                @* Same for the nutrition photo *@
                 <img src="/images/nutrition.jpg" width="1000" height="750" loading="lazy"
                      alt="A bowl of grilled meat, vegetables and greens on a dark table" />
                 <div class="photo-card-body">
@@ -140,6 +156,7 @@
         <span class="ht-eyebrow">Features</span>
         <h2 id="features-title">Everything your health journey needs</h2>
     </div>
+    @* Six feature tiles: 3 per row on large screens, 2 on tablets, 1 on phones *@
     <div class="row g-3">
         <div class="col-sm-6 col-lg-4"><div class="feature">
             <i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>
@@ -180,6 +197,7 @@
         <span class="ht-eyebrow">How it works</span>
         <h2 id="steps-title">Start in three steps</h2>
     </div>
+    @* An ordered list, because the steps happen in order *@
     <ol class="steps">
         <li><span class="step-num" aria-hidden="true">01</span><h3>Create your account</h3><p>Register as a client in under a minute.</p></li>
         <li><span class="step-num" aria-hidden="true">02</span><h3>Meet your trainer</h3><p>An administrator pairs you with a trainer who builds your plans.</p></li>
@@ -190,6 +208,7 @@
 @* ===== 6. Final call to action (only for visitors who are not signed in) ===== *@
 @if (dashboardController is null)
 {
+    @* Only shown to visitors (the @if above) *@
     <section class="landing-cta" aria-labelledby="cta-title">
         <h2 id="cta-title">Ready to see your progress?</h2>
         <p>Join HealthTrack and start tracking today.</p>
@@ -198,6 +217,7 @@
 }
 
 @* Photo credits: free photos under the Unsplash License (https://unsplash.com/license) *@
+@* Credits for the photographers *@
 <p class="photo-credits">
     Photos from Unsplash by
     <a href="https://unsplash.com/photos/person-about-to-lift-the-barbel-WvDYdXDzkhs">Victor Freitas</a>,
