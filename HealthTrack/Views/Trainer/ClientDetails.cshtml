@@ -1,32 +1,235 @@
 @model HealthTrack.ViewModels.TrainerClientDetailsViewModel
-@{ ViewData["Title"] = "Client Progress"; }
-<h1>@Model.Client.FullName</h1>
-<p><a asp-action="GiveFeedback" asp-route-id="@Model.Client.Id" class="btn btn-primary">Give Feedback</a>
-   <a asp-controller="Progress" asp-action="Reports" asp-route-id="@Model.Client.Id" class="btn btn-outline-primary">Performance Report</a>
-   <a asp-action="Index" class="btn btn-secondary">Back</a></p>
-<div class="row g-3">
-<section class="col-md-6"><div class="card h-100"><div class="card-body"><h2 class="h5">Workout Plans</h2>
-@if (Model.WorkoutPlans.Count == 0) { <p>No plans yet.</p> }
-else { <ul>@foreach (var p in Model.WorkoutPlans) { <li><a asp-controller="WorkoutPlans" asp-action="Details" asp-route-id="@p.Id">@p.Title</a></li> }</ul> }
-</div></div></section>
-<section class="col-md-6"><div class="card h-100"><div class="card-body"><h2 class="h5">Diet Plans</h2>
-@if (Model.DietPlans.Count == 0) { <p>No plans yet.</p> }
-else { <ul>@foreach (var p in Model.DietPlans) { <li><a asp-controller="DietPlans" asp-action="Details" asp-route-id="@p.Id">@p.Title</a></li> }</ul> }
-</div></div></section>
-<section class="col-md-6"><div class="card h-100"><div class="card-body"><h2 class="h5">Recent Workouts</h2>
-@if (Model.RecentWorkouts.Count == 0) { <p>No workouts logged.</p> }
-else { <ul>@foreach (var x in Model.RecentWorkouts) { <li>@x.Date.ToString("dd MMM yyyy"): @x.ExerciseName (@x.CaloriesBurned kcal)</li> }</ul> }
-</div></div></section>
-<section class="col-md-6"><div class="card h-100"><div class="card-body"><h2 class="h5">Recent Meals</h2>
-@if (Model.RecentMeals.Count == 0) { <p>No meals logged.</p> }
-else { <ul>@foreach (var x in Model.RecentMeals) { <li>@x.Date.ToString("dd MMM yyyy"): @x.FoodItems (@x.Calories kcal)</li> }</ul> }
-</div></div></section>
-<section class="col-md-6"><div class="card h-100"><div class="card-body"><h2 class="h5">Measurements</h2>
-@if (Model.RecentMeasurements.Count == 0) { <p>No measurements logged.</p> }
-else { <ul>@foreach (var x in Model.RecentMeasurements) { <li>@x.Date.ToString("dd MMM yyyy"): @x.WeightKg kg · BMI @x.BMI</li> }</ul> }
-</div></div></section>
-<section class="col-md-6"><div class="card h-100"><div class="card-body"><h2 class="h5">Your Feedback</h2>
-@if (Model.Feedback.Count == 0) { <p>No feedback yet.</p> }
-else { <ul>@foreach (var x in Model.Feedback) { <li>@x.CreatedAt.ToString("dd MMM yyyy"): @x.Message</li> }</ul> }
-</div></div></section>
+@functions {
+    // WHO adult BMI bands (same as the client's own dashboard)
+    static string BmiCategory(double bmi) =>
+        bmi < 18.5 ? "Underweight" : bmi < 25 ? "Healthy weight" : bmi < 30 ? "Overweight" : "Obese";
+
+    // Whole years between the date of birth and today
+    static int Age(DateTime dob)
+    {
+        var age = DateTime.Today.Year - dob.Year;
+        return dob.Date > DateTime.Today.AddYears(-age) ? age - 1 : age;
+    }
+}
+@{
+    ViewData["Title"] = "Client Progress";
+
+    // TrainerController.ClientDetails only builds this page for a client actively assigned to this trainer.
+    var client = Model.Client;
+    var initials = $"{client.FirstName.FirstOrDefault()}{client.LastName.FirstOrDefault()}".ToUpper();
+    var latest = Model.RecentMeasurements.FirstOrDefault();                       // newest first
+    var weights = Model.RecentMeasurements.OrderBy(m => m.Date).ToList();          // oldest first, for the chart
+    var weightChange = weights.Count > 1 ? Math.Round(weights[^1].WeightKg - weights[0].WeightKg, 1) : (double?)null;
+    var lastWorkout = Model.RecentWorkouts.FirstOrDefault();
+}
+
+@* ===== Profile header ===== *@
+<section class="ht-hero ht-hero-compact">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <span class="ht-profile-avatar" aria-hidden="true">@initials</span>
+            <div>
+                <span class="ht-eyebrow">Client Progress</span>
+                <h1>@client.FullName</h1>
+                <p class="ht-profile-meta mb-0">
+                    <span><i class="bi bi-envelope" aria-hidden="true"></i> @client.Email</span>
+                    @if (client.DateOfBirth is not null)
+                    {
+                        <span><i class="bi bi-person" aria-hidden="true"></i> @Age(client.DateOfBirth.Value) years@(string.IsNullOrEmpty(client.Gender) ? "" : $" · {client.Gender}")</span>
+                    }
+                    <span><i class="bi bi-calendar-check" aria-hidden="true"></i> Member since @client.CreatedAt.ToString("MMM yyyy")</span>
+                </p>
+            </div>
+        </div>
+        <nav class="d-flex flex-wrap gap-2" aria-label="Client actions">
+            <a asp-action="GiveFeedback" asp-route-id="@client.Id" class="btn btn-primary"><i class="bi bi-chat-heart"></i> Give Feedback</a>
+            <a asp-controller="Progress" asp-action="Reports" asp-route-id="@client.Id" class="btn btn-outline-primary"><i class="bi bi-bar-chart"></i> Performance Report</a>
+            <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back</a>
+        </nav>
+    </div>
+</section>
+
+@* ===== Summary cards ===== *@
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
+        <div class="ht-kpi-head"><span class="ht-stat-label">Latest weight</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-speedometer2"></i></span></div>
+        <p class="ht-kpi-value">@(latest is null ? "—" : latest.WeightKg.ToString("0.0")) <small>kg</small></p>
+        <span class="ht-delta">
+            @if (weightChange is null)
+            {
+                <i class="bi bi-dash" aria-hidden="true"></i> @("Needs two measurements")
+            }
+            else
+            {
+                <i class="bi @(weightChange < 0 ? "bi-arrow-down-right" : weightChange > 0 ? "bi-arrow-up-right" : "bi-dash")" aria-hidden="true"></i>
+                @($"{weightChange:+0.0;-0.0;0.0} kg over the last {weights.Count} measurements")
+            }
+        </span>
+        <div class="ht-spark" aria-hidden="true"><canvas id="sparkWeight"></canvas></div>
+    </div></div></div>
+
+    <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
+        <div class="ht-kpi-head"><span class="ht-stat-label">BMI</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-heart-pulse"></i></span></div>
+        <p class="ht-kpi-value">@(latest is null ? "—" : latest.BMI.ToString("0.0"))</p>
+        <span class="ht-delta"><i class="bi bi-info-circle" aria-hidden="true"></i> @(latest is null ? "No measurements yet" : BmiCategory(latest.BMI))</span>
+    </div></div></div>
+
+    <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
+        <div class="ht-kpi-head"><span class="ht-stat-label">Last workout</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-activity"></i></span></div>
+        <p class="ht-kpi-value">@(lastWorkout is null ? "—" : lastWorkout.Date.ToString("dd MMM"))</p>
+        <span class="ht-delta"><i class="bi bi-stopwatch" aria-hidden="true"></i> @(lastWorkout is null ? "No workouts logged" : $"{lastWorkout.ExerciseName} · {lastWorkout.DurationMinutes} min")</span>
+    </div></div></div>
+
+    <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
+        <div class="ht-kpi-head"><span class="ht-stat-label">Plans from you</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-clipboard2-pulse"></i></span></div>
+        <p class="ht-kpi-value">@(Model.WorkoutPlans.Count + Model.DietPlans.Count)</p>
+        <span class="ht-delta"><i class="bi bi-list-check" aria-hidden="true"></i> @Model.WorkoutPlans.Count workout · @Model.DietPlans.Count diet</span>
+    </div></div></div>
 </div>
+
+@* ===== Weight chart + recent workouts ===== *@
+<div class="row g-4 mb-4">
+    <section class="col-xl-7"><div class="card ht-chart-card h-100"><div class="card-body">
+        <div class="ht-chart-head">
+            <div>
+                <h2 class="ht-card-title">Weight Trend</h2>
+                <p class="ht-chart-sub">The client's latest measurements, oldest to newest.</p>
+            </div>
+            @if (latest is not null) { <span class="ht-chart-figure">@latest.WeightKg.ToString("0.0") kg</span> }
+        </div>
+        @if (weights.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-graph-up" aria-hidden="true"></i>No measurements logged yet.</div>
+        }
+        else
+        {
+            <div class="ht-chart"><canvas id="weightChart" role="img" aria-label="Line chart of the client's weight over their latest measurements"></canvas></div>
+            <details class="ht-chart-table">
+                <summary>Show data</summary>
+                <table class="table table-sm mb-0"><thead><tr><th>Date</th><th>Weight</th><th>BMI</th><th>Resting HR</th></tr></thead>
+                    <tbody>@foreach (var m in Model.RecentMeasurements) { <tr><td>@m.Date.ToString("dd MMM yyyy")</td><td>@m.WeightKg.ToString("0.0") kg</td><td>@m.BMI.ToString("0.0")</td><td>@(m.RestingHeartRate is null ? "—" : $"{m.RestingHeartRate} bpm")</td></tr> }</tbody>
+                </table>
+            </details>
+        }
+    </div></div></section>
+
+    <section class="col-xl-5"><div class="card h-100"><div class="card-body">
+        <h2 class="ht-card-title">Recent Workouts</h2>
+        @if (Model.RecentWorkouts.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-activity" aria-hidden="true"></i>No workouts logged.</div>
+        }
+        else
+        {
+            <ul class="ht-feed">
+                @foreach (var w in Model.RecentWorkouts)
+                {
+                    <li class="ht-feed-item">
+                        <span class="ht-feed-icon" aria-hidden="true"><i class="bi bi-lightning-charge"></i></span>
+                        <span class="ht-feed-main"><span class="ht-feed-title">@w.ExerciseName</span><span class="ht-feed-sub">@w.Date.ToString("ddd dd MMM yyyy")</span></span>
+                        <span class="ht-feed-value">@w.DurationMinutes min<small>@w.CaloriesBurned kcal</small></span>
+                    </li>
+                }
+            </ul>
+        }
+    </div></div></section>
+</div>
+
+@* ===== Plans, meals and feedback ===== *@
+<div class="row g-4 mb-4">
+    <section class="col-xl-4"><div class="card h-100"><div class="card-body">
+        <div class="ht-chart-head">
+            <h2 class="ht-card-title">Plans</h2>
+            <div class="d-flex gap-2">
+                <a asp-controller="WorkoutPlans" asp-action="Create" class="btn btn-sm btn-outline-primary" title="New workout plan"><i class="bi bi-plus-lg"></i> Workout</a>
+                <a asp-controller="DietPlans" asp-action="Create" class="btn btn-sm btn-outline-primary" title="New diet plan"><i class="bi bi-plus-lg"></i> Diet</a>
+            </div>
+        </div>
+        @if (Model.WorkoutPlans.Count == 0 && Model.DietPlans.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>No plans yet. Create one with the buttons above.</div>
+        }
+        else
+        {
+            <ul class="ht-feed">
+                @foreach (var p in Model.WorkoutPlans)
+                {
+                    <li class="ht-feed-item">
+                        <span class="ht-feed-icon" aria-hidden="true"><i class="bi bi-activity"></i></span>
+                        <span class="ht-feed-main"><a class="ht-feed-title" asp-controller="WorkoutPlans" asp-action="Details" asp-route-id="@p.Id">@p.Title</a><span class="ht-feed-sub">Workout plan · from @p.StartDate.ToString("dd MMM yyyy")</span></span>
+                        <span class="ht-badge-soft">@p.Difficulty</span>
+                    </li>
+                }
+                @foreach (var p in Model.DietPlans)
+                {
+                    <li class="ht-feed-item">
+                        <span class="ht-feed-icon" aria-hidden="true"><i class="bi bi-egg-fried"></i></span>
+                        <span class="ht-feed-main"><a class="ht-feed-title" asp-controller="DietPlans" asp-action="Details" asp-route-id="@p.Id">@p.Title</a><span class="ht-feed-sub">Diet plan · from @p.StartDate.ToString("dd MMM yyyy")</span></span>
+                        <span class="ht-badge-soft">@p.DailyCalorieTarget kcal</span>
+                    </li>
+                }
+            </ul>
+        }
+    </div></div></section>
+
+    <section class="col-xl-4"><div class="card h-100"><div class="card-body">
+        <h2 class="ht-card-title">Recent Meals</h2>
+        @if (Model.RecentMeals.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-egg-fried" aria-hidden="true"></i>No meals logged.</div>
+        }
+        else
+        {
+            <ul class="ht-feed">
+                @foreach (var m in Model.RecentMeals)
+                {
+                    <li class="ht-feed-item">
+                        <span class="ht-feed-icon" aria-hidden="true"><i class="bi bi-basket"></i></span>
+                        <span class="ht-feed-main"><span class="ht-feed-title">@m.FoodItems</span><span class="ht-feed-sub">@m.MealType · @m.Date.ToString("dd MMM yyyy")</span></span>
+                        <span class="ht-feed-value">@m.Calories<small>kcal</small></span>
+                    </li>
+                }
+            </ul>
+        }
+    </div></div></section>
+
+    <section class="col-xl-4"><div class="card h-100"><div class="card-body">
+        <h2 class="ht-card-title">Your Feedback</h2>
+        @if (Model.Feedback.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-chat-heart" aria-hidden="true"></i>No feedback yet. <a asp-action="GiveFeedback" asp-route-id="@client.Id">Write the first one</a>.</div>
+        }
+        else
+        {
+            <ul class="ht-feed">
+                @foreach (var f in Model.Feedback)
+                {
+                    <li class="ht-feed-item ht-feed-note">
+                        <span class="ht-feed-icon" aria-hidden="true"><i class="bi bi-chat-quote"></i></span>
+                        <span class="ht-feed-main">
+                            <span class="ht-feed-sub">
+                                @f.CreatedAt.ToString("dd MMM yyyy")
+                                @if (f.Rating is not null)
+                                {
+                                    <span class="ht-stars" aria-label="Rating @f.Rating out of 5">
+                                        @for (var i = 1; i <= 5; i++) { <i class="bi @(i <= f.Rating ? "bi-star-fill" : "bi-star")" aria-hidden="true"></i> }
+                                    </span>
+                                }
+                            </span>
+                            <span class="ht-feed-text">@f.Message</span>
+                        </span>
+                    </li>
+                }
+            </ul>
+        }
+    </div></div></section>
+</div>
+
+@section Scripts {
+<script>
+    // Json.Serialize encodes the values safely. The drawing is done by the shared HT helpers in site.js.
+    const weights = @Json.Serialize(weights.Select(m => new { label = m.Date.ToString("dd MMM"), value = Math.Round(m.WeightKg, 1) }));
+    HT.spark('sparkWeight', weights.map(p => p.value));
+    HT.line('weightChart', weights.map(p => p.label), weights.map(p => p.value), 'Weight', 'kg');
+</script>
+}

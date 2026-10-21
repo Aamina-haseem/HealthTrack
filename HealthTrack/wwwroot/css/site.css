@@ -1370,7 +1370,7 @@ article.card:hover,
   display: none;
 }
 
-/* Photo: wwwroot/images/auth.jpg (Jadon Johnson, Unsplash).
+/* Photo: wwwroot/images/auth.jpg (Sushil Ghimire, Unsplash).
    A dark fade at the bottom keeps the white text readable. */
 .ht-auth-photo {
   position: relative;
@@ -1387,7 +1387,7 @@ article.card:hover,
   color: #FFFFFF;
   background:
     linear-gradient(180deg, rgba(14, 14, 16, 0.1) 0%, rgba(14, 14, 16, 0.6) 45%, rgba(14, 14, 16, 0.95) 100%),
-    url("/images/auth.jpg") 42% 40% / cover no-repeat,
+    url("/images/auth.jpg?v=2") 55% 28% / cover no-repeat,   /* ?v=2: browsers load the new photo, not a cached old one */
     var(--ht-bg);
 }
 
@@ -1429,4 +1429,186 @@ article.card:hover,
   .ht-auth-points {
     display: none;
   }
+}
+
+/* ---------- 12. Review fixes: filter bar, compact Register, client profile page ---------- */
+
+/* Admin Users search bar: buttons as tall as the boxes beside them */
+.ht-filter-bar .btn {
+  min-height: 2.875rem;
+  border-radius: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-weight: 600;
+}
+
+/* Register: a wide two-column form with a slim photo on the right, so the page fits without scrolling */
+.ht-auth-register .ht-auth-card {
+  max-width: none;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;      /* form in the middle of the card, not stuck to the top */
+  padding: 2rem 2.25rem;
+}
+
+.ht-auth-register h1 {
+  font-size: 2rem;
+}
+
+.ht-auth-register .ht-auth-sub {
+  margin-bottom: 1.25rem;
+}
+
+.ht-auth-hint {
+  margin: 0.9rem 0 1.1rem;
+  color: #A1A1AA;
+  font-size: 0.85rem;
+}
+
+@media (min-width: 992px) {
+  .ht-auth-register.ht-auth-split {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    padding: 0.75rem;
+  }
+
+  .ht-auth-register .ht-auth-photo {
+    min-height: 0;
+    background-position: center, 58% 28%, center;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .ht-auth-register .ht-auth-photo {
+    display: none;                 /* phones and tablets: the form comes first, no photo needed */
+  }
+}
+
+/* Client profile header: round orange avatar with initials, and a row of small facts */
+.ht-profile-avatar {
+  flex: 0 0 4.5rem;
+  width: 4.5rem;
+  height: 4.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(150deg, var(--ht-primary-hover), var(--ht-primary));
+  color: var(--ht-on-primary);
+  font-family: "Oswald", "Arial Narrow", "Segoe UI", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  box-shadow: 0 0.75rem 1.5rem rgba(255, 107, 26, 0.25);
+}
+
+.ht-profile-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.25rem;
+  color: #A1A1AA;
+  font-size: 0.9rem;
+}
+
+.ht-profile-meta .bi {
+  color: var(--ht-primary);
+  margin-right: 0.2rem;
+}
+
+/* Feed list: icon, title + small line, value on the right */
+.ht-feed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ht-feed-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--ht-line);
+}
+
+.ht-feed-item:last-child {
+  border-bottom: 0;
+}
+
+.ht-feed-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.8rem;
+  background-color: rgba(255, 107, 26, 0.12);
+  color: var(--ht-primary);
+  font-size: 1.05rem;
+}
+
+.ht-feed-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ht-feed-title {
+  color: var(--ht-text);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+a.ht-feed-title {
+  text-decoration: none;
+}
+
+a.ht-feed-title:hover {
+  color: var(--ht-link);
+  text-decoration: underline;
+}
+
+.ht-feed-sub {
+  color: #A1A1AA;
+  font-size: 0.82rem;
+}
+
+.ht-feed-value {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  color: var(--ht-text);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ht-feed-value small {
+  color: #A1A1AA;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+/* Feedback notes: the message can wrap onto several lines */
+.ht-feed-note {
+  align-items: start;
+}
+
+.ht-feed-text {
+  margin-top: 0.25rem;
+  color: #D4D4D8;
+  font-size: 0.92rem;
+  overflow-wrap: anywhere;
+}
+
+.ht-stars {
+  margin-left: 0.4rem;
+  color: var(--ht-primary);
+  letter-spacing: 0.05em;
+}
+
+.ht-stars .bi-star {
+  color: #52525B;
 }

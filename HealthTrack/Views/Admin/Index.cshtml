@@ -182,7 +182,7 @@
     HT.spark('sparkActivity', activityCounts);
     HT.line('activityChart', activityLabels, activityCounts, 'Logs', 'logs', true);
     HT.donut('roleChart', ['Clients', 'Trainers', 'Administrators'],
-        [@Model.TotalClients, @Model.TotalTrainers, @admins]);
+        [@Model.TotalClients, @Model.TotalTrainers, @admins], { caption: 'users' });
     HT.bars('typeChart', ['Workouts', 'Meals', 'Measurements'],
         [{ label: 'Logs', values: [@Model.WorkoutLogsLast7Days, @Model.MealLogsLast7Days, @Model.MeasurementsLast7Days] }]);
     HT.bars('statusChart', ['Pending', 'Upcoming', 'Completed'],

@@ -120,7 +120,7 @@ namespace HealthTrack.Controllers
 
             var model = new AdminDashboardViewModel
             {
-                Name = admin.FirstName,
+                Name = admin.FullName,          // full name, e.g. "System Admin"
                 TotalClients = clients.Count,
                 TotalTrainers = trainers.Count,
                 ActiveUsers = allUsers.Count(u => u.IsActive),

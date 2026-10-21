@@ -4,21 +4,10 @@
     ViewData["Title"] = "Register";
 }
 
-@* Same photo panel and dark card as the Login page. The "Use another service"
-   section was removed because HealthTrack only uses local accounts (Individual Accounts).
+@* A wide two-column form beside a slim photo panel, so the whole page fits on screen without scrolling.
+   The "Use another service" section was removed because HealthTrack only uses local accounts (Individual Accounts).
    Profile fields (name, date of birth, gender) were added for the Client profile. *@
-<section class="ht-auth ht-auth-split" aria-labelledby="register-title">
-    @* Photo: wwwroot/images/auth.jpg (Jadon Johnson, Unsplash), set in site.css *@
-    <div class="ht-auth-photo">
-        <span class="ht-eyebrow">Join HealthTrack</span>
-        <p class="ht-auth-quote">Start your journey today.</p>
-        <ul class="ht-auth-points">
-            <li><i class="bi bi-check2-circle" aria-hidden="true"></i> Workout and diet plans made by a trainer</li>
-            <li><i class="bi bi-check2-circle" aria-hidden="true"></i> Book sessions with your trainer</li>
-            <li><i class="bi bi-check2-circle" aria-hidden="true"></i> Weight, BMI and calorie charts</li>
-        </ul>
-    </div>
-
+<section class="ht-auth ht-auth-split ht-auth-register" aria-labelledby="register-title">
     <div class="ht-auth-card">
         <a class="ht-auth-brand" asp-area="" asp-controller="Home" asp-action="Index">
             <i class="bi bi-heart-pulse-fill" aria-hidden="true"></i> HealthTrack
@@ -29,8 +18,8 @@
         <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
             <div asp-validation-summary="ModelOnly" class="mb-3" role="alert"></div>
 
-            <div class="row">
-                <div class="col-sm-6 mb-3">
+            <div class="row g-3">
+                <div class="col-sm-6">
                     <label asp-for="Input.FirstName" class="form-label">First name</label>
                     <div class="ht-input">
                         <i class="bi bi-person" aria-hidden="true"></i>
@@ -38,7 +27,7 @@
                     </div>
                     <span asp-validation-for="Input.FirstName"></span>
                 </div>
-                <div class="col-sm-6 mb-3">
+                <div class="col-sm-6">
                     <label asp-for="Input.LastName" class="form-label">Last name</label>
                     <div class="ht-input">
                         <i class="bi bi-person" aria-hidden="true"></i>
@@ -46,10 +35,8 @@
                     </div>
                     <span asp-validation-for="Input.LastName"></span>
                 </div>
-            </div>
 
-            <div class="row">
-                <div class="col-sm-6 mb-3">
+                <div class="col-sm-6">
                     <label asp-for="Input.DateOfBirth" class="form-label">Date of birth</label>
                     <div class="ht-input">
                         <i class="bi bi-calendar-event" aria-hidden="true"></i>
@@ -58,7 +45,7 @@
                     </div>
                     <span asp-validation-for="Input.DateOfBirth"></span>
                 </div>
-                <div class="col-sm-6 mb-3">
+                <div class="col-sm-6">
                     <label asp-for="Input.Gender" class="form-label">Gender</label>
                     <div class="ht-input">
                         <i class="bi bi-gender-ambiguous" aria-hidden="true"></i>
@@ -71,34 +58,35 @@
                     </div>
                     <span asp-validation-for="Input.Gender"></span>
                 </div>
+
+                <div class="col-12">
+                    <label asp-for="Input.Email" class="form-label">Email</label>
+                    <div class="ht-input">
+                        <i class="bi bi-envelope" aria-hidden="true"></i>
+                        <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                    </div>
+                    <span asp-validation-for="Input.Email"></span>
+                </div>
+
+                <div class="col-sm-6">
+                    <label asp-for="Input.Password" class="form-label">Password</label>
+                    <div class="ht-input">
+                        <i class="bi bi-lock" aria-hidden="true"></i>
+                        <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Password" />
+                    </div>
+                    <span asp-validation-for="Input.Password"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label asp-for="Input.ConfirmPassword" class="form-label">Confirm password</label>
+                    <div class="ht-input">
+                        <i class="bi bi-lock" aria-hidden="true"></i>
+                        <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Type it again" />
+                    </div>
+                    <span asp-validation-for="Input.ConfirmPassword"></span>
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Input.Email" class="form-label">Email</label>
-                <div class="ht-input">
-                    <i class="bi bi-envelope" aria-hidden="true"></i>
-                    <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                </div>
-                <span asp-validation-for="Input.Email"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Input.Password" class="form-label">Password</label>
-                <div class="ht-input">
-                    <i class="bi bi-lock" aria-hidden="true"></i>
-                    <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Password" />
-                </div>
-                <span asp-validation-for="Input.Password"></span>
-            </div>
-
-            <div class="mb-4">
-                <label asp-for="Input.ConfirmPassword" class="form-label">Confirm password</label>
-                <div class="ht-input">
-                    <i class="bi bi-lock" aria-hidden="true"></i>
-                    <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Type it again" />
-                </div>
-                <span asp-validation-for="Input.ConfirmPassword"></span>
-            </div>
+            <p class="ht-auth-hint"><i class="bi bi-shield-lock" aria-hidden="true"></i> 8+ characters with an uppercase letter, a lowercase letter, a number and a symbol.</p>
 
             <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary ht-btn-arrow justify-content-center">Create account <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
         </form>
@@ -107,6 +95,17 @@
             Already have an account?
             <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">Log in</a>
         </p>
+    </div>
+
+    @* Photo: wwwroot/images/auth.jpg (Sushil Ghimire, Unsplash), set in site.css *@
+    <div class="ht-auth-photo">
+        <span class="ht-eyebrow">Join HealthTrack</span>
+        <p class="ht-auth-quote">Start your journey today.</p>
+        <ul class="ht-auth-points">
+            <li><i class="bi bi-check2-circle" aria-hidden="true"></i> Plans made by a trainer</li>
+            <li><i class="bi bi-check2-circle" aria-hidden="true"></i> Book sessions with your trainer</li>
+            <li><i class="bi bi-check2-circle" aria-hidden="true"></i> Weight, BMI and calorie charts</li>
+        </ul>
     </div>
 </section>
 

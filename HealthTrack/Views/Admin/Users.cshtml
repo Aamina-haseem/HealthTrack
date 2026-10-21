@@ -13,24 +13,32 @@
     <a asp-action="CreateTrainer" class="btn btn-primary"><i class="bi bi-person-plus"></i> Add Trainer</a>
 </div>
 
-@* Search + role filter (GET form, so the URL can be bookmarked) *@
-<form asp-action="Users" method="get" class="card mb-3"><div class="card-body">
-    <div class="row g-2 align-items-end">
-        <div class="col-md-6">
+@* Search + role filter (GET form, so the URL can be bookmarked).
+   One row on desktop: search box, role, then the two buttons, all the same height. *@
+<form asp-action="Users" method="get" class="card mb-3 ht-filter-bar"><div class="card-body">
+    <div class="row g-3 align-items-end">
+        <div class="col-lg-6">
             <label for="search" class="form-label">Search by name or email</label>
-                <input id="search" name="search" value="@Model.Search"            <input id="search" name="search" value="@Model.Search" class="form-control" placeholder="e.g. Amal or client1" />
-        <div class="col-md-3">
-            <label for="role" class="form-label">Role</label>
-            <select id="role" name="role" class="form-select">
-                <option value="">All roles</option>
-                @foreach (var r in roles)
-                {
-                    <option value="@r" selected="@(Model.RoleFilter == r)">@r</option>
-                }
-            </select>
+            <div class="ht-input">
+                <i class="bi bi-search" aria-hidden="true"></i>
+                <input id="search" name="search" value="@Model.Search" class="form-control" placeholder="e.g. Amal or client1" />
+            </div>
         </div>
-        <div class="col-md-3 d-flex gap-2">
-            <button type="submit" class="btn btn-primary flex-grow-1"><i class="bi bi-search"></i> Search</button>
+        <div class="col-sm-6 col-lg-3">
+            <label for="role" class="form-label">Role</label>
+            <div class="ht-input">
+                <i class="bi bi-person-badge" aria-hidden="true"></i>
+                <select id="role" name="role" class="form-select">
+                    <option value="">All roles</option>
+                    @foreach (var r in roles)
+                    {
+                        <option value="@r" selected="@(Model.RoleFilter == r)">@r</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1"><i class="bi bi-search" aria-hidden="true"></i> Search</button>
             <a asp-action="Users" class="btn btn-outline-secondary">Clear</a>
         </div>
     </div>
