@@ -136,7 +136,10 @@ namespace HealthTrack.Areas.Identity.Pages.Account
                         _logger.LogError(ex, "Could not create reminders for {Email}", email);
                     }
 
-                    TempData["Success"] = $"Welcome back, {user.FirstName}!";   // green message on the next page
+                    // The admin's first name is only "System", so the admin is greeted by full name
+                    // ("System Admin"), the same as on the Admin dashboard. Everyone else gets their first name.
+                    bool isAdmin = await _userManager.IsInRoleAsync(user, AppRoles.Admin);
+                    TempData["Success"] = $"Welcome back, {(isAdmin ? user.FullName : user.FirstName)}!";   // green message on the next page
 
                     // If the user was sent here from a protected page, go back to it;
                     // otherwise open the dashboard that matches their role.
