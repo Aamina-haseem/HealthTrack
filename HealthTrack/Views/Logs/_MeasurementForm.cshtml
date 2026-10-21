@@ -1,8 +1,17 @@
+@* =====================================================================
+   FILE:    Views/Logs/_MeasurementForm.cshtml
+   PURPOSE: The health measurement fields, shared by "Record Measurement" and
+            "Edit Measurement". BMI is not a field: it is calculated from the
+            weight and height (HealthMeasurement.BMI).
+   ===================================================================== *@
 @model HealthTrack.ViewModels.HealthMeasurementCreateViewModel
+@* Errors that are not about one field *@
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+@* Date of the measurement *@
 <div class="mb-3"><label asp-for="Date" class="form-label"></label>
     <div class="ht-input"><i class="bi bi-calendar-event" aria-hidden="true"></i><input asp-for="Date" class="form-control" /></div>
     <span asp-validation-for="Date" class="text-danger"></span></div>
+@* Weight and height side by side *@
 <div class="row">
     <div class="col-sm-6 mb-3"><label asp-for="WeightKg" class="form-label"></label>
         <div class="ht-input"><i class="bi bi-speedometer2" aria-hidden="true"></i><input asp-for="WeightKg" class="form-control" /></div>
@@ -11,6 +20,7 @@
         <div class="ht-input"><i class="bi bi-rulers" aria-hidden="true"></i><input asp-for="HeightCm" class="form-control" /></div>
         <span asp-validation-for="HeightCm" class="text-danger"></span></div>
 </div>
+@* Optional resting heart rate *@
 <div class="mb-3"><label asp-for="RestingHeartRate" class="form-label"></label>
     <div class="ht-input"><i class="bi bi-heart-pulse" aria-hidden="true"></i><input asp-for="RestingHeartRate" class="form-control" /></div>
     <span asp-validation-for="RestingHeartRate" class="text-danger"></span></div>

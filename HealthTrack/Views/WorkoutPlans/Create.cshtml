@@ -1,4 +1,9 @@
-﻿@model HealthTrack.ViewModels.WorkoutPlanCreateViewModel
+﻿@* =====================================================================
+   FILE:    Views/WorkoutPlans/Create.cshtml
+   PURPOSE: The trainer's "Create Workout Plan" page (WorkoutPlansController.Create).
+            Fields grouped into "About the plan" and "Schedule"; only assigned clients can be chosen.
+   ===================================================================== *@
+@model HealthTrack.ViewModels.WorkoutPlanCreateViewModel
 @using Microsoft.AspNetCore.Mvc.Rendering
 
 @{
@@ -8,12 +13,14 @@
     var clients = (IEnumerable<SelectListItem>)ViewBag.Clients;
 }
 
+@* Two-part card: orange info panel on the left, the form on the right (site.css section 10) *@
 <div class="ht-form-page">
     @* Orange info panel: page title and tips *@
     <aside class="ht-form-info">
         <span class="ht-eyebrow">Workout Plans</span>
         <h1>Create Workout Plan</h1>
         <p>Build a training plan for one of your clients. You can add exercises day by day once it is saved.</p>
+        @* Tips, each with an icon (icons are decorative, so hidden from screen readers) *@
         <ul class="ht-form-tips">
             <li><i class="bi bi-people" aria-hidden="true"></i><span>Only clients assigned to you appear in the list.</span></li>
             <li><i class="bi bi-flag" aria-hidden="true"></i><span>A short goal, such as "Lose 3 kg", helps your client stay focused.</span></li>
@@ -21,14 +28,19 @@
         </ul>
     </aside>
 
+    @* The form itself *@
     <div class="ht-form-body">
+        @* Posts to Create; the form tag helper adds the anti-forgery token automatically. *@
         <form asp-action="Create" method="post">
+            @* Errors that are not about one field, e.g. "could not be saved" *@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+            @* A group of related fields with a small heading (legend) *@
             <fieldset class="ht-form-group">
                 <legend>About the plan</legend>
 
                 <div class="mb-3">
+                    @* Client drop-down: only active clients assigned to this trainer (ViewBag.Clients) *@
                     <label asp-for="ClientId" class="form-label">Client</label>
                     <div class="ht-input">
                         <i class="bi bi-person" aria-hidden="true"></i>
@@ -40,6 +52,7 @@
                 </div>
 
                 <div class="mb-3">
+                    @* Plan title *@
                     <label asp-for="Title" class="form-label"></label>
                     <div class="ht-input">
                         <i class="bi bi-type" aria-hidden="true"></i>
@@ -49,6 +62,7 @@
                 </div>
 
                 <div class="mb-3">
+                    @* Optional description *@
                     <label asp-for="Description" class="form-label"></label>
                     <div class="ht-input">
                         <i class="bi bi-card-text" aria-hidden="true"></i>
@@ -59,6 +73,7 @@
 
                 <div class="row">
                     <div class="col-md-7 mb-3">
+                        @* Optional goal, e.g. "Lose 3 kg" *@
                         <label asp-for="Goal" class="form-label"></label>
                         <div class="ht-input">
                             <i class="bi bi-flag" aria-hidden="true"></i>
@@ -68,6 +83,7 @@
                     </div>
 
                     <div class="col-md-5 mb-3">
+                        @* Difficulty drop-down built from the DifficultyLevel enum *@
                         <label asp-for="Difficulty" class="form-label"></label>
                         <div class="ht-input">
                             <i class="bi bi-bar-chart-steps" aria-hidden="true"></i>
@@ -81,11 +97,13 @@
                 </div>
             </fieldset>
 
+            @* A group of related fields with a small heading (legend) *@
             <fieldset class="ht-form-group">
                 <legend>Schedule</legend>
 
                 <div class="row">
                     <div class="col-sm-6 mb-3">
+                        @* Start date *@
                         <label asp-for="StartDate" class="form-label"></label>
                         <div class="ht-input">
                             <i class="bi bi-calendar-event" aria-hidden="true"></i>
@@ -95,6 +113,7 @@
                     </div>
 
                     <div class="col-sm-6 mb-3">
+                        @* End date (optional; cannot be before the start date) *@
                         <label asp-for="EndDate" class="form-label"></label>
                         <div class="ht-input">
                             <i class="bi bi-calendar-check" aria-hidden="true"></i>
@@ -105,6 +124,7 @@
                 </div>
             </fieldset>
 
+            @* Buttons: save (arrow button) and cancel (back without saving) *@
             <div class="ht-form-actions">
                 <button type="submit" class="btn btn-primary ht-btn-arrow">Create Plan <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
                 <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
@@ -113,6 +133,7 @@
     </div>
 </div>
 
+@* Browser-side validation using the same rules as the view model (the server checks again) *@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

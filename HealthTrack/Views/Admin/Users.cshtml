@@ -1,9 +1,16 @@
+@* =====================================================================
+   FILE:    Views/Admin/Users.cshtml
+   PURPOSE: The admin's "Manage Users" page (AdminController.Users): search by name
+            or email, filter by role, and activate / deactivate accounts. Accounts
+            are never deleted, so health records are kept.
+   ===================================================================== *@
 @model HealthTrack.ViewModels.AdminUsersViewModel
 @{
     ViewData["Title"] = "Manage Users";
     string[] roles = { AppRoles.Client, AppRoles.Trainer, AppRoles.Admin };
 }
 
+@* Heading with the Add Trainer button *@
 <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
     <div>
         <span class="ht-eyebrow">Administrator</span>
@@ -18,6 +25,7 @@
 <form asp-action="Users" method="get" class="card mb-3 ht-filter-bar"><div class="card-body">
     <div class="row g-3 align-items-end">
         <div class="col-lg-6">
+            @* Search box; its value is kept after searching *@
             <label for="search" class="form-label">Search by name or email</label>
             <div class="ht-input">
                 <i class="bi bi-search" aria-hidden="true"></i>
@@ -25,6 +33,7 @@
             </div>
         </div>
         <div class="col-sm-6 col-lg-3">
+            @* Role filter; the selected role stays selected *@
             <label for="role" class="form-label">Role</label>
             <div class="ht-input">
                 <i class="bi bi-person-badge" aria-hidden="true"></i>
@@ -38,12 +47,14 @@
             </div>
         </div>
         <div class="col-sm-6 col-lg-3 d-flex gap-2">
+            @* Search runs the GET form; Clear reloads the page without filters *@
             <button type="submit" class="btn btn-primary flex-grow-1"><i class="bi bi-search" aria-hidden="true"></i> Search</button>
             <a asp-action="Users" class="btn btn-outline-secondary">Clear</a>
         </div>
     </div>
 </div></form>
 
+@* Empty state, otherwise the users table *@
 @if (Model.Users.Count == 0)
 {
     <div class="card"><div class="card-body">
@@ -60,11 +71,13 @@ else
                     <tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Status</th><th class="text-end">Action</th></tr>
                 </thead>
                 <tbody>
+                    @* One row per user; inactive users are greyed out *@
                     @foreach (var u in Model.Users)
                     {
                         <tr class="@(u.IsActive ? "" : "text-muted")">
                             <td>
                                 @u.FullName
+                                @* Trainers show their specialization under the name *@
                                 @if (!string.IsNullOrEmpty(u.Specialization))
                                 {
                                     <br /><small class="text-muted">@u.Specialization</small>
@@ -74,17 +87,20 @@ else
                             <td>@u.Role</td>
                             <td>@u.CreatedAt.ToString("dd MMM yyyy")</td>
                             <td>
+                                @* Active / Inactive written as text, not colour alone *@
                                 <span class="badge rounded-pill @(u.IsActive ? "text-bg-success" : "text-bg-secondary")">
                                     @(u.IsActive ? "Active" : "Inactive")
                                 </span>
                             </td>
                             <td class="text-end">
+                                @* The admin cannot deactivate their own account *@
                                 @if (u.Id == Model.CurrentAdminId)
                                 {
                                     <span class="small text-muted">(you)</span>
                                 }
                                 else
                                 {
+                                    @* Activate / Deactivate is one POST action that flips the status *@
                                     <form asp-action="ToggleActive" asp-route-id="@u.Id" method="post" class="d-inline">
                                         @if (u.IsActive)
                                         {

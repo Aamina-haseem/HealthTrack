@@ -1,4 +1,14 @@
-using HealthTrack.Models;
+// =====================================================================
+// FILE:    Services/INotificationService.cs
+// PURPOSE: The contract for creating in-app notifications (Task 8). Controllers
+//          call SendAsync when something happens (e.g. an appointment is
+//          approved), and the bell calls GenerateRemindersAsync to create the
+//          automatic daily reminders.
+// IMPLEMENTED BY: Services/NotificationService.cs (registered in Program.cs).
+// KEY IDEA: a "service" holds business logic shared by several controllers.
+// =====================================================================
+
+using HealthTrack.Models;   // NotificationType
 
 namespace HealthTrack.Services
 {

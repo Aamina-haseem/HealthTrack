@@ -1,3 +1,9 @@
+@* =====================================================================
+   FILE:    Views/Admin/Assignments.cshtml
+   PURPOSE: The admin's "Trainer Assignments" page (AdminController.Assignments):
+            a form to assign a client to a trainer, the clients still without a
+            trainer, and the current assignments with a Remove button.
+   ===================================================================== *@
 @model HealthTrack.ViewModels.AssignmentsViewModel
 @{
     ViewData["Title"] = "Trainer Assignments";
@@ -14,9 +20,11 @@
     <section class="col-lg-4">
         <div class="card mb-4"><div class="card-body">
             <h2 class="ht-card-title">Assign a Trainer</h2>
+            @* Posts to AdminController.Assign; fields are named Input.ClientId / Input.TrainerId *@
             <form asp-action="Assign" method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
                 <div class="mb-3">
+                    @* Client drop-down ("(re-assign)" marks clients who already have a trainer) *@
                     <label asp-for="Input.ClientId" class="form-label"></label>
                     <select asp-for="Input.ClientId" asp-items="Model.Clients" class="form-select">
                         <option value="">-- Select client --</option>
@@ -24,6 +32,7 @@
                     <span asp-validation-for="Input.ClientId" class="text-danger small"></span>
                 </div>
                 <div class="mb-3">
+                    @* Trainer drop-down (active trainers only) *@
                     <label asp-for="Input.TrainerId" class="form-label"></label>
                     <select asp-for="Input.TrainerId" asp-items="Model.Trainers" class="form-select">
                         <option value="">-- Select trainer --</option>
@@ -35,6 +44,7 @@
         </div></div>
 
         <div class="card"><div class="card-body">
+            @* Who still needs a trainer *@
             <h2 class="ht-card-title">Clients Without a Trainer</h2>
             @if (Model.UnassignedClientNames.Count == 0)
             {
@@ -54,6 +64,7 @@
 
     @* Current assignments *@
     <section class="col-lg-8"><div class="card"><div class="card-body">
+        @* Active assignments only; ended ones are kept as history *@
         <h2 class="ht-card-title">Current Assignments</h2>
         @if (Model.ActiveAssignments.Count == 0)
         {
@@ -65,6 +76,7 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead><tr><th>Trainer</th><th>Client</th><th>Assigned On</th><th class="text-end">Action</th></tr></thead>
                     <tbody>
+                        @* One row per assignment *@
                         @foreach (var a in Model.ActiveAssignments)
                         {
                             <tr>
@@ -78,6 +90,7 @@
                                 <td>@a.Client?.FullName</td>
                                 <td>@a.AssignedDate.ToString("dd MMM yyyy")</td>
                                 <td class="text-end">
+                                    @* Remove ends the assignment (POST + confirm box); it is kept as history *@
                                     <form asp-action="Unassign" asp-route-id="@a.Id" method="post" class="d-inline">
                                         <button type="submit" class="btn btn-sm btn-outline-danger"
                                                 onclick="return confirm('Remove this assignment?');">Remove</button>
@@ -89,6 +102,7 @@
                 </table>
             </div>
         }
+        @* How many ended assignments are kept *@
         @if (Model.HistoryCount > 0)
         {
             <p class="small text-muted mt-3 mb-0"><i class="bi bi-clock-history"></i> @Model.HistoryCount earlier assignment(s) kept as history.</p>
@@ -96,6 +110,7 @@
     </div></div></section>
 </div>
 
+@* Browser-side validation for the assign form *@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

@@ -1,3 +1,9 @@
+@* =====================================================================
+   FILE:    Views/Appointments/Details.cshtml
+   PURPOSE: One appointment (AppointmentsController.Details) for its client or
+            trainer: all details, the trainer's private notes (trainer only), and
+            the buttons allowed for its status.
+   ===================================================================== *@
 @model HealthTrack.Models.Appointment
 @{
     ViewData["Title"] = "Appointment Details";
@@ -10,12 +16,14 @@
         <span class="ht-eyebrow">Appointments</span>
         <h1 class="mb-3">Appointment Details</h1>
 
+        @* The details as a definition list *@
         <div class="card mb-3"><div class="card-body">
             <dl class="row mb-0">
                 <dt class="col-sm-4 text-muted fw-normal">Date &amp; Time</dt>
                 <dd class="col-sm-8">@Model.AppointmentDate.ToString("dddd dd MMMM yyyy, HH:mm")</dd>
 
                 <dt class="col-sm-4 text-muted fw-normal">Status</dt>
+                @* Coloured status pill (shared partial) *@
                 <dd class="col-sm-8"><partial name="_StatusBadge" model="Model.Status" /></dd>
 
                 <dt class="col-sm-4 text-muted fw-normal">Client</dt>
@@ -24,6 +32,7 @@
                 <dt class="col-sm-4 text-muted fw-normal">Trainer / Professional</dt>
                 <dd class="col-sm-8">
                     @Model.Trainer?.FullName
+                    @* Specialization only when the trainer has one *@
                     @if (!string.IsNullOrEmpty(Model.Trainer?.Specialization))
                     {
                         <small class="text-muted">(@Model.Trainer.Specialization)</small>
@@ -45,23 +54,28 @@
             </dl>
         </div></div>
 
+        @* Action buttons (each one also checked again on the server) *@
         <div class="d-flex flex-wrap gap-2">
+            @* Approve: trainer, pending only *@
             @if (isTrainer && Model.Status == AppointmentStatus.Pending)
             {
                 <form asp-action="Approve" asp-route-id="@Model.Id" method="post" class="d-inline">
                     <button type="submit" class="btn btn-success"><i class="bi bi-check2"></i> Approve</button>
                 </form>
             }
+            @* Reschedule / add notes: trainer, open appointments only *@
             @if (isTrainer && open)
             {
                 <a asp-action="Reschedule" asp-route-id="@Model.Id" class="btn btn-outline-primary"><i class="bi bi-calendar-event"></i> Reschedule / Add Notes</a>
             }
+            @* Complete: trainer, approved and the time has passed *@
             @if (isTrainer && Model.Status == AppointmentStatus.Approved && Model.AppointmentDate <= DateTime.Now)
             {
                 <form asp-action="Complete" asp-route-id="@Model.Id" method="post" class="d-inline">
                     <button type="submit" class="btn btn-primary"><i class="bi bi-check2-all"></i> Mark as Completed</button>
                 </form>
             }
+            @* Cancel: either person, open appointments only *@
             @if (open)
             {
                 <form asp-action="Cancel" asp-route-id="@Model.Id" method="post" class="d-inline">

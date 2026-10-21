@@ -1,38 +1,53 @@
-﻿/* Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
+﻿/* =====================================================================
+   FILE:    Views/Shared/_Layout.cshtml.css
+   PURPOSE: Scoped styles for _Layout.cshtml only. Mostly from the default MVC
+            template, recoloured for the dark theme: links, borders and the
+            visitor footer.
+   ===================================================================== */
+
+/* Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
 for details on configuring this project to bundle and minify static web assets. */
 
+/* Long brand names wrap (from the default template) */
 a.navbar-brand {
   white-space: normal;
   text-align: center;
   word-break: break-all;
 }
 
+/* Links use Bootstrap's link colour */
 a {
   color: var(--bs-link-color);
 }
 
+/* Active pill links: orange with dark text */
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
   color: var(--ht-on-primary);
   background-color: var(--ht-primary);
   border-color: var(--ht-primary);
 }
 
+/* Dark border line on top */
 .border-top {
   border-top: 1px solid var(--ht-line);
 }
+/* Dark border line at the bottom */
 .border-bottom {
   border-bottom: 1px solid var(--ht-line);
 }
 
+/* Soft shadow (from the default template) */
 .box-shadow {
   box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
 }
 
+/* Cookie consent button (from the default template) */
 button.accept-policy {
   font-size: 1rem;
   line-height: inherit;
 }
 
+/* Visitor footer pinned to the bottom of the page */
 .footer {
   position: absolute;
   bottom: 0;
@@ -44,6 +59,7 @@ button.accept-policy {
 /* On phones the footer text wraps and sits after the page,
    instead of one long line that makes the page scroll sideways */
 @media (max-width: 575.98px) {
+  /* Footer on phones */
   .footer {
     position: static;
     white-space: normal;

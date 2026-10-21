@@ -1,6 +1,19 @@
+@* =====================================================================
+   FILE:    Views/Shared/_Layout.cshtml
+   PURPOSE: The master page shared by every view (_ViewStart.cshtml selects it).
+            Two layouts in one file:
+              - signed-in users: sidebar menu (filtered by role) + top bar + content
+              - visitors: a simple top navigation bar
+            It also loads the CSS and JavaScript every page needs and shows the
+            TempData success / error messages set by the controllers.
+   KEY IDEAS: @RenderBody() is where each view's content goes;
+              @RenderSectionAsync("Scripts") adds a page's own scripts at the end.
+   ===================================================================== *@
 @using HealthTrack.Models
 @using Microsoft.AspNetCore.Identity
+@* Dependency injection inside a view: used to load the signed-in user's name *@
 @inject UserManager<ApplicationUser> UserManager
+@* Helpers for highlighting the current menu link *@
 @functions {
     // Marks the sidebar link for the page that is open (orange highlight + aria-current for screen readers).
     // A link matches when the controller is the same and, if actions are given, the action is one of them.
@@ -15,17 +28,23 @@
     string? Current(string controller, params string[] actions) => IsActive(controller, actions) ? "page" : null;
 }
 @{
+    @* true when the visitor is logged in *@
     var signedIn = User.Identity?.IsAuthenticated ?? false;
+    @* Loads the user from the database to show their full name *@
     ApplicationUser? me = signedIn ? await UserManager.GetUserAsync(User) : null;
     var displayName = me?.FullName ?? User.Identity?.Name ?? "";
+    @* First letters of the first two words, e.g. "System Admin" -> "SA" *@
     var initials = string.Concat(displayName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(w => char.ToUpper(w[0])));
+    @* Role shown under the name in the sidebar *@
     var roleName = User.IsInRole(AppRoles.Admin) ? "Administrator" : User.IsInRole(AppRoles.Trainer) ? "Trainer" : "Client";
 }
 <!DOCTYPE html>
+@* lang helps screen readers; data-bs-theme="dark" switches Bootstrap to its dark colours *@
 <html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    @* Each view sets ViewData["Title"] *@
     <title>@ViewData["Title"] - HealthTrack</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
@@ -35,10 +54,14 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;600;700&display=swap" />
     <!-- Bootstrap Icons (used for menu and dashboard icons) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    @* Our own theme; asp-append-version adds a version number so browsers load the new file after a change *@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @* Bundle of the scoped .cshtml.css files (e.g. Views/Home/Index.cshtml.css) *@
     <link rel="stylesheet" href="~/HealthTrack.styles.css" asp-append-version="true" />
 </head>
+@* ht-app switches on the sidebar layout styles for signed-in users *@
 <body class="@(signedIn ? "ht-app" : "")">
+    @* Skip link: appears on the first Tab press so keyboard users can jump past the menu *@
     <a class="visually-hidden-focusable ht-skip-link" href="#main-content">Skip to main content</a>
 
 @if (signedIn)
@@ -51,6 +74,7 @@
                 <a class="ht-brand" id="htSidebarLabel" asp-area="" asp-controller="Home" asp-action="Index">
                     <i class="bi bi-heart-pulse-fill" aria-hidden="true"></i> HealthTrack
                 </a>
+                @* Closes the slide-in menu on small screens *@
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#htSidebar" aria-label="Close menu"></button>
             </div>
             <div class="offcanvas-body">
@@ -59,12 +83,14 @@
                         <i class="bi bi-heart-pulse-fill" aria-hidden="true"></i> HealthTrack
                     </a>
 
+                    @* Each role sees only its own links (the controllers also check the role with [Authorize]) *@
                     <nav aria-label="Main menu">
                         <p class="ht-side-label">Menu</p>
                         <ul class="nav flex-column ht-side-nav">
                             @* Client menu *@
                             @if (User.IsInRole(AppRoles.Client))
                             {
+                                @* NavClass() highlights the open page; aria-current="page" tells screen readers *@
                                 <li class="nav-item"><a class="@NavClass("Client", "Index")" aria-current="@Current("Client", "Index")" asp-area="" asp-controller="Client" asp-action="Index"><i class="bi bi-speedometer2" aria-hidden="true"></i> Dashboard</a></li>
                                 <li class="nav-item"><a class="@NavClass("Client", "WorkoutPlans", "WorkoutPlan")" aria-current="@Current("Client", "WorkoutPlans", "WorkoutPlan")" asp-area="" asp-controller="Client" asp-action="WorkoutPlans"><i class="bi bi-activity" aria-hidden="true"></i> Workouts</a></li>
                                 <li class="nav-item"><a class="@NavClass("Client", "DietPlans", "DietPlan")" aria-current="@Current("Client", "DietPlans", "DietPlan")" asp-area="" asp-controller="Client" asp-action="DietPlans"><i class="bi bi-egg-fried" aria-hidden="true"></i> Diet</a></li>
@@ -94,6 +120,7 @@
                             }
                         </ul>
 
+                        @* Links for every signed-in user *@
                         <p class="ht-side-label">Account</p>
                         <ul class="nav flex-column ht-side-nav">
                             <li class="nav-item"><a class="@NavClass("Notifications")" aria-current="@Current("Notifications")" asp-area="" asp-controller="Notifications" asp-action="Index"><i class="bi bi-bell" aria-hidden="true"></i> Notifications</a></li>
@@ -108,6 +135,7 @@
                             <span class="ht-side-user-name">@displayName</span>
                             <span class="ht-side-user-role">@roleName</span>
                         </div>
+                        @* Logout is a POST form with an anti-forgery token, not a link, so another site cannot log the user out *@
                         <form asp-area="Identity" asp-page="/Account/Logout"
                               asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
                             <button type="submit" class="btn ht-icon-btn" title="Logout" aria-label="Logout">
@@ -122,10 +150,12 @@
         <div class="ht-main">
             @* Top bar: menu button (small screens), page name, date, notifications bell and profile *@
             <header class="ht-topbar">
+                @* Menu button, only on screens smaller than xl *@
                 <button class="btn ht-icon-btn d-xl-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#htSidebar"
                         aria-controls="htSidebar" aria-label="Open menu">
                     <i class="bi bi-list" aria-hidden="true"></i>
                 </button>
+                @* The current page name *@
                 <div class="ht-topbar-title">
                     <span class="ht-crumb d-none d-sm-inline">HealthTrack</span>
                     <i class="bi bi-chevron-right d-none d-sm-inline" aria-hidden="true"></i>
@@ -133,7 +163,9 @@
                 </div>
                 <div class="ht-topbar-actions">
                     <span class="ht-date d-none d-md-inline-flex"><i class="bi bi-calendar3" aria-hidden="true"></i> @DateTime.Today.ToString("ddd, dd MMM yyyy")</span>
+                    @* Notification bell with the unread count (NotificationBellViewComponent) *@
                     <div class="ht-bell">@await Component.InvokeAsync("NotificationBell")</div>
+                    @* Avatar and name, linking to the profile page *@
                     <a class="ht-topbar-user" asp-area="Identity" asp-page="/Account/Manage/Index" title="My profile">
                         <span class="ht-avatar ht-avatar-sm" aria-hidden="true">@initials</span>
                         <span class="d-none d-sm-inline">@displayName</span>
@@ -158,9 +190,11 @@
                     </div>
                 }
 
+                @* The current view's content is inserted here *@
                 @RenderBody()
             </main>
 
+            @* Footer for signed-in pages *@
             <footer class="ht-app-footer">
                 &copy; 2026 HealthTrack · Personal Health &amp; Fitness Management ·
                 <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
@@ -177,6 +211,7 @@ else
                 <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
                     <i class="bi bi-heart-pulse-fill"></i> HealthTrack
                 </a>
+                @* Button that opens the menu on small screens *@
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
                         aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -187,6 +222,7 @@ else
                         <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
                         <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a></li>
                     </ul>
+                    @* Register / Login links (Views/Shared/_LoginPartial.cshtml) *@
                     <partial name="_LoginPartial" />
                 </div>
             </div>
@@ -195,6 +231,7 @@ else
 
     <div class="container">
         <main role="main" id="main-content" class="pb-3" tabindex="-1">
+            @* The same messages for visitors (e.g. after logging out) *@
             @if (TempData["Success"] != null)
             {
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -210,6 +247,7 @@ else
                 </div>
             }
 
+            @* The current view's content is inserted here *@
             @RenderBody()
         </main>
     </div>
@@ -222,11 +260,15 @@ else
     </footer>
 }
 
+    @* Scripts load at the end of the body so the page appears first; jQuery is needed by the validation scripts *@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    @* Bootstrap's JavaScript: menus, alerts and the slide-in sidebar *@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Chart.js for progress and analytics charts (Task 7) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    @* Our shared chart helpers (HT.line, HT.bars, ...) *@
     <script src="~/js/site.js" asp-append-version="true"></script>
+    @* Each page's own scripts (e.g. its charts); required: false means a page may have none *@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

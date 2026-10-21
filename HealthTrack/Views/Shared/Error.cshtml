@@ -1,4 +1,10 @@
-﻿@model ErrorViewModel
+﻿@* =====================================================================
+   FILE:    Views/Shared/Error.cshtml
+   PURPOSE: The friendly error page shown when something unexpected goes wrong
+            outside development (see UseExceptionHandler in Program.cs). It shows
+            a request id for the logs, never technical details.
+   ===================================================================== *@
+@model ErrorViewModel
 @{
     ViewData["Title"] = "Error";
 }
@@ -6,6 +12,7 @@
 <h1 class="text-danger">Error.</h1>
 <h2 class="text-danger">An error occurred while processing your request.</h2>
 
+@* Only show the request id when there is one *@
 @if (Model.ShowRequestId)
 {
     <p>

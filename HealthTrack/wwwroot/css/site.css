@@ -1,3 +1,14 @@
+/* =====================================================================
+   FILE:    wwwroot/css/site.css
+   PURPOSE: The site-wide stylesheet, loaded on every page by _Layout.cshtml.
+            Sections: 1 colours, 2 base layout, 3 visitor navigation bar,
+            4 buttons, 5 cards/lists/tables/forms, 6 page pieces, 7 Login and
+            Register, 8 sidebar app layout, 9 dashboards, 10 form pages,
+            11 Login/Register photo panel, 12 review fixes.
+   HOW:     mostly changes Bootstrap's own CSS variables (--bs-...), so every
+            Bootstrap component keeps working as documented.
+   ===================================================================== */
+
 /* =========================================================
    HealthTrack theme: dark with bright orange accents.
    Near-black pages, dark cards and an orange accent for buttons,
@@ -54,12 +65,15 @@ html {
   min-height: 100%;
 }
 
+/* From tablet width up, the base text size goes from 14px to 16px */
 @media (min-width: 768px) {
+  /* rem sizes are based on this */
   html {
     font-size: 16px;
   }
 }
 
+/* Whole page: room for the visitor footer, plus the background below */
 body {
   margin-bottom: 60px;
   /* A soft orange glow in the corners of every page */
@@ -70,12 +84,14 @@ body {
   background-attachment: fixed;
 }
 
+/* Headings use the Oswald font (Arial Narrow if it cannot load) */
 h1, h2, h3, h4, h5, h6, .navbar-brand, .display-6 {
   font-family: "Oswald", "Arial Narrow", "Segoe UI", sans-serif;
   font-weight: 600;
   letter-spacing: 0.01em;
 }
 
+/* Main page headings in capitals */
 h1 {
   text-transform: uppercase;   /* bold sporty page titles, like the reference designs */
 }
@@ -87,11 +103,13 @@ h1 {
   box-shadow: 0 0 0 0.15rem var(--ht-bg), 0 0 0 0.35rem var(--ht-primary);
 }
 
+/* Bootstrap floating-label fields: placeholder colour and position (from the default template) */
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
   color: var(--bs-secondary-color);
   text-align: end;
 }
 
+/* The placeholder moves back to the start when the field has focus */
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
@@ -102,6 +120,7 @@ h1 {
   background-color: rgba(255, 107, 26, 0.08) !important;
 }
 
+/* Bootstrap's dark text would be invisible on dark cards, so use the normal light text */
 .text-dark {
   color: var(--ht-text) !important;
 }
@@ -114,6 +133,7 @@ h1 {
   backdrop-filter: blur(10px);
 }
 
+/* HealthTrack name in the visitor bar: white capitals */
 .ht-navbar .navbar-brand {
   color: #FFFFFF;
   letter-spacing: 0.1em;
@@ -122,16 +142,19 @@ h1 {
   font-weight: 700;
 }
 
+/* Heart icon in orange */
 .ht-navbar .navbar-brand i {
   color: var(--ht-primary);
 }
 
+/* Menu links in grey; position: relative for the underline below */
 .ht-navbar .nav-link {
   position: relative;
   color: var(--ht-muted);
   white-space: nowrap;  /* keep each menu label on one line */
 }
 
+/* White on hover and keyboard focus */
 .ht-navbar .nav-link:hover,
 .ht-navbar .nav-link:focus-visible {
   color: #FFFFFF;
@@ -139,6 +162,7 @@ h1 {
 
 /* Orange underline on hover (desktop menu only) */
 @media (min-width: 1200px) {
+  /* The underline: a 2px orange bar, shrunk to zero width until hover */
   .ht-navbar .navbar-nav .nav-link::after {
     content: "";
     position: absolute;
@@ -151,11 +175,13 @@ h1 {
     transition: transform 0.2s ease;
   }
 
+  /* Grows to full width on hover */
   .ht-navbar .navbar-nav .nav-link:hover::after {
     transform: scaleX(1);
   }
 }
 
+/* Border of the small-screen menu button */
 .ht-navbar .navbar-toggler {
   border-color: #3F3F46;
 }
@@ -172,6 +198,7 @@ h1 {
   --bs-btn-font-weight: 600;
 }
 
+/* Small buttons get less side padding */
 .btn-sm {
   --bs-btn-padding-x: .9rem;
 }
@@ -193,6 +220,7 @@ h1 {
   box-shadow: 0 0.5rem 1.25rem rgba(255, 107, 26, 0.25);
 }
 
+/* Outline button: orange border, filled orange on hover */
 .btn-outline-primary {
   --bs-btn-color: var(--ht-link);
   --bs-btn-border-color: var(--ht-primary);
@@ -204,6 +232,7 @@ h1 {
   --bs-btn-active-border-color: var(--ht-primary-press);
 }
 
+/* Secondary buttons: transparent with a grey border */
 .btn-secondary,
 .btn-outline-secondary {
   --bs-btn-color: var(--ht-text);
@@ -217,6 +246,7 @@ h1 {
   --bs-btn-active-border-color: #52525B;
 }
 
+/* White button (used on the landing photo) */
 .btn-light {
   --bs-btn-color: var(--ht-on-primary);
   --bs-btn-bg: #FFFFFF;
@@ -226,6 +256,7 @@ h1 {
   --bs-btn-hover-border-color: #E4E4E7;
 }
 
+/* White outline button (used on the landing photo) */
 .btn-outline-light {
   --bs-btn-color: #FFFFFF;
   --bs-btn-border-color: rgba(255, 255, 255, 0.6);
@@ -252,12 +283,14 @@ article.card:hover,
   border-color: rgba(255, 107, 26, 0.55);
 }
 
+/* Lists: transparent background and dark borders */
 .list-group {
   --bs-list-group-bg: transparent;
   --bs-list-group-border-color: var(--ht-line);
   --bs-list-group-color: var(--ht-text);
 }
 
+/* Tables: transparent background, dark borders, light text */
 .table {
   --bs-table-bg: transparent;
   --bs-table-color: var(--ht-text);
@@ -268,6 +301,7 @@ article.card:hover,
   --bs-table-hover-color: var(--ht-text);
 }
 
+/* Column headings: small grey capitals */
 .table > thead th {
   color: var(--ht-muted);
   font-size: 0.75rem;
@@ -276,6 +310,7 @@ article.card:hover,
   text-transform: uppercase;
 }
 
+/* Input boxes and drop-downs: dark background, light text */
 .form-control,
 .form-select {
   background-color: var(--ht-surface-2);
@@ -283,10 +318,12 @@ article.card:hover,
   color: var(--ht-text);
 }
 
+/* Placeholder text in grey */
 .form-control::placeholder {
   color: #8B8B94;   /* 4.7:1 on inputs */
 }
 
+/* Orange border while typing in a box */
 .form-control:focus,
 .form-select:focus {
   background-color: var(--ht-surface-2);
@@ -294,6 +331,7 @@ article.card:hover,
   color: var(--ht-text);
 }
 
+/* Ticked checkboxes are orange */
 .form-check-input:checked {
   background-color: var(--ht-primary);
   border-color: var(--ht-primary);
@@ -326,6 +364,7 @@ article.card:hover,
   box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.45);
 }
 
+/* Two decorative shapes drawn with ::before / ::after (no extra HTML) */
 .ht-hero::before,
 .ht-hero::after {
   content: "";
@@ -352,25 +391,30 @@ article.card:hover,
   border: 2px solid rgba(255, 107, 26, 0.35);
 }
 
+/* Keeps the banner's content above the decorative shapes */
 .ht-hero > * {
   position: relative;  /* keep text above the shapes */
   z-index: 1;
 }
 
+/* White headings on the banner */
 .ht-hero h1,
 .ht-hero h2 {
   color: #FFFFFF;
 }
 
+/* clamp(): the heading grows with the screen width, between 1.9rem and 3rem */
 .ht-hero h1 {
   font-size: clamp(1.9rem, 4.2vw, 3rem);
   font-weight: 700;
 }
 
+/* Lighter grey text so it stays readable on the banner */
 .ht-hero .text-muted {
   color: #D4D4D8 !important;
 }
 
+/* Box for a big number on the banner */
 .ht-hero-figure {
   text-align: center;
   padding: 1.5rem 1rem;
@@ -379,6 +423,7 @@ article.card:hover,
   border: 1px solid rgba(255, 107, 26, 0.35);
 }
 
+/* The big number itself */
 .ht-hero-figure .value {
   display: block;
   font-family: "Oswald", "Arial Narrow", "Segoe UI", sans-serif;
@@ -395,6 +440,7 @@ article.card:hover,
   gap: 1rem;
 }
 
+/* Round orange icon badge */
 .ht-stat-icon {
   flex: 0 0 3rem;
   width: 3rem;
@@ -407,6 +453,7 @@ article.card:hover,
   font-size: 1.35rem;
 }
 
+/* Big number in a summary card */
 .ht-stat-value {
   font-family: "Oswald", "Arial Narrow", "Segoe UI", sans-serif;
   font-size: 1.9rem;
@@ -416,6 +463,7 @@ article.card:hover,
   color: #FFFFFF;
 }
 
+/* Small grey capital label in a summary card */
 .ht-stat-label {
   color: var(--ht-muted);
   font-size: 0.75rem;
@@ -431,6 +479,7 @@ article.card:hover,
   padding: 1.5rem 1rem;
 }
 
+/* Large orange icon above the empty message */
 .ht-empty i {
   display: block;
   font-size: 1.75rem;
@@ -460,6 +509,7 @@ article.card:hover,
   box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.45);
 }
 
+/* Two decorative shapes, as on the banner */
 .ht-auth::before,
 .ht-auth::after {
   content: "";
@@ -468,6 +518,7 @@ article.card:hover,
   pointer-events: none;
 }
 
+/* A thin orange ring, bottom left */
 .ht-auth::before {
   left: -6rem;
   bottom: -6rem;
@@ -476,6 +527,7 @@ article.card:hover,
   border: 2px solid rgba(255, 107, 26, 0.3);
 }
 
+/* An orange glow, top right */
 .ht-auth::after {
   right: -4rem;
   top: -4rem;
@@ -500,6 +552,7 @@ article.card:hover,
   backdrop-filter: blur(14px);
 }
 
+/* HealthTrack name at the top of the card */
 .ht-auth-brand {
   display: inline-flex;
   align-items: center;
@@ -513,27 +566,32 @@ article.card:hover,
   margin-bottom: 0.75rem;
 }
 
+/* Heart icon in orange */
 .ht-auth-brand i {
   color: var(--ht-primary);
 }
 
+/* Page heading on the card */
 .ht-auth h1 {
   color: #FFFFFF;
   font-size: 2.4rem;
   margin-bottom: 0.25rem;
 }
 
+/* Short line under the heading */
 .ht-auth-sub {
   color: #D4D4D8;
   margin-bottom: 1.75rem;
 }
 
+/* Field labels in white */
 .ht-auth .form-label {
   color: #FFFFFF;
   font-weight: 500;
   margin-bottom: 0.35rem;
 }
 
+/* Input boxes on the card: darker than the card, with rounded corners */
 .ht-auth .form-control,
 .ht-auth .form-select {
   background-color: #0E0E10;
@@ -543,28 +601,34 @@ article.card:hover,
   padding: 0.7rem 0.9rem;
 }
 
+/* "Remember me" label in white */
 .ht-auth .form-check-label {
   color: #FFFFFF;
 }
 
+/* Links in orange */
 .ht-auth a {
   color: var(--ht-link);
 }
 
+/* Lighter orange on hover */
 .ht-auth a:hover {
   color: #FFB27A;
 }
 
+/* Smaller text (Remember me / Forgot password row) */
 .ht-auth-small {
   font-size: 0.875rem;
 }
 
+/* "Don't have an account?" line */
 .ht-auth-footer {
   text-align: center;
   color: #D4D4D8;
   margin: 1.5rem 0 0;
 }
 
+/* Bold link */
 .ht-auth-footer a {
   font-weight: 700;
 }
@@ -581,22 +645,27 @@ article.card:hover,
   font-size: 0.875rem;
 }
 
+/* List inside the error box */
 .ht-auth .validation-summary-errors ul {
   margin: 0;
   padding-left: 1rem;
 }
 
+/* Phones: less padding and smaller corners */
 @media (max-width: 575.98px) {
+  /* Banner on phones */
   .ht-hero {
     padding: 2rem 1.25rem;
     border-radius: 1.25rem;
   }
 
+  /* Login / Register panel on phones */
   .ht-auth {
     border-radius: 1.25rem;
     padding: 2rem 0.75rem;
   }
 
+  /* Card on phones */
   .ht-auth-card {
     padding: 2rem 1.5rem;
   }
@@ -604,6 +673,7 @@ article.card:hover,
 
 /* Respect users who ask the system for less motion */
 @media (prefers-reduced-motion: reduce) {
+  /* Every element: animations and transitions finish almost instantly */
   *, *::before, *::after {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
@@ -624,10 +694,12 @@ article.card:hover,
   color: var(--ht-on-primary);
 }
 
+/* Signed-in pages: no space kept for the visitor footer */
 .ht-app {
   margin-bottom: 0;          /* the app footer is not absolutely positioned */
 }
 
+/* Sidebar and main column side by side, at least the full screen height */
 .ht-shell {
   display: flex;
   min-height: 100vh;
@@ -640,7 +712,9 @@ article.card:hover,
   --bs-offcanvas-border-color: #1F1F23;
 }
 
+/* Large screens: the sidebar stays on screen */
 @media (min-width: 1200px) {
+  /* Sticks to the left while the page scrolls */
   .ht-sidebar {
     position: sticky;
     top: 0;
@@ -659,11 +733,13 @@ article.card:hover,
   }
 }
 
+/* The menu area scrolls by itself if it is taller than the screen */
 .ht-sidebar .offcanvas-body {
   padding: 0;
   overflow-y: auto;
 }
 
+/* Column layout so the user box can sit at the bottom */
 .ht-sidebar-inner {
   display: flex;
   flex-direction: column;
@@ -672,6 +748,7 @@ article.card:hover,
   padding: 1.5rem 1rem 1rem;
 }
 
+/* HealthTrack name at the top of the sidebar */
 .ht-brand {
   display: flex;
   align-items: center;
@@ -686,14 +763,17 @@ article.card:hover,
   text-decoration: none;
 }
 
+/* Heart icon in orange */
 .ht-brand i {
   color: var(--ht-primary);
 }
 
+/* No extra padding in the slide-in header */
 .offcanvas-header .ht-brand {
   padding: 0;
 }
 
+/* Small grey headings: MENU, ACCOUNT */
 .ht-side-label {
   margin: 1.25rem 0.75rem 0.5rem;
   font-size: 0.7rem;
@@ -703,6 +783,7 @@ article.card:hover,
   color: #8B8B94;
 }
 
+/* Menu links: icon + text in a rounded row */
 .ht-side-nav .nav-link {
   display: flex;
   align-items: center;
@@ -715,12 +796,14 @@ article.card:hover,
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
+/* Menu icons all the same width so the text lines up */
 .ht-side-nav .nav-link i {
   font-size: 1.1rem;
   width: 1.25rem;
   text-align: center;
 }
 
+/* Dark background and white text on hover */
 .ht-side-nav .nav-link:hover {
   background-color: #18181B;
   color: #FFFFFF;
@@ -734,6 +817,7 @@ article.card:hover,
   box-shadow: 0 0.5rem 1.25rem rgba(255, 107, 26, 0.25);
 }
 
+/* User box at the bottom of the sidebar (margin-top: auto pushes it down) */
 .ht-side-user {
   display: flex;
   align-items: center;
@@ -745,6 +829,7 @@ article.card:hover,
   background-color: #121214;
 }
 
+/* Name and role stacked; min-width: 0 lets a long name shorten */
 .ht-side-user-text {
   display: flex;
   flex-direction: column;
@@ -752,6 +837,7 @@ article.card:hover,
   flex: 1;
 }
 
+/* Long names end with ... instead of overflowing */
 .ht-side-user-name {
   color: #FFFFFF;
   font-weight: 600;
@@ -761,11 +847,13 @@ article.card:hover,
   text-overflow: ellipsis;
 }
 
+/* Role in small grey text */
 .ht-side-user-role {
   color: var(--ht-muted);
   font-size: 0.75rem;
 }
 
+/* Round orange circle with the initials */
 .ht-avatar {
   flex: 0 0 2.5rem;
   width: 2.5rem;
@@ -779,6 +867,7 @@ article.card:hover,
   font-size: 0.9rem;
 }
 
+/* Smaller version for the top bar */
 .ht-avatar-sm {
   flex-basis: 2rem;
   width: 2rem;
@@ -786,6 +875,7 @@ article.card:hover,
   font-size: 0.75rem;
 }
 
+/* Icon-only button (menu, logout) */
 .ht-icon-btn {
   --bs-btn-padding-x: 0.6rem;
   --bs-btn-padding-y: 0.4rem;
@@ -808,6 +898,7 @@ article.card:hover,
   flex-direction: column;
 }
 
+/* Top bar sticks to the top while the page scrolls */
 .ht-topbar {
   position: sticky;
   top: 0;
@@ -822,6 +913,7 @@ article.card:hover,
   backdrop-filter: blur(10px);
 }
 
+/* Page name; long names end with ... */
 .ht-topbar-title {
   display: flex;
   align-items: center;
@@ -834,16 +926,19 @@ article.card:hover,
   text-overflow: ellipsis;
 }
 
+/* "HealthTrack >" part in grey */
 .ht-topbar-title .ht-crumb,
 .ht-topbar-title i {
   color: #8B8B94;
   font-weight: 500;
 }
 
+/* Smaller arrow */
 .ht-topbar-title i {
   font-size: 0.75rem;
 }
 
+/* Date, bell and profile pushed to the right (margin-left: auto) */
 .ht-topbar-actions {
   display: flex;
   align-items: center;
@@ -851,6 +946,7 @@ article.card:hover,
   margin-left: auto;
 }
 
+/* Today's date in a pill */
 .ht-date {
   align-items: center;
   gap: 0.4rem;
@@ -861,6 +957,7 @@ article.card:hover,
   font-size: 0.85rem;
 }
 
+/* Round bell button */
 .ht-bell .nav-link {
   display: grid;
   place-items: center;
@@ -871,16 +968,19 @@ article.card:hover,
   color: var(--ht-muted);
 }
 
+/* Orange border on hover */
 .ht-bell .nav-link:hover {
   color: #FFFFFF;
   border-color: var(--ht-primary);
 }
 
+/* Unread count in an orange badge */
 .ht-bell .badge {
   background-color: var(--ht-primary) !important;
   color: var(--ht-on-primary);
 }
 
+/* Profile pill: avatar and name */
 .ht-topbar-user {
   display: flex;
   align-items: center;
@@ -894,11 +994,13 @@ article.card:hover,
   text-decoration: none;
 }
 
+/* Orange border on hover */
 .ht-topbar-user:hover {
   border-color: var(--ht-primary);
   color: #FFFFFF;
 }
 
+/* Page content area, at most 1440px wide */
 .ht-content {
   flex: 1;
   width: 100%;
@@ -906,10 +1008,12 @@ article.card:hover,
   padding: 1.75rem 1.5rem 2rem;
 }
 
+/* No outline when the skip link moves focus here */
 .ht-content:focus {
   outline: none;
 }
 
+/* Footer of signed-in pages */
 .ht-app-footer {
   padding: 1rem 1.5rem;
   border-top: 1px solid #1F1F23;
@@ -917,11 +1021,14 @@ article.card:hover,
   font-size: 0.85rem;
 }
 
+/* Phones: less padding */
 @media (max-width: 575.98px) {
+  /* Top bar on phones */
   .ht-topbar {
     padding: 0.75rem 1rem;
   }
 
+  /* Content on phones */
   .ht-content {
     padding: 1.25rem 1rem 1.5rem;
   }
@@ -935,6 +1042,7 @@ article.card:hover,
   margin-bottom: 1.5rem;
 }
 
+/* Smaller heading in the compact banner */
 .ht-hero-compact h1 {
   font-size: clamp(1.6rem, 3.2vw, 2.4rem);
   margin-bottom: 0.25rem;
@@ -950,6 +1058,7 @@ article.card:hover,
   padding: 1.1rem 1.25rem 0.75rem;
 }
 
+/* Label on the left, icon on the right */
 .ht-kpi-head {
   display: flex;
   align-items: center;
@@ -957,6 +1066,7 @@ article.card:hover,
   gap: 0.5rem;
 }
 
+/* Smaller icon in KPI cards */
 .ht-kpi-head .ht-stat-icon {
   flex-basis: 2.25rem;
   width: 2.25rem;
@@ -964,6 +1074,7 @@ article.card:hover,
   font-size: 1rem;
 }
 
+/* The big number */
 .ht-kpi-value {
   font-family: "Oswald", "Arial Narrow", "Segoe UI", sans-serif;
   font-size: 2rem;
@@ -973,6 +1084,7 @@ article.card:hover,
   margin: 0;
 }
 
+/* The unit after the number (kg, min, kcal) */
 .ht-kpi-value small {
   font-family: "Inter", system-ui, sans-serif;
   font-size: 0.9rem;
@@ -989,10 +1101,12 @@ article.card:hover,
   color: var(--ht-muted);
 }
 
+/* Arrow icon in orange */
 .ht-delta i {
   color: var(--ht-primary);
 }
 
+/* Area for the sparkline, 42px tall */
 .ht-spark {
   position: relative;
   height: 42px;
@@ -1005,6 +1119,7 @@ article.card:hover,
   flex-direction: column;
 }
 
+/* Chart title on the left, big figure on the right */
 .ht-chart-head {
   display: flex;
   align-items: flex-start;
@@ -1013,16 +1128,19 @@ article.card:hover,
   margin-bottom: 0.75rem;
 }
 
+/* Less space under the title here */
 .ht-chart-head .ht-card-title {
   margin-bottom: 0.15rem;
 }
 
+/* Grey line under the chart title */
 .ht-chart-sub {
   color: var(--ht-muted);
   font-size: 0.85rem;
   margin: 0;
 }
 
+/* Big number beside the chart title */
 .ht-chart-figure {
   font-family: "Oswald", "Arial Narrow", "Segoe UI", sans-serif;
   font-size: 1.5rem;
@@ -1031,11 +1149,13 @@ article.card:hover,
   white-space: nowrap;
 }
 
+/* Fixed height that the chart fills (maintainAspectRatio: false in site.js) */
 .ht-chart {
   position: relative;
   height: 260px;
 }
 
+/* Shorter chart */
 .ht-chart-sm {
   height: 220px;
 }
@@ -1046,16 +1166,19 @@ article.card:hover,
   font-size: 0.85rem;
 }
 
+/* "Show data" looks like a link */
 .ht-chart-table summary {
   color: var(--ht-link);
   cursor: pointer;
   width: max-content;
 }
 
+/* Space above the table */
 .ht-chart-table table {
   margin: 0.5rem 0 0;
 }
 
+/* Heading row with a button on the right */
 .ht-section-title {
   display: flex;
   align-items: center;
@@ -1064,11 +1187,13 @@ article.card:hover,
   margin: 0.5rem 0 1rem;
 }
 
+/* Section heading size */
 .ht-section-title h2 {
   font-size: 1.15rem;
   margin: 0;
 }
 
+/* Grey outlined pill, e.g. a plan's difficulty */
 .ht-badge-soft {
   display: inline-flex;
   align-items: center;
@@ -1081,11 +1206,14 @@ article.card:hover,
   font-weight: 500;
 }
 
+/* Phones: smaller banner and charts */
 @media (max-width: 575.98px) {
+  /* Compact banner on phones */
   .ht-hero-compact {
     padding: 1.5rem 1.25rem;
   }
 
+  /* Charts on phones */
   .ht-chart {
     height: 230px;
   }
@@ -1108,7 +1236,9 @@ article.card:hover,
   box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.35);
 }
 
+/* Large screens: panel and form side by side */
 @media (min-width: 992px) {
+  /* 5 : 7 columns (the panel is narrower than the form) */
   .ht-form-page {
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
   }
@@ -1133,6 +1263,7 @@ article.card:hover,
   pointer-events: none;
 }
 
+/* The bigger circle */
 .ht-form-info::before {
   width: 15rem;
   height: 15rem;
@@ -1141,6 +1272,7 @@ article.card:hover,
   background-color: rgba(255, 255, 255, 0.2);
 }
 
+/* The smaller circle */
 .ht-form-info::after {
   width: 7rem;
   height: 7rem;
@@ -1149,21 +1281,25 @@ article.card:hover,
   background-color: rgba(255, 255, 255, 0.12);
 }
 
+/* Panel content above the circles */
 .ht-form-info > * {
   position: relative;
   z-index: 1;
 }
 
+/* Dark text on the orange panel */
 .ht-form-info .ht-eyebrow {
   color: var(--ht-on-primary);
 }
 
+/* Panel heading */
 .ht-form-info h1 {
   color: var(--ht-on-primary);
   font-size: 1.75rem;
   margin-bottom: 0.75rem;
 }
 
+/* Panel text */
 .ht-form-info p {
   font-weight: 500;
   margin-bottom: 0;
@@ -1192,12 +1328,14 @@ article.card:hover,
   font-weight: 500;
 }
 
+/* Icon and text side by side */
 .ht-form-tips li {
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
 }
 
+/* Round dark badge behind each tip icon */
 .ht-form-tips .bi {
   flex: 0 0 2.25rem;
   height: 2.25rem;
@@ -1214,6 +1352,7 @@ article.card:hover,
   padding: 2rem 1.75rem;
 }
 
+/* Field labels: small, bold, light grey */
 .ht-form-body .form-label {
   margin-bottom: 0.4rem;
   color: #D4D4D8;
@@ -1221,6 +1360,7 @@ article.card:hover,
   font-weight: 600;
 }
 
+/* Help text under a field */
 .ht-form-body .form-text {
   color: var(--ht-muted);
 }
@@ -1232,6 +1372,7 @@ article.card:hover,
   border: 0;
 }
 
+/* Group heading: small orange capitals */
 .ht-form-group legend {
   margin-bottom: 0.75rem;
   color: var(--ht-primary);
@@ -1246,6 +1387,7 @@ article.card:hover,
   position: relative;
 }
 
+/* The icon sits inside the box on the left */
 .ht-input > .bi {
   position: absolute;
   top: 0;
@@ -1260,6 +1402,7 @@ article.card:hover,
   transition: color 0.2s ease;
 }
 
+/* Space on the left of the text for the icon */
 .ht-input > .form-control,
 .ht-input > .form-select {
   min-height: 2.875rem;
@@ -1267,6 +1410,7 @@ article.card:hover,
   border-radius: 0.75rem;
 }
 
+/* The icon turns orange while the box has focus */
 .ht-input:focus-within > .bi {
   color: var(--ht-primary);
 }
@@ -1281,6 +1425,7 @@ article.card:hover,
   border-color: #F97066;
 }
 
+/* Error messages on their own line under the field */
 .ht-form-body .field-validation-error,
 .ht-form-body .validation-summary-errors {
   display: block;
@@ -1288,6 +1433,7 @@ article.card:hover,
   font-size: 0.875rem;
 }
 
+/* List inside the error summary */
 .ht-form-body .validation-summary-errors ul {
   margin: 0 0 1rem;
   padding-left: 1.1rem;
@@ -1318,31 +1464,38 @@ article.card:hover,
   gap: 0.6rem;
 }
 
+/* The arrow moves smoothly */
 .ht-btn-arrow .bi {
   transition: transform 0.2s ease;
 }
 
+/* Moves 4px right on hover or keyboard focus */
 .ht-btn-arrow:hover .bi,
 .ht-btn-arrow:focus-visible .bi {
   transform: translateX(4px);
 }
 
+/* Tablets and phones: tighter spacing */
 @media (max-width: 991.98px) {
+  /* Panel */
   .ht-form-info {
     padding: 1.5rem 1.25rem;
   }
 
+  /* Tips */
   .ht-form-tips {
     gap: 0.6rem;
     margin-top: 1.25rem;
   }
 
+  /* Tip icons */
   .ht-form-tips .bi {
     flex-basis: 1.9rem;
     height: 1.9rem;
     font-size: 0.875rem;
   }
 
+  /* Form side */
   .ht-form-body {
     padding: 1.5rem 1rem;
   }
@@ -1358,7 +1511,9 @@ article.card:hover,
   padding: 0.75rem;
 }
 
+/* Large screens: two equal columns */
 @media (min-width: 992px) {
+  /* Photo and card side by side */
   .ht-auth-split {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     padding: 0.75rem 2rem 0.75rem 0.75rem;
@@ -1391,10 +1546,12 @@ article.card:hover,
     var(--ht-bg);
 }
 
+/* Soft orange label on the photo */
 .ht-auth-photo .ht-eyebrow {
   color: #FFB27A;
 }
 
+/* Big quote on the photo */
 .ht-auth-quote {
   margin: 0;
   font-family: "Oswald", "Arial Narrow", "Segoe UI", sans-serif;
@@ -1404,6 +1561,7 @@ article.card:hover,
   text-transform: uppercase;
 }
 
+/* Ticked list on the photo */
 .ht-auth-points {
   display: grid;
   gap: 0.6rem;
@@ -1413,19 +1571,24 @@ article.card:hover,
   color: #E4E4E7;
 }
 
+/* Orange tick icons */
 .ht-auth-points .bi {
   margin-right: 0.4rem;
   color: var(--ht-primary);
 }
 
+/* Large screens: a taller photo */
 @media (min-width: 992px) {
+  /* Photo panel */
   .ht-auth-photo {
     min-height: 36rem;
     padding: 2.5rem;
   }
 }
 
+/* Smaller screens: hide the list so the form comes sooner */
 @media (max-width: 991.98px) {
+  /* Hide the ticked list */
   .ht-auth-points {
     display: none;
   }
@@ -1454,33 +1617,41 @@ article.card:hover,
   padding: 2rem 2.25rem;
 }
 
+/* Smaller heading so the form fits */
 .ht-auth-register h1 {
   font-size: 2rem;
 }
 
+/* Less space under the subtitle */
 .ht-auth-register .ht-auth-sub {
   margin-bottom: 1.25rem;
 }
 
+/* Password rules line */
 .ht-auth-hint {
   margin: 0.9rem 0 1.1rem;
   color: #A1A1AA;
   font-size: 0.85rem;
 }
 
+/* Large screens: wide form (7) and slim photo (4) */
 @media (min-width: 992px) {
+  /* Column sizes */
   .ht-auth-register.ht-auth-split {
     grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
     padding: 0.75rem;
   }
 
+  /* The photo fills the height, framed on the athlete */
   .ht-auth-register .ht-auth-photo {
     min-height: 0;
     background-position: center, 58% 28%, center;
   }
 }
 
+/* Smaller screens: no photo on Register */
 @media (max-width: 991.98px) {
+  /* Hide the photo */
   .ht-auth-register .ht-auth-photo {
     display: none;                 /* phones and tablets: the form comes first, no photo needed */
   }
@@ -1503,6 +1674,7 @@ article.card:hover,
   box-shadow: 0 0.75rem 1.5rem rgba(255, 107, 26, 0.25);
 }
 
+/* Email, age and member-since in a wrapping row */
 .ht-profile-meta {
   display: flex;
   flex-wrap: wrap;
@@ -1511,6 +1683,7 @@ article.card:hover,
   font-size: 0.9rem;
 }
 
+/* Orange icons */
 .ht-profile-meta .bi {
   color: var(--ht-primary);
   margin-right: 0.2rem;
@@ -1523,6 +1696,7 @@ article.card:hover,
   padding: 0;
 }
 
+/* Three columns: icon, text, value */
 .ht-feed-item {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -1532,10 +1706,12 @@ article.card:hover,
   border-bottom: 1px solid var(--ht-line);
 }
 
+/* No line under the last item */
 .ht-feed-item:last-child {
   border-bottom: 0;
 }
 
+/* Rounded orange icon square */
 .ht-feed-icon {
   width: 2.5rem;
   height: 2.5rem;
@@ -1548,12 +1724,14 @@ article.card:hover,
   font-size: 1.05rem;
 }
 
+/* Title above the small line; min-width: 0 lets long titles shorten */
 .ht-feed-main {
   display: flex;
   flex-direction: column;
   min-width: 0;
 }
 
+/* Bold title; long titles end with ... */
 .ht-feed-title {
   color: var(--ht-text);
   font-weight: 600;
@@ -1562,20 +1740,24 @@ article.card:hover,
   white-space: nowrap;
 }
 
+/* Title links without an underline */
 a.ht-feed-title {
   text-decoration: none;
 }
 
+/* Underline on hover */
 a.ht-feed-title:hover {
   color: var(--ht-link);
   text-decoration: underline;
 }
 
+/* Small grey line (date, type) */
 .ht-feed-sub {
   color: #A1A1AA;
   font-size: 0.82rem;
 }
 
+/* Value on the right, e.g. minutes */
 .ht-feed-value {
   display: flex;
   flex-direction: column;
@@ -1585,6 +1767,7 @@ a.ht-feed-title:hover {
   white-space: nowrap;
 }
 
+/* Small grey second value, e.g. kcal */
 .ht-feed-value small {
   color: #A1A1AA;
   font-size: 0.78rem;
@@ -1596,6 +1779,7 @@ a.ht-feed-title:hover {
   align-items: start;
 }
 
+/* The feedback message; long words wrap */
 .ht-feed-text {
   margin-top: 0.25rem;
   color: #D4D4D8;
@@ -1603,12 +1787,14 @@ a.ht-feed-title:hover {
   overflow-wrap: anywhere;
 }
 
+/* Rating stars in orange */
 .ht-stars {
   margin-left: 0.4rem;
   color: var(--ht-primary);
   letter-spacing: 0.05em;
 }
 
+/* Empty stars in grey */
 .ht-stars .bi-star {
   color: #52525B;
 }

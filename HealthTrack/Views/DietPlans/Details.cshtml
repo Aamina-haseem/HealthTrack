@@ -1,21 +1,31 @@
+@* =====================================================================
+   FILE:    Views/DietPlans/Details.cshtml
+   PURPOSE: One diet plan for the trainer who wrote it (DietPlansController.Details):
+            the plan's details, buttons to add meals / edit / delete, and the
+            table of planned meals with Edit and Delete for each.
+   ===================================================================== *@
 @model HealthTrack.ViewModels.DietPlanDetailsViewModel
 @{ ViewData["Title"] = "Diet Plan Details"; }
 <h1>@Model.Plan.Title</h1><p class="text-muted">For @Model.ClientName</p>
+@* Plan details as a definition list *@
 <dl class="row">
     <dt class="col-sm-3">Description</dt><dd class="col-sm-9">@(Model.Plan.Description ?? "Not set")</dd>
     <dt class="col-sm-3">Daily target</dt><dd class="col-sm-9">@Model.Plan.DailyCalorieTarget kcal</dd>
     <dt class="col-sm-3">Dates</dt><dd class="col-sm-9">@Model.Plan.StartDate.ToString("dd MMM yyyy") to @(Model.Plan.EndDate?.ToString("dd MMM yyyy") ?? "Ongoing")</dd>
 </dl>
+@* Actions for this plan *@
 <p><a asp-action="AddMeal" asp-route-id="@Model.Plan.Id" class="btn btn-primary">Add Meal</a>
    <a asp-action="Edit" asp-route-id="@Model.Plan.Id" class="btn btn-outline-primary">Edit Plan</a>
    <a asp-action="Delete" asp-route-id="@Model.Plan.Id" class="btn btn-outline-danger">Delete Plan</a>
    <a asp-action="Index" class="btn btn-secondary">All Plans</a></p>
 <h2>Planned Meals</h2>
+@* Empty state, otherwise the meals table *@
 @if (Model.Meals.Count == 0) { <div class="alert alert-info">No planned meals yet.</div> }
 else {
 <div class="table-responsive"><table class="table table-striped">
     <thead><tr><th>Meal</th><th>Food</th><th>Calories</th><th>Time</th><th>Actions</th></tr></thead>
     <tbody>@foreach (var m in Model.Meals) {
+        @* One row per meal; Delete is a small POST form with a confirm box *@
         <tr><td>@m.MealType</td><td>@m.FoodItems</td><td>@m.Calories kcal</td>
             <td>@(m.MealTime?.ToString(@"hh\:mm") ?? "Not set")</td><td>
             <a asp-action="EditMeal" asp-route-id="@m.Id" class="btn btn-sm btn-outline-primary">Edit</a>

@@ -1,6 +1,13 @@
 @page
 @model LoginModel
+@* =====================================================================
+   FILE:    Areas/Identity/Pages/Account/Login.cshtml
+   PURPOSE: The Login page's markup (the logic is in Login.cshtml.cs): a photo
+            panel beside a dark card with email, password and "Remember me".
+            The validation messages come from the InputModel attributes.
+   ===================================================================== *@
 
+@* Page title *@
 @{
     ViewData["Title"] = "Log in";
 }
@@ -28,15 +35,20 @@
         <h1 id="login-title">Log in</h1>
         <p class="ht-auth-sub">Welcome back. Sign in to see your plans and progress.</p>
 
+        @* Posts to LoginModel.OnPostAsync; the form tag helper adds the anti-forgery token automatically *@
         <form id="account" method="post">
+            @* Errors that are not tied to one field, e.g. "Invalid email or password." *@
             <div asp-validation-summary="ModelOnly" class="mb-3" role="alert"></div>
 
             <div class="mb-3">
+                @* asp-for links the label and input to Input.Email, so its validation rules apply *@
                 <label asp-for="Input.Email" class="form-label">Email</label>
                 <div class="ht-input">
                     <i class="bi bi-envelope" aria-hidden="true"></i>
+                    @* autocomplete="username" lets password managers fill it in *@
                     <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
                 </div>
+                @* Error message for this field *@
                 <span asp-validation-for="Input.Email"></span>
             </div>
 
@@ -44,6 +56,7 @@
                 <label asp-for="Input.Password" class="form-label">Password</label>
                 <div class="ht-input">
                     <i class="bi bi-lock" aria-hidden="true"></i>
+                    @* [DataType(Password)] makes this a password box (dots) *@
                     <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Password" />
                 </div>
                 <span asp-validation-for="Input.Password"></span>
@@ -51,17 +64,21 @@
 
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 ht-auth-small">
                 <div class="form-check">
+                    @* Remember me: keeps the login cookie after the browser closes *@
                     <input class="form-check-input" asp-for="Input.RememberMe" />
                     <label class="form-check-label" asp-for="Input.RememberMe">@Html.DisplayNameFor(m => m.Input.RememberMe)</label>
                 </div>
+                @* Scaffolded Identity page for resetting a password *@
                 <a id="forgot-password" asp-page="./ForgotPassword">Forgot password?</a>
             </div>
 
+            @* Submit button *@
             <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary ht-btn-arrow justify-content-center">Sign in <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
         </form>
 
         <p class="ht-auth-footer">
             Don't have an account?
+            @* Link to Register, keeping the return URL *@
             <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register for free</a>
         </p>
         <p class="text-center ht-auth-small mb-0">
@@ -70,6 +87,7 @@
     </div>
 </section>
 
+@* Browser-side validation (jQuery Validate) using the same rules as the server *@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

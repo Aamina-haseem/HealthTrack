@@ -1,2 +1,9 @@
-﻿<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+﻿@* =====================================================================
+   FILE:    Views/Shared/_ValidationScriptsPartial.cshtml
+   PURPOSE: Loads jQuery Validation, so forms are checked in the browser using
+            the same data annotations as the server ([Required], [Range], ...).
+            Every form page includes it in its Scripts section. The server still
+            validates again, because browser checks can be switched off.
+   ===================================================================== *@
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
 <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>

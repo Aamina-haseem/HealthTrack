@@ -1,4 +1,10 @@
-﻿@model IReadOnlyList<HealthTrack.Models.WorkoutPlan>
+﻿@* =====================================================================
+   FILE:    Views/WorkoutPlans/Index.cshtml
+   PURPOSE: The trainer's list of workout plans they have created
+            (WorkoutPlansController.Index), with View Details and Add Exercise
+            buttons for each plan.
+   ===================================================================== *@
+@model IReadOnlyList<HealthTrack.Models.WorkoutPlan>
 
 @{
     ViewData["Title"] = "Workout Plans";
@@ -20,12 +26,14 @@
 @* The controller already filters these plans to the signed-in trainer. *@
 @if (Model.Count == 0)
 {
+    @* Empty state *@
     <div class="alert alert-info">
         You have not created any workout plans yet.
     </div>
 }
 else
 {
+    @* Table of plans (scrolls sideways on small screens) *@
     <div class="table-responsive">
         <table class="table table-striped align-middle">
             <thead>
@@ -39,6 +47,7 @@ else
                 </tr>
             </thead>
             <tbody>
+                @* One row per plan *@
                 @foreach (var plan in Model)
                 {
                     <tr>

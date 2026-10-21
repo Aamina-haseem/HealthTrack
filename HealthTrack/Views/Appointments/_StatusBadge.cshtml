@@ -1,3 +1,9 @@
+@* =====================================================================
+   FILE:    Views/Appointments/_StatusBadge.cshtml
+   PURPOSE: A small partial view that draws an appointment status as a coloured
+            pill (Approved = green, Pending = amber, Completed = orange, other =
+            grey). Used on every appointment page so the colours always match.
+   ===================================================================== *@
 @model HealthTrack.Models.AppointmentStatus
 @* Coloured badge for an appointment status, reused on every appointment page *@
 @{
@@ -9,4 +15,5 @@
         _ => "text-bg-secondary"
     };
 }
+@* The status name is always written as text too, so colour is never the only signal *@
 <span class="badge rounded-pill @css">@Model</span>

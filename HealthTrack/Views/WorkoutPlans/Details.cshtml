@@ -1,4 +1,10 @@
-﻿@model HealthTrack.ViewModels.WorkoutPlanDetailsViewModel
+﻿@* =====================================================================
+   FILE:    Views/WorkoutPlans/Details.cshtml
+   PURPOSE: One workout plan for the trainer who wrote it
+            (WorkoutPlansController.Details): the plan's details, buttons to add
+            exercises / edit / delete, and the exercise table with Edit and Delete.
+   ===================================================================== *@
+@model HealthTrack.ViewModels.WorkoutPlanDetailsViewModel
 
 @{
     ViewData["Title"] = "Workout Plan Details";
@@ -7,6 +13,7 @@
 <h1>@Model.Plan.Title</h1>
 <p class="text-muted">Workout plan for @Model.ClientName</p>
 
+@* Plan details as a definition list ("Not set" when a field is empty) *@
 <dl class="row">
     <dt class="col-sm-3">Description</dt>
     <dd class="col-sm-9">@(Model.Plan.Description ?? "Not set")</dd>
@@ -26,6 +33,7 @@
     </dd>
 </dl>
 
+@* Actions for this plan *@
 <p>
     <a asp-action="AddExercise"
        asp-route-id="@Model.Plan.Id"
@@ -42,6 +50,7 @@
 @* Exercises were loaded separately through the repository. *@
 @if (Model.Exercises.Count == 0)
 {
+    @* Empty state *@
     <div class="alert alert-info">
         No exercises have been added to this plan yet.
     </div>
@@ -62,6 +71,7 @@ else
                 </tr>
             </thead>
             <tbody>
+                @* One row per exercise; 0 is shown as a dash (not used for this exercise) *@
                 @foreach (var exercise in Model.Exercises)
                 {
                     <tr>
@@ -72,11 +82,13 @@ else
                         <td>@(exercise.DurationMinutes == 0 ? "—" : exercise.DurationMinutes.ToString())</td>
                         <td>@(exercise.Notes ?? "—")</td>
                         <td>
+                            @* Edit opens the exercise form *@
                             <a asp-action="EditExercise"
                                asp-route-id="@exercise.Id"
                                class="btn btn-sm btn-outline-primary">
                                 Edit
                             </a>
+                            @* Delete is a small POST form (with anti-forgery token) and a confirm box *@
                             <form asp-action="DeleteExercise" asp-route-id="@exercise.Id" method="post" class="d-inline">
                                 <button type="submit" class="btn btn-sm btn-outline-danger"
                                         onclick="return confirm('Delete this exercise?');">Delete</button>

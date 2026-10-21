@@ -1,7 +1,16 @@
+@* =====================================================================
+   FILE:    Views/Logs/_WorkoutForm.cshtml
+   PURPOSE: The workout fields, shared by "Log Workout" and "Edit Workout" so both
+            forms always match. Each asp-for links a box to a property of
+            WorkoutLogCreateViewModel; asp-validation-for shows its error message.
+   ===================================================================== *@
 @model HealthTrack.ViewModels.WorkoutLogCreateViewModel
 @using Microsoft.AspNetCore.Mvc.Rendering
+@* The client's own plans, prepared by LogsController.LoadPlansAsync *@
 @{ var plans = (IEnumerable<SelectListItem>)ViewBag.Plans; }
+@* Errors that are not about one field (e.g. "could not be saved") *@
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+@* Row 1: activity name and date *@
 <div class="row">
     <div class="col-md-7 mb-3"><label asp-for="ExerciseName" class="form-label"></label>
         <div class="ht-input"><i class="bi bi-lightning-charge" aria-hidden="true"></i><input asp-for="ExerciseName" class="form-control" placeholder="e.g. Running" /></div>
@@ -10,10 +19,12 @@
         <div class="ht-input"><i class="bi bi-calendar-event" aria-hidden="true"></i><input asp-for="Date" class="form-control" /></div>
         <span asp-validation-for="Date" class="text-danger"></span></div>
 </div>
+@* Optional link to one of the client's workout plans *@
 <div class="mb-3"><label asp-for="WorkoutPlanId" class="form-label"></label>
     <div class="ht-input"><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>
         <select asp-for="WorkoutPlanId" asp-items="plans" class="form-select"><option value="">No specific plan</option></select></div>
     <span asp-validation-for="WorkoutPlanId" class="text-danger"></span></div>
+@* Row 2: minutes and calories side by side *@
 <div class="row">
     <div class="col-sm-6 mb-3"><label asp-for="DurationMinutes" class="form-label"></label>
         <div class="ht-input"><i class="bi bi-stopwatch" aria-hidden="true"></i><input asp-for="DurationMinutes" class="form-control" /></div>
@@ -22,6 +33,7 @@
         <div class="ht-input"><i class="bi bi-fire" aria-hidden="true"></i><input asp-for="CaloriesBurned" class="form-control" /></div>
         <span asp-validation-for="CaloriesBurned" class="text-danger"></span></div>
 </div>
+@* Optional notes *@
 <div class="mb-3"><label asp-for="Notes" class="form-label"></label>
     <div class="ht-input"><i class="bi bi-chat-left-text" aria-hidden="true"></i><textarea asp-for="Notes" class="form-control" rows="3"></textarea></div>
     <span asp-validation-for="Notes" class="text-danger"></span></div>
