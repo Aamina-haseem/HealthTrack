@@ -6,7 +6,7 @@
     // with this signed-in client's own records only.
     var weightPoints = Model.Measurements.Select(m => new
     {
-        date = m.Date.ToString("dd MMM yyyy"),
+        date = m.Date.ToString("dd MMM"),
         weight = Math.Round(m.WeightKg, 1),
         bmi = Math.Round(m.BMI, 1)
     }).ToList();
@@ -15,114 +15,176 @@
     var days = Enumerable.Range(0, 7).Select(i => DateTime.Today.AddDays(i - 6)).ToList();
     var calorieData = new
     {
-        labels = days.Select(d => d.ToString("ddd dd MMM")).ToList(),
+        labels = days.Select(d => d.ToString("ddd")).ToList(),
         burned = days.Select(d => Model.Workouts.Where(w => w.Date.Date == d).Sum(w => w.CaloriesBurned)).ToList(),
         eaten = days.Select(d => Model.Meals.Where(m => m.Date.Date == d).Sum(m => m.Calories)).ToList()
     };
     var hasRecentCalories = calorieData.burned.Any(x => x > 0) || calorieData.eaten.Any(x => x > 0);
+    var latest = Model.Measurements.LastOrDefault();
 }
-<h1>My Progress</h1>
-<p class="text-muted">Based on your own recorded workouts, meals and measurements.</p>
-<p><a asp-controller="Logs" asp-action="Index" class="btn btn-primary">Add or Edit Logs</a>
-   <a asp-controller="Client" asp-action="Index" class="btn btn-secondary">Dashboard</a></p>
+
+@* Short banner, the same style as the dashboards *@
+<section class="ht-hero ht-hero-compact">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <span class="ht-eyebrow">My Progress</span>
+            <h1>Your Progress</h1>
+            <p class="text-muted mb-0">Based on your own recorded workouts, meals and measurements.</p>
+        </div>
+        <nav class="d-flex flex-wrap gap-2" aria-label="Progress actions">
+            <a asp-controller="Logs" asp-action="Index" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add or Edit Logs</a>
+            <a asp-controller="Client" asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        </nav>
+    </div>
+</section>
+
+@* ===== Summary cards (last 30 days) ===== *@
 <div class="row g-3 mb-4">
-    <div class="col-md-3"><div class="card h-100"><div class="card-body"><h2 class="h6">Weight Change</h2><p class="fs-3">@(Model.WeightChangeKg?.ToString("+0.0;-0.0;0.0") ?? "—") kg</p></div></div></div>
-    <div class="col-md-3"><div class="card h-100"><div class="card-body"><h2 class="h6">Workout Minutes (30 days)</h2><p class="fs-3">@Model.WorkoutMinutesLast30Days</p></div></div></div>
-    <div class="col-md-3"><div class="card h-100"><div class="card-body"><h2 class="h6">Calories Burned (30 days)</h2><p class="fs-3">@Model.CaloriesBurnedLast30Days</p></div></div></div>
-    <div class="col-md-3"><div class="card h-100"><div class="card-body"><h2 class="h6">Calories Logged in Meals (30 days)</h2><p class="fs-3">@Model.CaloriesConsumedLast30Days</p></div></div></div>
+    <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
+        <div class="ht-kpi-head"><span class="ht-stat-label">Weight change</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-graph-down-arrow"></i></span></div>
+        <p class="ht-kpi-value">@(Model.WeightChangeKg?.ToString("+0.0;-0.0;0.0") ?? "—") <small>kg</small></p>
+        <span class="ht-delta"><i class="bi bi-speedometer2" aria-hidden="true"></i> @(latest is null ? "No measurements yet" : $"Now {latest.WeightKg:0.0} kg")</span>
+        <div class="ht-spark" aria-hidden="true"><canvas id="sparkWeight"></canvas></div>
+    </div></div></div>
+
+    <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
+        <div class="ht-kpi-head"><span class="ht-stat-label">Workout minutes</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-stopwatch"></i></span></div>
+        <p class="ht-kpi-value">@Model.WorkoutMinutesLast30Days <small>min</small></p>
+        <span class="ht-delta"><i class="bi bi-calendar3" aria-hidden="true"></i> Last 30 days</span>
+    </div></div></div>
+
+    <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
+        <div class="ht-kpi-head"><span class="ht-stat-label">Calories burned</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-fire"></i></span></div>
+        <p class="ht-kpi-value">@Model.CaloriesBurnedLast30Days <small>kcal</small></p>
+        <span class="ht-delta"><i class="bi bi-calendar3" aria-hidden="true"></i> Last 30 days</span>
+    </div></div></div>
+
+    <div class="col-sm-6 col-xl-3"><div class="card ht-stat ht-kpi h-100"><div class="card-body">
+        <div class="ht-kpi-head"><span class="ht-stat-label">Calories eaten</span><span class="ht-stat-icon" aria-hidden="true"><i class="bi bi-egg-fried"></i></span></div>
+        <p class="ht-kpi-value">@Model.CaloriesConsumedLast30Days <small>kcal</small></p>
+        <span class="ht-delta"><i class="bi bi-calendar3" aria-hidden="true"></i> Logged in meals, last 30 days</span>
+    </div></div></div>
 </div>
 
-<h2 class="h4">Weight and BMI Trend</h2>
-@if (Model.Measurements.Count == 0)
-{
-    <div class="alert alert-info">Record a health measurement to see your trend.</div>
-}
-else
-{
-    @if (Model.Measurements.Count == 1)
+@* ===== Weight and BMI: two charts, so each has its own honest scale ===== *@
+<div class="row g-4 mb-4">
+    <section class="col-xl-8"><div class="card ht-chart-card h-100"><div class="card-body">
+        <div class="ht-chart-head">
+            <div>
+                <h2 class="ht-card-title">Weight Trend</h2>
+                <p class="ht-chart-sub">Every measurement you recorded, oldest to newest.</p>
+            </div>
+            @if (latest is not null) { <span class="ht-chart-figure">@latest.WeightKg.ToString("0.0") kg</span> }
+        </div>
+        @if (Model.Measurements.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-graph-up" aria-hidden="true"></i>Record a health measurement to see your trend. <a asp-controller="Logs" asp-action="AddMeasurement">Record one</a>.</div>
+        }
+        else
+        {
+            @if (Model.Measurements.Count == 1)
+            {
+                <p class="text-muted small">Only one measurement so far. Add another to see a trend line.</p>
+            }
+            <div class="ht-chart"><canvas id="weightChart" role="img" aria-label="Line chart of your weight in kilograms over time"></canvas></div>
+        }
+    </div></div></section>
+
+    <section class="col-xl-4"><div class="card ht-chart-card h-100"><div class="card-body">
+        <div class="ht-chart-head">
+            <div>
+                <h2 class="ht-card-title">BMI Trend</h2>
+                <p class="ht-chart-sub">Calculated from your weight and height.</p>
+            </div>
+            @if (latest is not null) { <span class="ht-chart-figure">@latest.BMI.ToString("0.0")</span> }
+        </div>
+        @if (Model.Measurements.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-heart-pulse" aria-hidden="true"></i>No BMI yet.</div>
+        }
+        else
+        {
+            <div class="ht-chart ht-chart-sm"><canvas id="bmiChart" role="img" aria-label="Line chart of your BMI over time"></canvas></div>
+        }
+    </div></div></section>
+</div>
+
+@* ===== Calories burned vs eaten, last 7 days ===== *@
+<section class="card ht-chart-card mb-4"><div class="card-body">
+    <div class="ht-chart-head">
+        <div>
+            <h2 class="ht-card-title">Calories: Last 7 Days</h2>
+            <p class="ht-chart-sub">Burned in workouts compared with eaten in meals, per day.</p>
+        </div>
+    </div>
+    @if (!hasRecentCalories)
     {
-        <p class="text-muted">Only one measurement so far. Add another to see a trend line.</p>
+        <div class="ht-empty"><i class="bi bi-fire" aria-hidden="true"></i>No workouts or meals logged in the last 7 days.</div>
     }
-    <div class="card mb-3"><div class="card-body">
-        <canvas id="weightChart" height="110" role="img"
-                aria-label="Line chart of your weight in kilograms and BMI over time"></canvas>
-    </div></div>
-    <div class="table-responsive"><table class="table table-sm">
-        <thead><tr><th>Date</th><th>Weight</th><th>BMI</th><th>Resting Heart Rate</th></tr></thead>
-        <tbody>@foreach (var m in Model.Measurements.OrderByDescending(x => x.Date).Take(10)) {
-            <tr><td>@m.Date.ToString("dd MMM yyyy")</td><td>@m.WeightKg.ToString("0.0") kg</td><td>@m.BMI.ToString("0.0")</td>
-                <td>@(m.RestingHeartRate?.ToString() ?? "—")</td></tr>
-        }</tbody>
-    </table></div>
-}
+    else
+    {
+        <div class="ht-chart"><canvas id="calorieChart" role="img" aria-label="Bar chart of calories burned in workouts and calories eaten in meals for each of the last 7 days"></canvas></div>
+        <details class="ht-chart-table">
+            <summary>Show data</summary>
+            <table class="table table-sm mb-0"><thead><tr><th>Day</th><th>Burned (kcal)</th><th>Eaten (kcal)</th></tr></thead>
+                <tbody>@for (var i = 0; i < days.Count; i++) { <tr><td>@days[i].ToString("ddd dd MMM")</td><td>@calorieData.burned[i]</td><td>@calorieData.eaten[i]</td></tr> }</tbody>
+            </table>
+        </details>
+    }
+</div></section>
 
-<h2 class="h4 mt-4">Calories: Last 7 Days</h2>
-@if (!hasRecentCalories)
-{
-    <div class="alert alert-info">No workouts or meals logged in the last 7 days.</div>
-}
-else
-{
-    <div class="card mb-3"><div class="card-body">
-        <canvas id="calorieChart" height="110" role="img"
-                aria-label="Bar chart of calories burned in workouts and calories eaten in meals for each of the last 7 days"></canvas>
-    </div></div>
-}
+@* ===== History tables ===== *@
+<div class="row g-4 mb-4">
+    <section class="col-xl-6"><div class="card h-100"><div class="card-body">
+        <h2 class="ht-card-title">Recent Measurements</h2>
+        @if (Model.Measurements.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-rulers" aria-hidden="true"></i>No measurements logged.</div>
+        }
+        else
+        {
+            <div class="table-responsive"><table class="table table-hover align-middle mb-0">
+                <thead><tr><th scope="col">Date</th><th scope="col">Weight</th><th scope="col">BMI</th><th scope="col">Resting HR</th></tr></thead>
+                <tbody>@foreach (var m in Model.Measurements.OrderByDescending(x => x.Date).Take(10)) {
+                    <tr><td>@m.Date.ToString("dd MMM yyyy")</td><td class="fw-semibold">@m.WeightKg.ToString("0.0") kg</td><td>@m.BMI.ToString("0.0")</td>
+                        <td>@(m.RestingHeartRate is null ? "—" : $"{m.RestingHeartRate} bpm")</td></tr>
+                }</tbody>
+            </table></div>
+        }
+    </div></div></section>
 
-<h2 class="h4 mt-4">Workout History</h2>
-@if (Model.Workouts.Count == 0) { <p class="text-muted">No workouts logged.</p> }
-else { <div class="table-responsive"><table class="table table-sm table-striped">
-    <thead><tr><th>Date</th><th>Workout</th><th>Minutes</th><th>Calories Burned</th></tr></thead>
-    <tbody>@foreach (var x in Model.Workouts.OrderByDescending(x => x.Date).Take(10)) {
-        <tr><td>@x.Date.ToString("dd MMM yyyy")</td><td>@x.ExerciseName</td>
-            <td>@x.DurationMinutes</td><td>@x.CaloriesBurned</td></tr>
-    }</tbody>
-</table></div> }
+    <section class="col-xl-6"><div class="card h-100"><div class="card-body">
+        <h2 class="ht-card-title">Workout History</h2>
+        @if (Model.Workouts.Count == 0)
+        {
+            <div class="ht-empty"><i class="bi bi-activity" aria-hidden="true"></i>No workouts logged.</div>
+        }
+        else
+        {
+            <div class="table-responsive"><table class="table table-hover align-middle mb-0">
+                <thead><tr><th scope="col">Date</th><th scope="col">Workout</th><th scope="col">Minutes</th><th scope="col">kcal</th></tr></thead>
+                <tbody>@foreach (var x in Model.Workouts.OrderByDescending(x => x.Date).Take(10)) {
+                    <tr><td>@x.Date.ToString("dd MMM yyyy")</td><td class="fw-semibold">@x.ExerciseName</td>
+                        <td>@x.DurationMinutes</td><td>@x.CaloriesBurned</td></tr>
+                }</tbody>
+            </table></div>
+        }
+    </div></div></section>
+</div>
 
 @section Scripts {
 <script>
     // Json.Serialize encodes the data safely, so text typed by users
-    // cannot break out of this script. Chart.js is loaded once in _Layout.
+    // cannot break out of this script. The drawing is done by the shared HT helpers in site.js.
     const weightPoints = @Json.Serialize(weightPoints);
     const calories = @Json.Serialize(calorieData);
 
-    const weightCanvas = document.getElementById('weightChart');
-    if (weightCanvas && weightPoints.length > 0) {
-        new Chart(weightCanvas, {
-            type: 'line',
-            data: {
-                labels: weightPoints.map(p => p.date),
-                datasets: [
-                    { label: 'Weight (kg)', data: weightPoints.map(p => p.weight), yAxisID: 'y', borderColor: '#0B6FD6', backgroundColor: 'rgba(11, 111, 214, 0.85)', pointRadius: 4, tension: 0.2 },
-                    { label: 'BMI', data: weightPoints.map(p => p.bmi), yAxisID: 'y1', borderColor: '#6FB8F8', backgroundColor: 'rgba(111, 184, 248, 0.85)', pointRadius: 4, tension: 0.2 }
-                ]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: { title: { display: true, text: 'Weight (kg)' } },
-                    y1: { position: 'right', title: { display: true, text: 'BMI' }, grid: { drawOnChartArea: false } }
-                }
-            }
-        });
-    }
-
-    const calorieCanvas = document.getElementById('calorieChart');
-    if (calorieCanvas) {
-        new Chart(calorieCanvas, {
-            type: 'bar',
-            data: {
-                labels: calories.labels,
-                datasets: [
-                    { label: 'Burned in workouts (kcal)', data: calories.burned, borderColor: '#0B6FD6', backgroundColor: 'rgba(11, 111, 214, 0.85)', borderRadius: 6 },
-                    { label: 'Eaten in meals (kcal)', data: calories.eaten, borderColor: '#6FB8F8', backgroundColor: 'rgba(111, 184, 248, 0.85)', borderRadius: 6 }
-                ]
-            },
-            options: {
-                responsive: true,
-                scales: { y: { beginAtZero: true, title: { display: true, text: 'Calories (kcal)' } } }
-            }
-        });
-    }
+    HT.spark('sparkWeight', weightPoints.map(p => p.weight));
+    HT.line('weightChart', weightPoints.map(p => p.date), weightPoints.map(p => p.weight), 'Weight', 'kg');
+    HT.line('bmiChart', weightPoints.map(p => p.date), weightPoints.map(p => p.bmi), 'BMI', '');
+    HT.bars('calorieChart', calories.labels, [
+        { label: 'Burned in workouts', values: calories.burned },
+        { label: 'Eaten in meals', values: calories.eaten }
+    ], 'kcal');
 </script>
 }

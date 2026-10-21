@@ -1,5 +1,4 @@
 @model HealthTrack.ViewModels.AdminReportViewModel
-@using System.Text.Json
 @{
     ViewData["Title"] = "System Reports";
 
@@ -26,7 +25,7 @@
     <section class="col-lg-4"><div class="card h-100"><div class="card-body">
         <h2 class="ht-card-title">Engagement Overview</h2>
         <p class="text-muted small">Logs in the last 30 days: 20+ High, 8-19 Medium, 1-7 Low, 0 Inactive.</p>
-        <canvas id="engagementChart" height="220" aria-label="Doughnut chart of client engagement"></canvas>
+        <div class="ht-chart ht-chart-sm"><canvas id="engagementChart" role="img" aria-label="Donut chart of client engagement: @Model.HighEngagement high, @Model.MediumEngagement medium, @Model.LowEngagement low, @Model.InactiveClients inactive"></canvas></div>
     </div></div></section>
 
     <section class="col-lg-8"><div class="card h-100"><div class="card-body">
@@ -73,7 +72,7 @@
         }
         else
         {
-            <canvas id="activitiesChart" height="180" aria-label="Bar chart of most logged activities"></canvas>
+            <div class="ht-chart ht-chart-sm"><canvas id="activitiesChart" role="img" aria-label="Bar chart of the most logged activities"></canvas></div>
         }
     </div></div></section>
 
@@ -134,44 +133,14 @@
 
 @section Scripts {
     <script>
-        // Chart.js is loaded once in _Layout.cshtml
-        (function () {
-            if (typeof Chart === 'undefined') return;
+        // The drawing is done by the shared HT helpers in site.js (Chart.js is loaded once in _Layout.cshtml).
+        // Engagement levels are ordered (High to Inactive), so they use one orange scale from strong to faint.
+        HT.donut('engagementChart', ['High', 'Medium', 'Low', 'Inactive'],
+            [@Model.HighEngagement, @Model.MediumEngagement, @Model.LowEngagement, @Model.InactiveClients],
+            { colors: ['#EE6122', '#F59A6A', '#F9C9A9', '#52525B'], caption: 'clients' });
 
-            const engagement = document.getElementById('engagementChart');
-            if (engagement) {
-                new Chart(engagement, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['High', 'Medium', 'Low', 'Inactive'],
-                        datasets: [{
-                            data: [@Model.HighEngagement, @Model.MediumEngagement, @Model.LowEngagement, @Model.InactiveClients],
-                            backgroundColor: ['#198754', '#0d6efd', '#ffc107', '#adb5bd']
-                        }]
-                    },
-                    options: { plugins: { legend: { position: 'bottom' } } }
-                });
-            }
-
-            const activities = document.getElementById('activitiesChart');
-            if (activities) {
-                new Chart(activities, {
-                    type: 'bar',
-                    data: {
-                        labels: @Html.Raw(JsonSerializer.Serialize(Model.PopularActivities.Select(a => a.Activity))),
-                        datasets: [{
-                            label: 'Sessions logged',
-                            data: @Html.Raw(JsonSerializer.Serialize(Model.PopularActivities.Select(a => a.Sessions))),
-                            borderRadius: 6
-                        }]
-                    },
-                    options: {
-                        indexAxis: 'y',
-                        plugins: { legend: { display: false } },
-                        scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
-                    }
-                });
-            }
-        })();
+        // Json.Serialize safely encodes activity names typed by users
+        const activities = @Json.Serialize(Model.PopularActivities);
+        HT.ranked('activitiesChart', activities.map(a => a.activity), activities.map(a => a.sessions), 'Sessions');
     </script>
 }
